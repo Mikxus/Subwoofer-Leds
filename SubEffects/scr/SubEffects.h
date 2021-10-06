@@ -20,11 +20,22 @@ public:
     ~SubEffects();
 };
 
-class modes
+class Modes
 {
+    private:
+    bool _initialized;
+
     protected:
     uint8_t _currentMode;
+    uint8_t _modeCount;
+
     public:
+    
+    void update();              
+
+    void NextMode();
+    void PreviousMode();
+    void SetMode(uint8_t mode);
 
     void modes(uint8_t mode = 0);
     ~modes();
@@ -48,9 +59,9 @@ class fft : public SubEffects
     bool arrAllocated;                                           // keep track if memory is allocated for fft'
 
     public:
-
-    bool init();
-    void calculate();
+    void Stop();
+    bool Init();
+    void Calculate();
     ~fft();
 }
 #endif 

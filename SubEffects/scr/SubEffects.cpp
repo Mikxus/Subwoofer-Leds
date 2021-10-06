@@ -21,8 +21,25 @@ void modes::Modes(uint8_t mode)
     switch (_currentMode)
     {
     case 0:             // fft mode
-        timer1.Start();
-        
+        if(!_initialized)
+        {
+            fft.Init();
+        }
+        break;
+    
+    default:
+        break;
+    }
+}
+void Modes::update() {
+    switch (_currentMode)
+    {
+    case 0:
+        if(!_initialized)
+        {
+            fft.Init();
+        }
+        fft.Calculate();
         break;
     
     default:
@@ -55,7 +72,7 @@ void timer1::Stop()
 }
 
 
-bool fft::init();
+bool fft::Init();
 {
     _vReal = (double*) malloc(size * 4 + 1);
     _vImag = (double*) malloc(size * 4 + 1);
@@ -67,5 +84,23 @@ bool fft::init();
 
         return 0;                               // failed to allocate enough memory
     }
-    timer1.start();
+    timer1.Start();
+}
+
+void fft::Stop() {
+
+    timer1.Stop();
+    if (arrAllocated)
+    {
+        free(_vReal);
+        free(_vImag);
+        _arrAllocated = 1;
+        _vReal = nullptr;
+        _vImag = nullptr;
+    }
+}
+
+void fft::~fft()
+{
+    Stop();
 }
