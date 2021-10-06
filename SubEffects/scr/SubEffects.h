@@ -1,5 +1,6 @@
 #ifndef SubEffects
 #define SubEffects
+
 #include <Arduino.h>
 #include <SubEffects.h>
 
@@ -15,7 +16,7 @@ protected:
 public:
 
 
-    bool Init(uint8_t pin = 0,samples = 64,freq = 700);
+    bool SubEffects(uint8_t pin = 0,samples = 64,freq = 700);
     ~SubEffects();
 };
 
@@ -25,7 +26,6 @@ class modes
     uint8_t _currentMode;
     public:
 
-    void fft();
     void modes(uint8_t mode = 0);
     ~modes();
 }
@@ -42,9 +42,15 @@ class timer1                                                     // Manages the 
     ~timer1();                                                   // Deconstructor
 }
 
+class fft : public SubEffects
+{
+    private:
+    bool arrAllocated;                                           // keep track if memory is allocated for fft'
 
+    public:
 
-
-
-
+    bool init();
+    void calculate();
+    ~fft();
+}
 #endif 

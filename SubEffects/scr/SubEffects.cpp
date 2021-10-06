@@ -1,21 +1,11 @@
 #include <Arduino.h>
-#include <SubEffects.h>
+#include "SubEffects.h"
 
-bool SubEffects::Init(uint8_t pin,uint16_t freq, uint16_t size)
+bool SubEffects::SubEffects(uint8_t pin,uint16_t freq, uint16_t size)
     : _frequency(freq)
     , _subwoofer_pin(pin) 
     , _sample_size(size)
 {
-    _vReal = (double*) malloc(size * 4 + 1);
-    _vImag = (double*) malloc(size * 4 + 1);
-    if (_vReal == nullptr || _vImag == nullptr)
-    {
-        #ifdef DEBUG
-        Serial.println(F("Failed to allocate enough memory"));
-        #endif // DEBUG
-
-        return 0;                               // failed to allocate enough memory
-    }
     modes();
 }
 
@@ -62,4 +52,20 @@ void timer1::Stop()
     TCCR1A = 0;                            // set entire TCCR1A register to 0
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            //initialize counter value to 0
-}ls
+}
+
+
+bool fft::init();
+{
+    _vReal = (double*) malloc(size * 4 + 1);
+    _vImag = (double*) malloc(size * 4 + 1);
+    if (_vReal == nullptr || _vImag == nullptr)
+    {
+        #ifdef DEBUG
+        Serial.println(F("Failed to allocate enough memory"));
+        #endif // DEBUG
+
+        return 0;                               // failed to allocate enough memory
+    }
+    timer1.start();
+}
