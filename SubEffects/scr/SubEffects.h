@@ -10,11 +10,11 @@
 class SubEffects : public timer1, public mode
 {
 protected:
-    uint16_t _sample_size;
-    uint8_t _subwoofer_pin;
+    uint16_t _sampleSize;
+    uint8_t _subwooferPin;
+    uint8_t _ledDataPin;
+    uint16_t _ledCount;
 public:
-
-
     bool SubEffects(uint8_t pin = 0,uint8_t led_dataPin,uint16_t led_count);
     ~SubEffects();
 };
@@ -49,7 +49,7 @@ class timer1                                                     // Manages the 
 
     void Start();
     void Stop();
-    ~timer1();                                                   // Deconstructor
+    ~timer1();                                                  // Deconstructor
 }
 
 class fft : public SubEffects, timer1

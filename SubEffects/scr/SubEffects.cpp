@@ -1,12 +1,15 @@
 #include <Arduino.h>
 #include <SubEffects.h>
+#include <FastLED.h>
 
-bool SubEffects::SubEffects(uint8_t pin,uint16_t freq, uint16_t size)
-    : _frequency(freq)
-    , _subwoofer_pin(pin) 
-    , _sample_size(size)
+bool SubEffects::SubEffects(uint8_t subPin,uint16_t led_dataPin, uint16_t ledCount)
+    : _subwooferPin(subPin)
+    , _ledDataPin(led_dataPin) 
+    , _(ledCount)
 {
-    modes();
+    pinMode(subPin,INPUT);
+    pinMode(led_dataPin,OUTPUT);
+
 }
 
 SubEffects::~SubEffects()
