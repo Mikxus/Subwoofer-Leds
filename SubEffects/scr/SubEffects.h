@@ -12,15 +12,14 @@ class SubEffects : public timer1, public mode
 protected:
     uint16_t _sample_size;
     uint8_t _subwoofer_pin;
-    double *_vReal,vImag;
 public:
 
 
-    bool SubEffects(uint8_t pin = 0,samples = 64,freq = 700);
+    bool SubEffects(uint8_t pin = 0,uint8_t led_dataPin,uint16_t led_count);
     ~SubEffects();
 };
 
-class Modes
+class Modes : public fft
 {
     private:
     bool _initialized;
@@ -31,7 +30,7 @@ class Modes
 
     public:
     
-    void update();              
+    void Update();              
 
     void NextMode();
     void PreviousMode();
@@ -53,12 +52,16 @@ class timer1                                                     // Manages the 
     ~timer1();                                                   // Deconstructor
 }
 
-class fft : public SubEffects
+class fft : public SubEffects, timer1
 {
     private:
-    bool arrAllocated;                                           // keep track if memory is allocated for fft'
+    uint16_t _sampleSize;
+    bool _arrAllocated;                                           // keep track if memory is allocated for fft'
+    double *_vReal,vImag;
 
     public:
+    void SetSampleSize(uint16_t size = 64);
+    void SetFrequency(uint16_t freq = 700);
     void Stop();
     bool Init();
     void Calculate();

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "SubEffects.h"
+#include <SubEffects.h>
 
 bool SubEffects::SubEffects(uint8_t pin,uint16_t freq, uint16_t size)
     : _frequency(freq)
@@ -9,13 +9,11 @@ bool SubEffects::SubEffects(uint8_t pin,uint16_t freq, uint16_t size)
     modes();
 }
 
-SubFFT::~SubEffects()
+SubEffects::~SubEffects()
 {
-    free(_vReal);
-    free(_vImag);
 }
 
-void modes::Modes(uint8_t mode)
+void Modes::Modes(uint8_t mode)
 {
     _currentMode = mode;
     switch (_currentMode)
@@ -31,7 +29,7 @@ void modes::Modes(uint8_t mode)
         break;
     }
 }
-void Modes::update() {
+void Modes::Update() {
     switch (_currentMode)
     {
     case 0:
@@ -72,6 +70,23 @@ void timer1::Stop()
 }
 
 
+void fft::SetSampleSize(uint16_t size) {
+    _sampleSize = size;
+    #ifdef DEBUG
+        Serial.print(F("Updating Timer1 Sample Size to: "));
+        Serial.println(_sampleSize);
+    #endif
+    Init();
+}
+
+void fft::SetFrequency(uint16_t freq)
+{
+    #ifdef DEBUG
+        Serial.println(F("Updating timer1 Frequency to: "));
+        Serial.println(_frequency);
+    _frequency = freq;
+}
+
 bool fft::Init();
 {
     _vReal = (double*) malloc(size * 4 + 1);
@@ -90,7 +105,7 @@ bool fft::Init();
 void fft::Stop() {
 
     timer1.Stop();
-    if (arrAllocated)
+    if (_arrAllocated)
     {
         free(_vReal);
         free(_vImag);
