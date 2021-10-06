@@ -1,10 +1,15 @@
 #include <Arduino.h>
-#include "SubEffects.h"
+#include <SubEffects.h>
 
-bool SubEffects::SubEffects(uint8_t pin,uint16_t freq, uint16_t size)
+bool SubEffects::SubEffects(uint8_t pin = 0,uint8_t led_pin,uint16_t led_amount)
     : _frequency(freq)
     , _subwoofer_pin(pin) 
     , _sample_size(size)
+{
+    modes();
+}
+
+bool SubEffects::update()
 {
     modes();
 }
@@ -15,19 +20,8 @@ SubFFT::~SubEffects()
     free(_vImag);
 }
 
-void modes::Modes(uint8_t mode)
+void modes::Modes()
 {
-    _currentMode = mode;
-    switch (_currentMode)
-    {
-    case 0:             // fft mode
-        timer1.Start();
-        
-        break;
-    
-    default:
-        break;
-    }
 }
 
 void timer1::Start()

@@ -10,13 +10,16 @@
 class SubEffects : public timer1, public mode
 {
 protected:
-    uint16_t _sample_size;
+    uint8_t _data_pin;
+    uint16_t _led_amount;
     uint8_t _subwoofer_pin;
-    double *_vReal,vImag;
+
+    CRGB leds[];
+
 public:
-
-
-    bool SubEffects(uint8_t pin = 0,samples = 64,freq = 700);
+    
+    bool SubEffects(uint8_t subwoofer_in = 0,uint8_t led_pin,uint16_t led_amount);
+    bool update();                                               // Runs the calculations then updates the leds
     ~SubEffects();
 };
 
@@ -25,8 +28,11 @@ class modes
     protected:
     uint8_t _currentMode;
     public:
-
-    void modes(uint8_t mode = 0);
+    void update();
+    void ChangeMode(uint8_t mode);                                // change mode to given value
+    void NextMode();                                              // Next mode
+    void PreviousMode();                                           // Previous mode
+    void modes();
     ~modes();
 }
 
@@ -46,6 +52,7 @@ class fft : public SubEffects
 {
     private:
     bool arrAllocated;                                           // keep track if memory is allocated for fft'
+    double *_vReal,vImag;
 
     public:
 
