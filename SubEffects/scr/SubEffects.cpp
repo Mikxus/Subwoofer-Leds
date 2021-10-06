@@ -94,7 +94,7 @@ void fft::SetSampleSize(uint16_t size) {
     #ifdef DEBUG
         Serial.print(F("Updating Timer1 Sample Size to: "));
         Serial.println(_sampleSize);
-    #endif
+    #endif // DEBUG
     Init();
 }
 
@@ -103,6 +103,7 @@ void fft::SetFrequency(uint16_t freq)
     #ifdef DEBUG
         Serial.println(F("Updating timer1 Frequency to: "));
         Serial.println(_frequency);
+    #endif // DEBUG
     _frequency = freq;
 }
 
