@@ -2,10 +2,10 @@
 #include <SubEffects.h>
 #include <FastLED.h>
 
-bool SubEffects::SubEffects(uint8_t subPin,uint16_t led_dataPin, uint16_t ledCount)
+bool SubEffects::SubEffects(uint8_t subPin,uint16_t led_dataPin, uint16_t led_count)
     : _subwooferPin(subPin)
     , _ledDataPin(led_dataPin) 
-    , _(ledCount)
+    , _ledCount(led_count)
 {
     pinMode(subPin,INPUT);
     pinMode(led_dataPin,OUTPUT);
@@ -16,21 +16,8 @@ SubEffects::~SubEffects()
 {
 }
 
-void Modes::Modes(uint8_t mode)
+void Modes::Modes()
 {
-    _currentMode = mode;
-    switch (_currentMode)
-    {
-    case 0:             // fft mode
-        if(!_initialized)
-        {
-            fft.Init();
-        }
-        break;
-    
-    default:
-        break;
-    }
 }
 void Modes::Update() {
     switch (_currentMode)
@@ -45,6 +32,30 @@ void Modes::Update() {
     
     default:
         break;
+    }
+}
+
+void Modes::NextMode()
+{
+    if (_curentMode + 1 < _modeCount)
+    {
+        _currentMode += 1;
+    }
+}
+
+void Modes::PreviousMode()
+{
+    if (_curentMode - 1 < _modeCount)
+    {
+        _currentMode -= 1;
+    }
+}
+
+void Modes::SetMode(uint8_t mode)
+{
+    if (mode < _modeCount)
+    {
+        _currentMode = mode;
     }
 }
 
@@ -63,6 +74,11 @@ void timer1::Start()
     TCCR1B |= (1 << CS11) | (1 << CS10);   // Set CS11 and CS10 bits for 64 prescaler
     TIMSK1 = (1 << OCIE1B);                // enable timer1 compare B interrupt
     sei();
+}
+
+ISR(TIMER1_COMPB_vect)
+{
+    // Implement this later.
 }
 
 void timer1::Stop()
