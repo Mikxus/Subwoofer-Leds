@@ -57,7 +57,7 @@ class fft : public SubEffects, timer1
     private:
     uint16_t _sampleSize;
     bool _arrAllocated;                                           // keep track if memory is allocated for fft'
-    double *_vReal,vImag;
+    double *_vReal,*vImag;
 
     public:
     void SetSampleSize(uint16_t size = 64);
