@@ -76,13 +76,13 @@ void timer1::Start()
     sei();
 }
 
-ISR(TIMER1_COMPB_vect)
+void fft::ISR(TIMER1_COMPB_vect)
 {
     uint16_t val = analogRead(_subwooferPin);
-    if (arrPos < _samleSize)
+    if (_arrPos < _samleSize)
     {
         // save the value to an array.
-        _vReal[arrPos] = val;
+        *_vReal[arrPos] = val;
         arrPos += 1;
     } else
     {
@@ -139,8 +139,8 @@ void fft::Stop() {
         free(_vReal);
         free(_vImag);
         _arrAllocated = 1;
-        _vReal = nullptr;
-        _vImag = nullptr;
+        *_vReal = nullptr;
+        *_vImag = nullptr;
     }
 }
 

@@ -61,7 +61,10 @@ class fft : public SubEffects, timer1
     bool _arrAllocated;                                           // keep track if memory is allocated for fft'
     double *_vReal,*vImag;
 
+    static void ISR(TIMER1_COMPB_vect);
+
     public:
+    
     void SetSampleSize(uint16_t size = 64);
     void SetFrequency(uint16_t freq = 700);
     void Stop();
