@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include <SubEffects.h>
+//#include "SubEffects.h"
 #include <FastLED.h>
 
-bool SubEffects::SubEffects(uint8_t subPin,uint16_t led_dataPin, uint16_t led_count)
+void SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     : _subwooferPin(subPin)
     , _ledDataPin(led_dataPin) 
     , _ledCount(led_count)
@@ -12,13 +12,14 @@ bool SubEffects::SubEffects(uint8_t subPin,uint16_t led_dataPin, uint16_t led_co
 
 }
 
-SubEffects::~SubEffects()
+void SubEffects::~SubEffects()
 {
 }
 
 void Modes::Modes()
 {
 }
+
 void Modes::Update() {
     switch (_currentMode)
     {
@@ -82,8 +83,8 @@ void fft::ISR(TIMER1_COMPB_vect)
     if (_arrPos < _samleSize)
     {
         // save the value to an array.
-        *_vReal[arrPos] = val;
-        arrPos += 1;
+        *_vReal[_arrPos] = val;
+        _arrPos += 1;
     } else
     {
         arrReady = true;
@@ -98,10 +99,11 @@ void timer1::Stop()
 }
 
 
-void fft::SetSampleSize(uint16_t size) {
+bool fft::SetSampleSize(uint16_t size) {
+
     _sampleSize = size;
     #ifdef DEBUG
-        Serial.print(F("Updating Timer1 Sample Size to: "));
+        Serial.print(F("Updating FFT Sample Size to: "));
         Serial.println(_sampleSize);
     #endif // DEBUG
     Init();

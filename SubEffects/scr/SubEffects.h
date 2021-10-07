@@ -1,8 +1,7 @@
-#ifndef SubEffects
-#define SubEffects
+#ifndef T51223
+#define T51223
 
-#include <Arduino.h>
-#include <SubEffects.h>
+#include "SubEffects.cpp"
 
 //#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
 
@@ -15,7 +14,7 @@ protected:
     uint8_t _ledDataPin;
     uint16_t _ledCount;
 public:
-    bool SubEffects(uint8_t pin = 0,uint8_t led_dataPin,uint16_t led_count);
+    SubEffects(uint8_t subPin = 0,uint8_t led_dataPin,uint16_t led_count);
     ~SubEffects();
 };
 
@@ -36,9 +35,9 @@ class Modes : public fft
     void PreviousMode();
     void SetMode(uint8_t mode);
 
-    void modes(uint8_t mode = 0);
+    void Modes();
     ~modes();
-}
+};
 
 class timer1                                                     // Manages the arduino uno's timer1
 {
@@ -50,9 +49,9 @@ class timer1                                                     // Manages the 
     void Start();
     void Stop();
     ~timer1();                                                  // Deconstructor
-}
+};
 
-class fft : public SubEffects, timer1
+class fft : public SubEffects, public timer1
 {
     private:
     uint16_t _arrPos;
@@ -61,7 +60,7 @@ class fft : public SubEffects, timer1
     bool _arrAllocated;                                           // keep track if memory is allocated for fft'
     double *_vReal,*vImag;
 
-    static void ISR(TIMER1_COMPB_vect);
+    void ISR(TIMER1_COMPB_vect);
 
     public:
     
@@ -71,5 +70,5 @@ class fft : public SubEffects, timer1
     bool Init();
     void Calculate();
     ~fft();
-}
+};
 #endif 
