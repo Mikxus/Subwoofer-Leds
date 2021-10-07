@@ -7,7 +7,7 @@ bool SubEffects::SubEffects(uint8_t subPin,uint16_t led_dataPin, uint16_t led_co
     , _ledDataPin(led_dataPin) 
     , _ledCount(led_count)
 {
-    pinMode(subPin,INPUT);
+    pinMode(subPin,INPUT_PULLUP);
     pinMode(led_dataPin,OUTPUT);
 
 }
@@ -78,7 +78,16 @@ void timer1::Start()
 
 ISR(TIMER1_COMPB_vect)
 {
-    // Implement this later.
+    uint16_t val = analogRead(_subwooferPin);
+    if (arrPos < _samleSize)
+    {
+        // save the value to an array.
+        _vReal[arrPos] = val;
+        arrPos += 1;
+    } else
+    {
+        arrReady = true;
+    }
 }
 
 void timer1::Stop()
@@ -132,6 +141,15 @@ void fft::Stop() {
         _arrAllocated = 1;
         _vReal = nullptr;
         _vImag = nullptr;
+    }
+}
+
+void fft::Calculate()
+{
+    if (_arrReady)
+    {
+        // array ready do the calculations
+        _arrReady = false;              // after calculations set _arrReady to false
     }
 }
 

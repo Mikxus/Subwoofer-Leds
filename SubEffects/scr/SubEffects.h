@@ -55,7 +55,9 @@ class timer1                                                     // Manages the 
 class fft : public SubEffects, timer1
 {
     private:
+    uint16_t _arrPos;
     uint16_t _sampleSize;
+    bool _arrReady;
     bool _arrAllocated;                                           // keep track if memory is allocated for fft'
     double *_vReal,*vImag;
 
