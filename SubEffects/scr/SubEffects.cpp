@@ -129,6 +129,9 @@ bool fft::Init();
         #endif // DEBUG
 
         return 0;                               // failed to allocate enough memory
+    } else 
+    {
+        _arrAllocated = true;
     }
     timer1.Start();
 }
