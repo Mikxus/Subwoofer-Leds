@@ -1,25 +1,13 @@
 #ifndef T51223
 #define T51223
 
-#include "SubEffects.cpp"
+#include <Arduino.h>
 
 //#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
-class timer1;
-class Modes;
 
-class SubEffects : public timer1, public Modes
-{
-protected:
-    uint16_t _sampleSize;
-    uint8_t _subwooferPin;
-    uint8_t _ledDataPin;
-    uint16_t _ledCount;
-public:
-    SubEffects(uint8_t subPin = 0,uint8_t led_dataPin,uint16_t led_count);
-    ~SubEffects();
-};
 
-class Modes : public fft
+
+class Modes
 {
     private:
     bool _initialized;
@@ -31,13 +19,12 @@ class Modes : public fft
     public:
     
     void Update();              
-
     void NextMode();
     void PreviousMode();
     void SetMode(uint8_t mode);
 
-    void Modes();
-    ~modes();
+    Modes();
+    ~Modes();
 };
 
 class timer1                                                     // Manages the arduino uno's timer1
@@ -52,7 +39,7 @@ class timer1                                                     // Manages the 
     ~timer1();                                                  // Deconstructor
 };
 
-class fft : public SubEffects, public timer1
+class fft
 {
     private:
     uint16_t _arrPos;
@@ -72,4 +59,18 @@ class fft : public SubEffects, public timer1
     void Calculate();
     ~fft();
 };
+
+// Base class
+class SubEffects : public timer1, public Modes
+{
+protected:
+    uint16_t _sampleSize;
+    uint8_t _subwooferPin;
+    uint8_t _ledDataPin;
+    uint16_t _ledCount;
+public:
+    SubEffects(uint8_t subPin = 0,uint8_t led_dataPin = 8,uint16_t led_count = 0);
+    ~SubEffects();
+};
+
 #endif 

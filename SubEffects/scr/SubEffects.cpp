@@ -2,7 +2,7 @@
 #include "SubEffects.h"
 #include <FastLED.h>
 
-class SubEffects;
+
 
 SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     : _subwooferPin(subPin)s
@@ -13,11 +13,11 @@ SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     pinMode(led_dataPin,OUTPUT);
 }
 
-void SubEffects::~SubEffects()
+SubEffects::~SubEffects()
 {
 }
 
-void Modes::Modes()
+Modes::Modes()
 {
 }
 
@@ -78,6 +78,13 @@ void timer1::Start()
     sei();
 }
 
+void timer1::Stop()
+{
+    TCCR1A = 0;                            // set entire TCCR1A register to 0
+    TCCR1B = 0;                            // same for TCCR1B
+    TCNT1  = 0;                            //initialize counter value to 0
+}
+
 void fft::ISR(TIMER1_COMPB_vect)
 {
     uint16_t val = analogRead(_subwooferPin);
@@ -89,13 +96,6 @@ void fft::ISR(TIMER1_COMPB_vect)
     {
         arrReady = true;
     }
-}
-
-void timer1::Stop()
-{
-    TCCR1A = 0;                            // set entire TCCR1A register to 0
-    TCCR1B = 0;                            // same for TCCR1B
-    TCNT1  = 0;                            //initialize counter value to 0
 }
 
 
