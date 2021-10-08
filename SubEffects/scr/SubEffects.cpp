@@ -1,15 +1,16 @@
 #include <Arduino.h>
-//#include "SubEffects.h"
+#include "SubEffects.h"
 #include <FastLED.h>
 
-void SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
-    : _subwooferPin(subPin)
+class SubEffects;
+
+SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
+    : _subwooferPin(subPin)s
     , _ledDataPin(led_dataPin) 
     , _ledCount(led_count)
 {
     pinMode(subPin,INPUT_PULLUP);
     pinMode(led_dataPin,OUTPUT);
-
 }
 
 void SubEffects::~SubEffects()
@@ -83,11 +84,6 @@ void fft::ISR(TIMER1_COMPB_vect)
     if (_arrPos < _samleSize)
     {
         // save the value to an array.
-<<<<<<< HEAD
-        *_vReal[arrPos] = val;
-=======
-        *_vReal[_arrPos] = val;
->>>>>>> 5430814e6534d30a693b79dd88e82610cb2f79fe
         _arrPos += 1;
     } else
     {

@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include <SubEffects.h>
+#include </home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/SubEffects.h>
 #include <FastLED.h>
 
-void setup() {
+
 SubEffects effect(0,6,100);         // effect( subwoofer analog pin , led data pin , led count )
 
 void setup() {
@@ -12,6 +12,6 @@ void setup() {
 void loop() {
     while (true)
     {
-    effect.update();
+    effect.Update();
     }
 }

@@ -4,9 +4,10 @@
 #include "SubEffects.cpp"
 
 //#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
+class timer1;
+class Modes;
 
-
-class SubEffects : public timer1, public mode
+class SubEffects : public timer1, public Modes
 {
 protected:
     uint16_t _sampleSize;
