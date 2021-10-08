@@ -83,7 +83,7 @@ void fft::ISR(TIMER1_COMPB_vect)
     {
         // save the value to an array.
         *_vReal[arrPos] = val;
-        arrPos += 1;
+        _arrPos += 1;
     } else
     {
         arrReady = true;
