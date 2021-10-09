@@ -13,14 +13,15 @@ SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     pinMode(led_dataPin,OUTPUT);
 }
 
-SubEffects::~SubEffects()
-{
-}
 
 Modes::Modes()
 {
 }
-
+/*
+void Modes::~Modes()
+{
+}
+*/
 void Modes::Update() {
     switch (_currentMode)
     {
@@ -84,21 +85,11 @@ void timer1::Stop()
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            //initialize counter value to 0
 }
-
-void fft::ISR(TIMER1_COMPB_vect)
+/*
+void timer1::~timer1()
 {
-    uint16_t val = analogRead(_subwooferPin);
-    if (_arrPos < _samleSize)
-    {
-        // save the value to an array.
-        _arrPos += 1;
-    } else
-    {
-        arrReady = true;
-    }
 }
-
-
+*/
 bool fft::SetSampleSize(uint16_t size) {
 
     _sampleSize = size;
@@ -135,7 +126,12 @@ bool fft::Init();
     }
     timer1.Start();
 }
-
+/*
+fft::~fft()
+{
+    Stop();
+}
+*/
 void fft::Stop() {
 
     timer1.Stop();
@@ -156,9 +152,4 @@ void fft::Calculate()
         // array ready do the calculations
         _arrReady = false;              // after calculations set _arrReady to false
     }
-}
-
-void fft::~fft()
-{
-    Stop();
 }
