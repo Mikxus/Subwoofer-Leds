@@ -1,11 +1,8 @@
 #include <Arduino.h>
-#include "SubEffects.h"
 #include <FastLED.h>
 
-
-
 SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
-    : _subwooferPin(subPin)s
+    : _subwooferPin(subPin)
     , _ledDataPin(led_dataPin) 
     , _ledCount(led_count)
 {
@@ -13,24 +10,23 @@ SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     pinMode(led_dataPin,OUTPUT);
 }
 
+SubEffects::~SubEffects()
+{
+}
 
 Modes::Modes()
 {
 }
-/*
-void Modes::~Modes()
-{
-}
-*/
+
 void Modes::Update() {
     switch (_currentMode)
     {
     case 0:
         if(!_initialized)
         {
-            fft.Init();
+            Init();
         }
-        fft.Calculate();
+        Calculate();
         break;
     
     default:
@@ -40,7 +36,7 @@ void Modes::Update() {
 
 void Modes::NextMode()
 {
-    if (_curentMode + 1 < _modeCount)
+    if (_currentMode + 1 < _modeCount)
     {
         _currentMode += 1;
     }
@@ -48,7 +44,7 @@ void Modes::NextMode()
 
 void Modes::PreviousMode()
 {
-    if (_curentMode - 1 < _modeCount)
+    if (_currentMode - 1 < _modeCount)
     {
         _currentMode -= 1;
     }
@@ -62,10 +58,10 @@ void Modes::SetMode(uint8_t mode)
     }
 }
 
-void timer1::Start()
+void timer1::Start(uint16_t size, uint16_t freq)
 {  
     uint16_t real_sample_rate;
-    real_sample_rate = 16000000 / (_frequency * _samples_size) -1;
+    real_sample_rate = 16000000 / (freq * size) -1;
     cli();
                                             //set timer1 interrupt at 1kHz
     TCCR1A = 0;                            // set entire TCCR1A register to 0
@@ -85,11 +81,21 @@ void timer1::Stop()
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            //initialize counter value to 0
 }
-/*
-void timer1::~timer1()
+
+ISR(TIMER1_COMPB_vect)
 {
+    uint16_t val = analogRead(_subwooferPin);
+    if (_arrPos < _samleSize)
+    {
+        // save the value to an array.
+        _arrPos += 1;
+    } else
+    {
+        arrReady = true;
+    }
 }
-*/
+
+
 bool fft::SetSampleSize(uint16_t size) {
 
     _sampleSize = size;
@@ -120,18 +126,10 @@ bool fft::Init();
         #endif // DEBUG
 
         return 0;                               // failed to allocate enough memory
-    } else 
-    {
-        _arrAllocated = true;
     }
     timer1.Start();
 }
-/*
-fft::~fft()
-{
-    Stop();
-}
-*/
+
 void fft::Stop() {
 
     timer1.Stop();
@@ -152,4 +150,9 @@ void fft::Calculate()
         // array ready do the calculations
         _arrReady = false;              // after calculations set _arrReady to false
     }
+}
+
+void fft::~fft()
+{
+    Stop();
 }

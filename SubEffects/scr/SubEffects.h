@@ -1,5 +1,5 @@
-#ifndef T51223
-#define T51223
+#ifndef SUBEFFECTS_H
+#define SUBEFFECTS_H
 
 #include <Arduino.h>
 
@@ -10,7 +10,40 @@ class timer1;
 class SubEffects;
 class fft;
 
-class Modes : public SubEffects
+class timer1                                                     // Manages the arduino uno's timer1
+{
+    protected:
+
+    public:
+
+    void Start(uint16_t _size, uint16_t freq);
+    void Stop();
+
+    ~timer1();                                                  // Deconstructor
+};
+
+class fft
+{
+    private:
+    bool _arrAllocated;                                           // keep track if memory is allocated for fft'
+    double *vImag;
+
+    public:
+    
+    uint16_t _frequency;
+    uint16_t _sampleSize;
+    double *_vReal;
+    bool _arrReady;
+    uint16_t _arrPos;
+
+    void SetSampleSize(uint16_t size = 64);
+    void SetFrequency(uint16_t freq = 700);
+    void Stop();
+    bool Init();
+    void Calculate();
+};
+
+class Modes : public fft
 {
     private:
     bool _initialized;
@@ -27,43 +60,10 @@ class Modes : public SubEffects
     void SetMode(uint8_t mode);
 
     Modes();
-    //~Modes();
+    ~Modes();
 };
-
-class timer1                                                     // Manages the arduino uno's timer1
-{
-    protected:
-        uint16_t _frequency;
-
-    public:
-
-    void Start();
-    void Stop();
-    //~timer1();                                                  // Deconstructor
-};
-
-class fft
-{
-    private:
-    bool _arrAllocated;                                           // keep track if memory is allocated for fft'
-    double *vImag;
-
-    public:
-
-    uint16_t _sampleSize;
-    double *_vReal;
-    bool _arrReady;
-    uint16_t _arrPos;
-
-    void SetSampleSize(uint16_t size = 64);
-    void SetFrequency(uint16_t freq = 700);
-    void Stop();
-    bool Init();
-    void Calculate();
-};
-
 // Base class
-class SubEffects : public timer1, public Modes, public fft
+class SubEffects : public timer1, public Modes
 {
 protected:
     uint8_t _ledDataPin;
@@ -72,6 +72,7 @@ public:
     uint16_t _sampleSize;
     uint8_t _subwooferPin;
     SubEffects(uint8_t subPin = 0,uint8_t led_dataPin = 8,uint16_t led_count = 0);
+    ~SubEffects();
 };
-
+#include "SubEffects.cpp"
 #endif 
