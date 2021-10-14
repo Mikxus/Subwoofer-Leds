@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include </home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/SubEffects.h>
+#include "D:\Code\Github\Subwoofer-Leds\SubEffects\scr\SubEffects.h"
 #include <FastLED.h>
 
 

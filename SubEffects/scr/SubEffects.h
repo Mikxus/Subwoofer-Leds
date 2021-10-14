@@ -2,14 +2,15 @@
 #define SUBEFFECTS_H
 
 #include <Arduino.h>
+#include "Audio-modes\fft\fft.h"
 
 //#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
-
+/*
 class Modes;
 class timer1;
 class SubEffects;
 class fft;
-
+*/
 class timer1                                                     // Manages the arduino uno's timer1
 {
     protected:
@@ -20,27 +21,6 @@ class timer1                                                     // Manages the 
     void Stop();
 
     ~timer1();                                                  // Deconstructor
-};
-
-class fft
-{
-    private:
-    bool _arrAllocated;                                           // keep track if memory is allocated for fft'
-    double *vImag;
-
-    public:
-    
-    uint16_t _frequency;
-    uint16_t _sampleSize;
-    double *_vReal;
-    bool _arrReady;
-    uint16_t _arrPos;
-
-    void SetSampleSize(uint16_t size = 64);
-    void SetFrequency(uint16_t freq = 700);
-    void Stop();
-    bool Init();
-    void Calculate();
 };
 
 class Modes : public fft
@@ -63,7 +43,7 @@ class Modes : public fft
     ~Modes();
 };
 // Base class
-class SubEffects : public timer1, public Modes
+class SubEffects : public Modes
 {
 protected:
     uint8_t _ledDataPin;

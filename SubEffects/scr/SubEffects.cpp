@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include "SubEffects.h"
 
 SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     : _subwooferPin(subPin)
@@ -24,7 +25,13 @@ void Modes::Update() {
     case 0:
         if(!_initialized)
         {
-            Init();
+            if( Init() )
+            {
+                #ifdef DEBUG
+                Serial.println(F("FFT initialized succesfully"));
+                #endif
+            }
+
         }
         Calculate();
         break;
@@ -95,64 +102,3 @@ ISR(TIMER1_COMPB_vect)
     }
 }
 
-
-bool fft::SetSampleSize(uint16_t size) {
-
-    _sampleSize = size;
-    #ifdef DEBUG
-        Serial.print(F("Updating FFT Sample Size to: "));
-        Serial.println(_sampleSize);
-    #endif // DEBUG
-    Init();
-}
-
-void fft::SetFrequency(uint16_t freq)
-{
-    #ifdef DEBUG
-        Serial.println(F("Updating timer1 Frequency to: "));
-        Serial.println(_frequency);
-    #endif // DEBUG
-    _frequency = freq;
-}
-
-bool fft::Init();
-{
-    _vReal = (double*) malloc(size * 4 + 1);
-    _vImag = (double*) malloc(size * 4 + 1);
-    if (_vReal == nullptr || _vImag == nullptr)
-    {
-        #ifdef DEBUG
-        Serial.println(F("Failed to allocate enough memory"));
-        #endif // DEBUG
-
-        return 0;                               // failed to allocate enough memory
-    }
-    timer1.Start();
-}
-
-void fft::Stop() {
-
-    timer1.Stop();
-    if (_arrAllocated)
-    {
-        free(_vReal);
-        free(_vImag);
-        _arrAllocated = 1;
-        *_vReal = nullptr;
-        *_vImag = nullptr;
-    }
-}
-
-void fft::Calculate()
-{
-    if (_arrReady)
-    {
-        // array ready do the calculations
-        _arrReady = false;              // after calculations set _arrReady to false
-    }
-}
-
-void fft::~fft()
-{
-    Stop();
-}
