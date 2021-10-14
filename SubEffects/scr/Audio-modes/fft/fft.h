@@ -5,7 +5,6 @@
 
 #include "D:\Code\Github\Subwoofer-Leds\SubEffects\scr\SubEffects.h"
 
-class timer1;
 
 class fft : public timer1
 {
