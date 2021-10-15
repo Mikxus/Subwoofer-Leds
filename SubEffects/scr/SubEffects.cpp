@@ -32,6 +32,12 @@ void Modes::Update() {
                 #ifdef DEBUG
                 Serial.println(F("FFT initialized succesfully"));
                 #endif
+            } else 
+            {
+                 #ifdef DEBUG
+                Serial.println(F("FFT failed to initialized"));
+                #endif
+                break;
             }
 
         }
