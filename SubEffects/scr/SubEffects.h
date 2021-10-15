@@ -2,15 +2,9 @@
 #define SUBEFFECTS_H
 
 #include <Arduino.h>
-#include "Audio-modes\fft\fft.h"
 
 //#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
-/*
-class Modes;
-class timer1;
-class SubEffects;
-class fft;
-*/
+
 class timer1                                                     // Manages the arduino uno's timer1
 {
     protected:
@@ -22,6 +16,8 @@ class timer1                                                     // Manages the 
 
     ~timer1();                                                  // Deconstructor
 };
+
+#include "/home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/Audio-modes/fft/fft.h"   // ! has to be declared here
 
 class Modes : public fft
 {
@@ -40,7 +36,7 @@ class Modes : public fft
     void SetMode(uint8_t mode);
 
     Modes();
-    ~Modes();
+    //~Modes();
 };
 // Base class
 class SubEffects : public Modes
@@ -49,10 +45,9 @@ protected:
     uint8_t _ledDataPin;
     uint16_t _ledCount;
 public:
-    uint16_t _sampleSize;
-    uint8_t _subwooferPin;
     SubEffects(uint8_t subPin = 0,uint8_t led_dataPin = 8,uint16_t led_count = 0);
     ~SubEffects();
 };
+
 #include "SubEffects.cpp"
 #endif 

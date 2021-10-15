@@ -1,4 +1,5 @@
 #include "fft.h"
+
 bool fft::SetSampleSize(uint16_t size) {
 
     #ifdef DEBUG
@@ -6,7 +7,7 @@ bool fft::SetSampleSize(uint16_t size) {
         Serial.println(_sampleSize);
     #endif // DEBUG
 
-    _sampleSize = size;
+    _fftBinSize = size;
     if ( Init() ) 
     {
         return 1;
@@ -26,8 +27,8 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal = (double*) malloc(_sampleSize * 4 + 1);
-    _vImag = (double*) malloc(_sampleSize * 4 + 1);
+    _vReal = (double*) malloc(_fftBinSize * 4 + 1);
+    _vImag = (double*) malloc(_fftBinSize * 4 + 1);
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
@@ -55,28 +56,35 @@ void fft::deallocMem()
 
 bool fft::Init()
 {
-    allocMem();
-    Start(_sampleSize, _frequency )     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
+    if (!allocMem() ) 
+    {
+        #ifdef DEBUG
+        Serial.println(F("FFT initialization failed"));
+        #endif
+        return 0;
+
+    }
+    Start(_fftBinSize, _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
     return 1;
 }
 
 void fft::Stop() {
 
-    timer1.Stop();
+    Stop();
     deallocMem();
 }
 
 void fft::Calculate()
 {
-    if (_arrReady)
+    if (_fftBinReady)
     {
         // if true do the fft calculations
         // not implemented yet
-        _arrReady = false;              // after calculations set _arrReady to false
+        _fftBinReady = false;              // after calculations set _arrReady to false
     }
 }
 
 fft::~fft()
 {
-    Stop();
+    timer1::Stop();
 }

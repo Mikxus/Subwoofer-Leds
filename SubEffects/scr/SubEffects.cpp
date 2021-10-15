@@ -1,12 +1,14 @@
 #include <Arduino.h>
 #include <FastLED.h>
 #include "SubEffects.h"
+uint8_t _subwooferPin;      // global variable for subwoofer pin
+                            // used in timer1's ISR
 
 SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
-    : _subwooferPin(subPin)
-    , _ledDataPin(led_dataPin) 
+    : _ledDataPin(led_dataPin) 
     , _ledCount(led_count)
 {
+    _subwooferPin = subPin;
     pinMode(subPin,INPUT_PULLUP);
     pinMode(led_dataPin,OUTPUT);
 }
@@ -89,16 +91,22 @@ void timer1::Stop()
     TCNT1  = 0;                            //initialize counter value to 0
 }
 
+timer1::~timer1 ()
+{
+    Stop();
+}
+
+volatile uint16_t _fftArrPos;
 ISR(TIMER1_COMPB_vect)
 {
     uint16_t val = analogRead(_subwooferPin);
-    if (_arrPos < _samleSize)
+    if (_fftArrPos < _fftBinSize)
     {
         // save the value to an array.
-        _arrPos += 1;
+        _fftArrPos += 1;
     } else
     {
-        arrReady = true;
+        _fftBinReady = true;
     }
 }
 
