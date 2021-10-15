@@ -59,7 +59,10 @@ bool fft::Init()
     if (!allocMem() ) 
     {
         #ifdef DEBUG
-        Serial.println(F("FFT initialization failed"));
+        Serial.println(F("FFT bin allocation failed"));
+        Serial.print(F("Not enough memory for: "));
+        Serial.print((uint32_t) _fftBinSize * 4 * 2);
+        Serial.println(" Bytes");
         #endif
         return 0;
 
