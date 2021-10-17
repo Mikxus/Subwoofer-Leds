@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-//#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
+#define DEBUG                                                 // Uncomment to enable DEBUG serial prints
 
 class timer1                                                     // Manages the arduino uno's timer1
 {

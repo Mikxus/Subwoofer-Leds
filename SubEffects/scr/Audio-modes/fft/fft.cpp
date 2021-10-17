@@ -1,10 +1,13 @@
 #include "fft.h"
 
+#define DEBUG
+
 bool fft::SetSampleSize(uint16_t size) {
 
     #ifdef DEBUG
         Serial.print(F("Updating FFT Sample Size to: "));
-        Serial.println(_sampleSize);
+        Serial.print(_fftBinSize * 2);
+        Serial.println(F("Bytes"));
     #endif // DEBUG
 
     _fftBinSize = size;
@@ -27,8 +30,8 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal = (double*) malloc(_fftBinSize * 4 + 1);
-    _vImag = (double*) malloc(_fftBinSize * 4 + 1);
+    _vReal =  malloc( sizeof *_vReal * _fftBinSize );
+    _vImag =  malloc( sizeof *_vImag * _fftBinSize );
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
@@ -61,13 +64,23 @@ bool fft::Init()
         #ifdef DEBUG
         Serial.println(F("FFT bin allocation failed"));
         Serial.print(F("Not enough memory for: "));
-        Serial.print((uint32_t) _fftBinSize * 4 * 2);
+        Serial.print((uint32_t) _fftBinSize * 2);
         Serial.println(" Bytes");
         #endif
         return 0;
 
+    } else
+    {
+        #ifdef DEBUG
+        Serial.println(F("FFT bin alloction succesfull"));
+        Serial.print(F("Allocated: "));
+        Serial.print((uint32_t) _fftBinSize * 2);
+        Serial.println(" Bytes for fft bins");
+        #endif
+
+        Start(_fftBinSize, _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
+
     }
-    Start(_fftBinSize, _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
     return 1;
 }
 
@@ -83,7 +96,19 @@ void fft::Calculate()
     {
         // if true do the fft calculations
         // not implemented yet
-        _fftBinReady = false;              // after calculations set _arrReady to false
+
+        Serial.println("DEBUG");
+        Serial.println("Printing _vReal array:");
+        cli();
+        for (int i = 0; i < _fftBinSize; i++)
+        {
+            if (i % 10 == 0) Serial.println();
+            
+            Serial.print(_vImag[i]);
+        }
+        Serial.println();
+        sei();
+        _fftBinReady = false;             // after calculations set _arrReady to false
     }
 }
 

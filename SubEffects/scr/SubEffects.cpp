@@ -9,7 +9,7 @@ SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     , _ledCount(led_count)
 {
     _subwooferPin = subPin;
-    pinMode(subPin,INPUT_PULLUP);
+    pinMode(_subwooferPin,INPUT);
     pinMode(led_dataPin,OUTPUT);
 }
 
@@ -32,14 +32,15 @@ void Modes::Update() {
                 #ifdef DEBUG
                 Serial.println(F("FFT initialized succesfully"));
                 #endif
+                _initialized = true;
             } else 
             {
                  #ifdef DEBUG
                 Serial.println(F("FFT failed to initialized"));
                 #endif
                 break;
+                _initialized = false;
             }
-
         }
         Calculate();
         break;
@@ -105,14 +106,18 @@ timer1::~timer1 ()
 volatile uint16_t _fftArrPos;
 ISR(TIMER1_COMPB_vect)
 {
-    uint16_t val = analogRead(_subwooferPin);
-    if (_fftArrPos < _fftBinSize)
+    if (!_fftBinReady)
     {
-        // save the value to an array.
-        _fftArrPos += 1;
-    } else
-    {
-        _fftBinReady = true;
+        uint16_t val = analogRead(_subwooferPin);
+        if (_fftArrPos < sizeof(_vReal) )
+        {
+            // save the value to an array.
+            _vReal[_fftArrPos] = analogRead(_subwooferPin);
+            _fftArrPos += 1;
+        } else
+        {
+            _fftBinReady = true;
+        }
     }
 }
 
