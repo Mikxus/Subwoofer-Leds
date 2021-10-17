@@ -30,8 +30,8 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal =  malloc( sizeof *_vReal * _fftBinSize );
-    _vImag =  malloc( sizeof *_vImag * _fftBinSize );
+    _vReal =  malloc( sizeof(double) * _fftBinSize );
+    _vImag =  malloc( sizeof(double) * _fftBinSize );
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
@@ -64,7 +64,7 @@ bool fft::Init()
         #ifdef DEBUG
         Serial.println(F("FFT bin allocation failed"));
         Serial.print(F("Not enough memory for: "));
-        Serial.print((uint32_t) _fftBinSize * 2);
+        Serial.print(_fftBinSize * sizeof(double));
         Serial.println(" Bytes");
         #endif
         return 0;
@@ -74,7 +74,7 @@ bool fft::Init()
         #ifdef DEBUG
         Serial.println(F("FFT bin alloction succesfull"));
         Serial.print(F("Allocated: "));
-        Serial.print((uint32_t) _fftBinSize * 2);
+        Serial.print(_fftBinSize * sizeof(double));
         Serial.println(" Bytes for fft bins");
         #endif
 
@@ -97,8 +97,11 @@ void fft::Calculate()
         // if true do the fft calculations
         // not implemented yet
 
-        Serial.println("DEBUG");
-        Serial.println("Printing _vReal array:");
+        Serial.println(F("DEBUG"));
+        Serial.print(F("Printing _vReal array: "));
+        Serial.print(sizeof(double) * _fftBinSize);
+        Serial.println(" Bytes");
+
         cli();
         for (int i = 0; i < _fftBinSize; i++)
         {
