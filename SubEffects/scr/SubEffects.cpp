@@ -9,7 +9,7 @@ SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
     , _ledCount(led_count)
 {
     _subwooferPin = subPin;
-    pinMode(_subwooferPin,INPUT);
+    pinMode(_subwooferPin,INPUT_PULLUP);
     pinMode(led_dataPin,OUTPUT);
 }
 
@@ -109,13 +109,14 @@ ISR(TIMER1_COMPB_vect)
     if (!_fftBinReady)
     {
         uint16_t val = analogRead(_subwooferPin);
-        if (_fftArrPos < sizeof(_vReal) )
+        if (_fftArrPos < _fftBinSize )
         {
             // save the value to an array.
             _vReal[_fftArrPos] = analogRead(_subwooferPin);
             _fftArrPos += 1;
         } else
         {
+            _fftArrPos = 0;
             _fftBinReady = true;
         }
     }

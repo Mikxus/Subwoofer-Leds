@@ -30,8 +30,8 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal =  malloc( sizeof(double) * _fftBinSize );
-    _vImag =  malloc( sizeof(double) * _fftBinSize );
+    _vReal =  new double [ sizeof(double) * _fftBinSize ];
+    _vImag =  new double [ sizeof(double) * _fftBinSize ];
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
@@ -79,7 +79,6 @@ bool fft::Init()
         #endif
 
         Start(_fftBinSize, _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
-
     }
     return 1;
 }
