@@ -30,8 +30,8 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal =  new double [_fftBinSize ];
-    _vImag =  new double [_fftBinSize ];
+    _vReal =  (double) malloc(sizeof(double) * _fftBinSize );
+    _vImag =  (double) calloc( _fftBinSize,sizeof(double) );
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
@@ -111,7 +111,7 @@ void fft::Calculate()
             if (i % 10 == 0) Serial.println();
             
             Serial.print((uint32_t) _vImag[i]);
-            if (i % 10 != 1) Serial.print(F(","));
+            if (i % 10 != 9) Serial.print(F(","));
         }
         Serial.println();
         sei();
@@ -121,5 +121,5 @@ void fft::Calculate()
 
 fft::~fft()
 {
-    timer1::Stop();
+    Stop();
 }

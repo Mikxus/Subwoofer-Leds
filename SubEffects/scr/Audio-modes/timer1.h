@@ -4,8 +4,6 @@
 
 class timer1                                                     // Manages the arduino uno's timer1
 {
-    protected:
-
     public:
 
     void Start(uint16_t _size, uint16_t freq);
@@ -15,5 +13,5 @@ class timer1                                                     // Manages the 
 };
 
 #include "timer1.cpp"
-
 #endif
+

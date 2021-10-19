@@ -75,8 +75,6 @@ void Modes::SetMode(uint8_t mode)
     }
 }
 
-
-
 volatile uint16_t _fftArrPos;
 ISR(TIMER1_COMPB_vect)
 {
