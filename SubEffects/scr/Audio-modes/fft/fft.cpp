@@ -30,12 +30,14 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal =  new double [ sizeof(double) * _fftBinSize ];
-    _vImag =  new double [ sizeof(double) * _fftBinSize ];
+    _vReal =  new double [_fftBinSize ];
+    _vImag =  new double [_fftBinSize ];
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
         Serial.println(F("Failed to allocate enough memory"));
+        Serial.println(F("Free mem: ")); 
+        Serial.println( freeMemory() );
         #endif // DEBUG
 
         return 0;                               // failed to allocate enough memory
@@ -54,6 +56,8 @@ void fft::deallocMem()
 
         #ifdef DEBUG
         Serial.println(F("Deallocated the fft bins"));
+        Serial.println(F("Free mem: ")); 
+        Serial.println( freeMemory() );
         #endif // DEBUG
 }
 
@@ -85,7 +89,7 @@ bool fft::Init()
 
 void fft::Stop() {
 
-    Stop();
+    timer1::Stop();
     deallocMem();
 }
 
@@ -106,7 +110,8 @@ void fft::Calculate()
         {
             if (i % 10 == 0) Serial.println();
             
-            Serial.print(_vImag[i]);
+            Serial.print((uint32_t) _vImag[i]);
+            if (i % 10 != 1) Serial.print(F(","));
         }
         Serial.println();
         sei();

@@ -3,6 +3,9 @@
 #ifndef FFT_H
 #define FFT_H
 
+#include "timer1/timer1.h"
+#include <MemoryFree.h>
+
 //#include "/home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/SubEffects.h"
 volatile uint16_t _fftBinSize = 64; // default size
 volatile bool _fftBinReady;

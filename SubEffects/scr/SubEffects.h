@@ -5,18 +5,6 @@
 
 #define DEBUG                                                 // Uncomment to enable DEBUG serial prints
 
-class timer1                                                     // Manages the arduino uno's timer1
-{
-    protected:
-
-    public:
-
-    void Start(uint16_t _size, uint16_t freq);
-    void Stop();
-
-    ~timer1();                                                  // Deconstructor
-};
-
 #include "/home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/Audio-modes/fft/fft.h"   // ! has to be declared here
 
 class Modes : public fft
