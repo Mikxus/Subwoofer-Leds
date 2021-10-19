@@ -1,12 +1,3 @@
-= Subwoofer Led effects library for arduino uno =
-
-With this library you can enjoy your bass music with sweet colors.
-
-For more information about this library please take a look at
-https://github.com/Mikxus/Subwoofer-Leds/
-
-== License ==
-
 MIT License
 
 Copyright (c) 2021 Mikko Johannes Heinänen 
