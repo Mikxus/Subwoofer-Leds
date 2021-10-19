@@ -4,7 +4,7 @@
 
 class timer1                                                     // Manages the arduino uno's timer1
 {
-    public:
+    protected:
 
     void Start(uint16_t _size, uint16_t freq);
     void Stop();

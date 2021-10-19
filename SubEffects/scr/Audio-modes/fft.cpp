@@ -30,8 +30,8 @@ bool fft::allocMem()
 {
     if (_arrAllocated) deallocMem();
 
-    _vReal =  (double) malloc(sizeof(double) * _fftBinSize );
-    _vImag =  (double) calloc( _fftBinSize,sizeof(double) );
+    _vReal =  (double*) malloc(sizeof(double) * _fftBinSize );
+    _vImag =  (double*) calloc( _fftBinSize,sizeof(double) );
     if (_vReal == NULL || _vImag == NULL)
     {
         #ifdef DEBUG
@@ -96,25 +96,34 @@ void fft::Stop() {
 void fft::Calculate()
 {
     if (_fftBinReady)
-    {
+    {   
+        cli();
+        FFT.Windowing(&_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+        FFT.Compute(&_vReal, &_vImag, _fftBinSize, FFT_FORWARD);
+        FFT.ComplexToMagnitude(&_vReal, &_vImag, _fftBinSize);
+        uint16_t val = FFT.MajorPeak(&_vReal, _fftBinSize, SAMPLING_FREQUENCY);   // find the peak hz
+        sei();
+        Serial.println(val);
         // if true do the fft calculations
         // not implemented yet
-
+        /*                                          // for debug 
         Serial.println(F("DEBUG"));
         Serial.print(F("Printing _vReal array: "));
         Serial.print(sizeof(double) * _fftBinSize);
         Serial.println(" Bytes");
-
         cli();
+                                             
         for (int i = 0; i < _fftBinSize; i++)
         {
             if (i % 10 == 0) Serial.println();
             
-            Serial.print((uint32_t) _vImag[i]);
+            Serial.print((uint32_t) _vReal[i]);
             if (i % 10 != 9) Serial.print(F(","));
         }
         Serial.println();
         sei();
+        */ 
+
         _fftBinReady = false;             // after calculations set _arrReady to false
     }
 }
