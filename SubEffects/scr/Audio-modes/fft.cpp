@@ -97,11 +97,13 @@ void fft::Calculate()
 {
     if (_fftBinReady)
     {   
+
+
         cli();
-        FFT.Windowing(&_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-        FFT.Compute(&_vReal, &_vImag, _fftBinSize, FFT_FORWARD);
-        FFT.ComplexToMagnitude(&_vReal, &_vImag, _fftBinSize);
-        uint16_t val = FFT.MajorPeak(&_vReal, _fftBinSize, SAMPLING_FREQUENCY);   // find the peak hz
+        FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
+        FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);
+        FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);
+        uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);   // find the peak hz
         sei();
         Serial.println(val);
         // if true do the fft calculations
@@ -123,7 +125,10 @@ void fft::Calculate()
         Serial.println();
         sei();
         */ 
-
+        for (uint16_t i = 0; i < _fftBinSize; i++)
+        {
+            _vImag[i] = 0;
+        }
         _fftBinReady = false;             // after calculations set _arrReady to false
     }
 }

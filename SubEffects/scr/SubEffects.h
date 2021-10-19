@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #define DEBUG                                  // Uncomment to enable DEBUG serial prints
 
-#include "/home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/Audio-modes/fft.h"   // ! has to be declared here
+#include "Audio-modes/fft.h"   // ! has to be declared here
 
 class Modes : public fft
 {
