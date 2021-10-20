@@ -22,7 +22,6 @@ class fft : public timer1
     double * _vImag;
     bool allocMem();
     void deallocMem();
-
     protected:
     uint16_t _frequency = 700; // default value
 
@@ -32,6 +31,7 @@ class fft : public timer1
     void Stop();                                // Stops the fft
     bool Init();                                // Initializes timer1 for interrupt and allocates fft bins
     void Calculate();
+    void Benchmark();
     ~fft();
 };
 

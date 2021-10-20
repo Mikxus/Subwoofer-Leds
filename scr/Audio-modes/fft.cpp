@@ -132,6 +132,13 @@ void fft::Calculate()
         _fftBinReady = false;             // after calculations set _arrReady to false
     }
 }
+ 
+void fft::Benchmark()
+{
+    if (!_arrAllocated) Init();
+    _fftBinReady = 1;
+    Calculate();
+}
 
 fft::~fft()
 {

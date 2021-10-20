@@ -17,41 +17,49 @@ void loop() {
     {
         Serial.print(F("| "));
         Serial.print( pow(2,i) );
-        Serial.print(F(" |"));
+        Serial.print(F("   |"));
     }
     Serial.println();
     
     effect.SetFrequency(1400);
     printMultiple(' ',4,0);
-    bool enoughMem;
     uint32_t timeMicros;
-    for (uint8_t i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 15; i++)
     {
-        timeMicros = micros();
+        Serial.print(F("| "));
         if ( effect.SetSampleSize( pow(2,i) ) )
             {
-                enoughMem = true;
-                for (uint16_t a = 0; a < 200; a++)
+                timeMicros = micros();
+
+                for (uint16_t a = 0; a < 2000; a++)
                 {
-                    effect.Update();
+                    effect.Benchmark();
+                }
+                float time = micros() - timeMicros;
+                if (time > 1000)
+                {
+                    time /= 1000;
+                    Serial.print(time,2);
+                    Serial.print(F("ms"));
+                } else 
+                {
+                    Serial.print(time);
+                    Serial.print(F("μs"));
+
                 }
 
-            } else enoughMem = false;
-        Serial.print(F("| "));
-        if (enoughMem)
-        {
-            uint32_t time = micros() - timeMicros;
-            Serial.print(time);
-        } else
-        {
-            Serial.print(F("X"));
-        }
+            } else
+            {
+                Serial.print(F("X"));
+            }
         Serial.print(F(" |"));
     }
     Serial.println();
     Serial.println("Benchmark Completed");
-
-    while(true);
+    while(1)
+    {
+        delay(400);
+    }
 }
 
 void printMultiple(char a, uint16_t count, uint16_t modulo ) {
