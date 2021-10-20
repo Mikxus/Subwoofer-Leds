@@ -11,7 +11,7 @@ bool fft::SetSampleSize(uint16_t size) {
     #endif // DEBUG
 
     _fftBinSize = size;
-    if ( Init() ) 
+    if ( allocMem() ) 
     {
         return 1;
     } else return 0;
@@ -105,7 +105,12 @@ void fft::Calculate()
         FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);
         uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);   // find the peak hz
         sei();
-        Serial.println(val);
+
+        #ifdef DEBUG
+        Serial.print(F("FFT: "));
+        Serial.print(val);
+        Serial.print(F(" Hz"));
+        #endif
         // if true do the fft calculations
         // not implemented yet
         /*                                          // for debug 
@@ -135,7 +140,8 @@ void fft::Calculate()
  
 void fft::Benchmark()
 {
-    if (!_arrAllocated) Init();
+    if (!_arrAllocated) allocMem();
+
     _fftBinReady = 1;
     Calculate();
 }

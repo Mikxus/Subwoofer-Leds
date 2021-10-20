@@ -7,11 +7,18 @@ void printMultiple();
 
 void setup() {
     Serial.begin(115200);
+
+    while (!Serial)
+    {
+      // Do nothing
+    }
+
+    delay(1000);
 }
 
 void loop() {
 
-    Serial.println(F("SubEffects"));
+    Serial.println(F("\nSubEffects"));
     printMultiple(' ',4,0);
     for (uint8_t i = 0; i < 8; i++)
     {
@@ -21,17 +28,16 @@ void loop() {
     }
     Serial.println();
     
-    effect.SetFrequency(1400);
+    effect.SetFrequency(700);
     printMultiple(' ',4,0);
     uint32_t timeMicros;
-    for (uint8_t i = 0; i < 15; i++)
+    for (uint8_t i = 1; i < 15; i++)
     {
         Serial.print(F("| "));
-        if ( effect.SetSampleSize( pow(2,i) ) )
+        if ( effect.SetSampleSize(pow(2,i)) )
             {
                 timeMicros = micros();
-
-                for (uint16_t a = 0; a < 2000; a++)
+                for (uint16_t a = 0; a < 200; a++)
                 {
                     effect.Benchmark();
                 }
