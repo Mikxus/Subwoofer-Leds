@@ -25,6 +25,8 @@ class fft : public timer1
 
     protected:
     uint16_t _frequency = 700; // default value
+
+    public:
     bool SetSampleSize(uint16_t size = 64);     // Changes the fft bin size
     void SetFrequency(uint16_t freq = 700);     // Changes the fft frequency
     void Stop();                                // Stops the fft

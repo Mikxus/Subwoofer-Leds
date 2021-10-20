@@ -1,6 +1,6 @@
 #include "fft.h"
 
-#define DEBUG
+//#define DEBUG
 
 bool fft::SetSampleSize(uint16_t size) {
 

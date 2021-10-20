@@ -1,4 +1,4 @@
-= Subwoofer Led effects library for arduino uno =
+= Subwoofer Led effects library for arduino uno
 
 With this library you can enjoy your bass music with sweet colors.
 

@@ -2,7 +2,7 @@
 #define SUBEFFECTS_H
 
 #include <Arduino.h>
-#define DEBUG                                  // Uncomment to enable DEBUG serial prints
+//#define DEBUG                                  // Uncomment to enable DEBUG serial prints
 
 #include "Audio-modes/fft.h"   // ! has to be declared here
 
