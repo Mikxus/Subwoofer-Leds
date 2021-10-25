@@ -30,7 +30,7 @@ class fft : public timer1
     void SetFrequency(uint16_t freq = 700);     // Changes the fft frequency
     void Stop();                                // Stops the fft
     bool Init();                                // Initializes timer1 for interrupt and allocates fft bins
-    void Calculate();
+    uint16_t Calculate();
     void Benchmark();
     ~fft();
 };

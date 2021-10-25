@@ -5,6 +5,7 @@
 //#define DEBUG                                  // Uncomment to enable DEBUG serial prints
 
 #include "Audio-modes/fft.h"   // ! has to be declared here
+#include "Audio-modes/ledControl.h"
 
 class Modes : public fft
 {
@@ -26,7 +27,7 @@ class Modes : public fft
     //~Modes();
 };
 // Base class
-class SubEffects : public Modes
+class SubEffects : public Modes : ledControl
 {
 protected:
     uint8_t _ledDataPin;

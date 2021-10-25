@@ -43,7 +43,8 @@ void Modes::Update() {
                 _initialized = false;
             }
         }
-        Calculate();
+        uint16_t val = Calculate();
+        LinearFade(val);
         break;
     
     default:
