@@ -44,6 +44,7 @@ void Modes::Update() {
             }
         }
         uint16_t val = Calculate();
+        val = map(val,0,255,0,359);
         LinearFade(val);
         break;
     

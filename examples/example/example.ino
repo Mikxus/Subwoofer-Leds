@@ -7,13 +7,13 @@
 FastLED
 
 CRGB leds[NUM_LEDS];
-SubEffects effect(0,6,100);         // effect( subwoofer analog pin , led data pin , led count )
+SubEffects effect(0,DATA_PIN,NUM_LEDS);         // effect( subwoofer analog pin , led data pin , led count )
 
 void setup() {
     Serial.begin(115200);
     delay(1500);
 
-    FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
+    effect.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
 }
 
 void loop() {

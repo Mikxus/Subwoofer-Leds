@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include </home/mikko/Documents/code/Subwoofer-Leds/scr/SubEffects.h>
+#include <D:\Code\Github\Subwoofer-Leds\scr\SubEffects.h>
 
 SubEffects effect(0,6,100);         // effect( subwoofer analog pin , led data pin , led count )
 
@@ -19,7 +19,7 @@ void setup() {
 void loop() {
 
     Serial.println(F("\nSubEffects"));
-    printMultiple(' ',4,0);
+    printMultiple(' ',4);
     for (uint8_t i = 0; i < 8; i++)
     {
         Serial.print(F("| "));
@@ -29,7 +29,7 @@ void loop() {
     Serial.println();
     
     effect.SetFrequency(700);
-    printMultiple(' ',4,0);
+    printMultiple(' ',4);
     uint32_t timeMicros;
     for (uint8_t i = 1; i < 15; i++)
     {
@@ -68,13 +68,9 @@ void loop() {
     }
 }
 
-void printMultiple(char a, uint16_t count, uint16_t modulo ) {
+void printMultiple(char a, uint16_t count) {      // Prints the given char number of times
     for (uint16_t i = 0; i < count; i++)
     {
-        if (modulo != 0)
-        {
-            if (i % modulo == 0) Serial.println();
-        } else Serial.print(a);
-    
+        Serial.print(a);
     }
 }

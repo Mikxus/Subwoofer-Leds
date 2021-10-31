@@ -2,21 +2,15 @@
 #include <FastLED.h>
 #endif
 
-void ledControl::ledControl(uint16_t led_count,uint16_t updateFps)
-: leds(led_count) 
+ledControl::ledControl()
 {
-    updateRate = 1000000 / updateRate;
 }
-void ledControl::Fade(uint8_t bassHz)   
+void ledControl::Fade(uint16_t color)   
 {
-    if (micros() > lastUpdate + updateRate)
-    {
-
-        uint16_t val;
-        val = map(bassHz,0,255,0,359);
-        _colorIncrement = abs(_currentValue - val); // kesken
-
-    }
+    _lastUpdate = micros() - _lastUpdate;       // Calculate the time between updates
+        uint16_t targetColor;
+        float increment;
+        _colorIncrement = abs(_currentValue - val); // kesk
 }
 
 ledControl::~ledControl()
