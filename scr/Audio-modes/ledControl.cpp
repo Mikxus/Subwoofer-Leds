@@ -1,16 +1,29 @@
-#ifndef __INC_FASTSPI_LED2_H
-#include <FastLED.h>
+
+
+#ifndef LEDCONTROL_H
+#include <ledControl.h>
 #endif
 
-ledControl::ledControl()
+void ledControl::Init(uint16_t led_count,int16_t updateFps)
 {
+    led_count = led_count;
+   _updateRate = 1000000 / updateFps;
 }
-void ledControl::Fade(uint16_t color)   
+void ledControl::Fade(uint8_t bassHz)   
 {
-    _lastUpdate = micros() - _lastUpdate;       // Calculate the time between updates
-        uint16_t targetColor;
-        float increment;
-        _colorIncrement = abs(_currentValue - val); // kesk
+    if (bassHz != 0)
+    {  
+        uint16_t val;
+        val = map(bassHz,0,255,0,359);              // implement color palettes
+        _colorIncrement = val - _currentColorValue;
+        if (_colorIncrement > 1)
+        {
+
+        } else if (_colorIncrement < -1)
+        {
+
+        }
+    }
 }
 
 ledControl::~ledControl()

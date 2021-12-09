@@ -25,7 +25,7 @@ void timer1::Stop()
     TCNT1  = 0;                            //initialize counter value to 0
 }
 
-timer1::~timer1 ()
+timer1::~timer1()
 {
     Stop();
 }

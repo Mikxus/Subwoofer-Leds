@@ -1,5 +1,3 @@
-#include "fft.h"
-
 //#define DEBUG
 
 bool fft::SetSampleSize(uint16_t size) {
@@ -9,7 +7,7 @@ bool fft::SetSampleSize(uint16_t size) {
         Serial.println(F("Bytes"));
     #endif // DEBUG
 
-    if ( size < freeMemmory()) 
+    if ( size < freeMemory()) 
     {
         _fftBinSize = size;
         if (_arrAllocated) deallocMem();
@@ -93,11 +91,10 @@ void fft::Stop() {
     deallocMem();
 }
 
-void fft::Calculate()
+uint16_t fft::Calculate()
 {
     if (_fftBinReady)
     {   
-
 
         cli();
         FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
@@ -129,13 +126,19 @@ void fft::Calculate()
             _vImag[i] = 0;
         }
         _fftBinReady = false;             // after calculations set _arrReady to false
+        return val;
     }
 }
  
 void fft::Benchmark()
 {
-    if (!_arrAllocated) allocMem();
-
+    if (!_arrAllocated) 
+    {
+        if (!allocMem() )   // check if fft bin's allocation fails
+        {
+            return;          // if it does, No need to calculate fft when there is no data.
+        }
+    }
     _fftBinReady = 1;
     Calculate();
 }

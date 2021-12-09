@@ -1,13 +1,12 @@
-#include <Arduino.h>
-#include <FastLED.h>
-#include "SubEffects.h"
+//#include <Arduino.h>
+
 
 uint8_t _subwooferPin;      // global variable for subwoofer pin
                             // used in timer1's ISR
 
-SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin, uint16_t led_count)
-    : _ledDataPin(led_dataPin) 
-    , _ledCount(led_count)
+SubEffects::SubEffects(uint8_t subPin, uint16_t led_amount,uint8_t led_dataPin)
+    : _ledDataPin(led_dataPin)
+    , _ledCount(led_amount)
 {
     _subwooferPin = subPin;
     pinMode(_subwooferPin,INPUT_PULLUP);
@@ -22,13 +21,13 @@ Modes::Modes()
 {
 }
 
-void Modes::Update() {
+void Modes::Update() {          // This chooses wich "mode" to use.
     switch (_currentMode)
     {
     case 0:
         if(!_initialized)
         {
-            if( Init() )
+            if( fft::Init() )
             {
                 #ifdef DEBUG
                 Serial.println(F("FFT initialized succesfully"));
@@ -37,15 +36,16 @@ void Modes::Update() {
             } else 
             {
                  #ifdef DEBUG
-                Serial.println(F("FFT failed to initialized"));
+                Serial.println(F("FFT failed to be initialized"));
                 #endif
                 break;
                 _initialized = false;
             }
         }
-        uint16_t val = Calculate();
+        uint16_t val;
+        val = Calculate();
         val = map(val,0,255,0,359);
-        LinearFade(val);
+        Fade(val);
         break;
     
     default:
