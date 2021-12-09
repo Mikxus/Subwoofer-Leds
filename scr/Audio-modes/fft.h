@@ -5,21 +5,25 @@
 
 //#include "timer1/timer1.h"
 #include <MemoryFree.h>
+
+#ifndef MEMORY_FREE_H
+#pragma ("You can get the memory free library at: https://github.com/McNeight/MemoryFree")
+#endif
+
 #include "timer1.h"
 #include <arduinoFFT.h>
-
 
 //#include "/home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/SubEffects.h"
 volatile uint16_t _fftBinSize = 64; // default size
 volatile bool _fftBinReady;
-volatile double * _vReal;
+double * _vReal;
 
 class fft : public timer1
 {
     private:
     arduinoFFT FFT = arduinoFFT();
-    bool _arrAllocated;                                           // keep track if memory is allocated for fft'
-    double * _vImag;
+    bool _arrAllocated;                     // value which track if memory is allocated for fft's bins
+    double * _vImag;                        // pointer for the fft bin's imaginary values
     bool allocMem();
     void deallocMem();
     protected:

@@ -102,8 +102,6 @@ uint16_t fft::Calculate()
         FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);
         uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);   // find the peak hz
         sei();
-        // if true do the fft calculations
-        // not implemented yet
         /*                                          // for debug 
         Serial.println(F("DEBUG"));
         Serial.print(F("Printing _vReal array: "));
