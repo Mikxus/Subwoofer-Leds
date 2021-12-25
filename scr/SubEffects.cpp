@@ -1,10 +1,10 @@
 //#include <Arduino.h>
 
-
+//#DEBUG
 uint8_t _subwooferPin;      // global variable for subwoofer pin
                             // used in timer1's ISR
 
-SubEffects::SubEffects(uint8_t subPin, uint16_t led_amount,uint8_t led_dataPin)
+SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_amount)
     : _ledDataPin(led_dataPin)
     , _ledCount(led_amount)
 {

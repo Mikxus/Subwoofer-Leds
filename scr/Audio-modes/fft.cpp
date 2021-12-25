@@ -3,16 +3,20 @@
 bool fft::SetSampleSize(uint16_t size) {
     #ifdef DEBUG
         Serial.print(F("Updating FFT Sample Size to: "));
-        Serial.print(_fftBinSize * 2);
+        Serial.print(size);
         Serial.println(F("Bytes"));
+        Serial.flush();
     #endif // DEBUG
 
+    deallocMem();
     if ( size < freeMemory()) 
     {
         _fftBinSize = size;
-        if (_arrAllocated) deallocMem();
         return 1;
-    } else return 0;
+    } else {
+        return 0;
+    }
+    
 }
 
 void fft::SetFrequency(uint16_t freq)
@@ -20,6 +24,7 @@ void fft::SetFrequency(uint16_t freq)
     #ifdef DEBUG
         Serial.println(F("Updating timer1 Frequency to: "));
         Serial.println(_frequency);
+        Serial.flush();
     #endif // DEBUG
     _frequency = freq;
 }
@@ -34,8 +39,11 @@ bool fft::allocMem()
     {
         #ifdef DEBUG
         Serial.println(F("Failed to allocate enough memory"));
-        Serial.println(F("Free mem: ")); 
+        Serial.print(F("Free mem: ")); 
         Serial.println( freeMemory() );
+        Serial.print(F("Required mem: "));
+        Serial.println(sizeof(double) * _fftBinSize);
+        Serial.flush();
         #endif // DEBUG
 
         return 0;                               // failed to allocate enough memory
@@ -45,7 +53,9 @@ bool fft::allocMem()
 }
 
 void fft::deallocMem()
-{       
+{      
+    if (_arrAllocated)
+    {
         free(_vReal);
         free(_vImag);
         _arrAllocated = 0;
@@ -56,7 +66,9 @@ void fft::deallocMem()
         Serial.println(F("Deallocated the fft bins"));
         Serial.println(F("Free mem: ")); 
         Serial.println( freeMemory() );
+        Serial.flush();
         #endif // DEBUG
+    } else return;
 }
 
 bool fft::Init()
@@ -68,6 +80,7 @@ bool fft::Init()
         Serial.print(F("Not enough memory for: "));
         Serial.print(_fftBinSize * sizeof(double));
         Serial.println(" Bytes");
+        Serial.flush();
         #endif
         return 0;
 
@@ -78,6 +91,7 @@ bool fft::Init()
         Serial.print(F("Allocated: "));
         Serial.print(_fftBinSize * sizeof(double));
         Serial.println(" Bytes for fft bins");
+        Serial.flush();
         #endif
 
         Start(_fftBinSize, _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
@@ -134,8 +148,10 @@ void fft::Benchmark()
     {
         if (!allocMem() )   // check if fft bin's allocation fails
         {
+;
             return;          // if it does, No need to calculate fft when there is no data.
         }
+
     }
     _fftBinReady = 1;
     Calculate();

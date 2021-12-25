@@ -43,7 +43,7 @@ protected:
     uint8_t _ledDataPin;
     uint16_t _ledCount;
 public:
-    SubEffects(uint8_t subPin = 0,uint16_t led_count = 0,uint8_t led_dataPin = 6);
+    SubEffects(uint8_t subPin = 0,uint8_t led_dataPin = -1,uint16_t led_count = 1);
     ~SubEffects();
 };
 #include "SubEffects.cpp"

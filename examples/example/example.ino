@@ -6,7 +6,7 @@
 #define DATA_PIN 6      // Define the data pin for leds
 CRGB leds[NUM_LEDS];
 
-SubEffects effect(0,NUM_LEDS,DATA_PIN);         // effect( subwoofer analog pin , led count, FastLed object )
+SubEffects effect(0,NUM_LEDS,DATA_PIN);         // effect( subwoofer analog pin , Led's data pin, Led count )
 
 void setup() {
     Serial.begin(115200);

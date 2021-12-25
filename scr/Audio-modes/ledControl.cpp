@@ -13,16 +13,25 @@ void ledControl::Fade(uint8_t bassHz)
 {
     if (bassHz != 0)
     {  
-        uint16_t val;
+        uint16_t val,led_brightness;
         val = map(bassHz,0,255,0,359);              // implement color palettes
         _colorIncrement = val - _currentColorValue;
-        if (_colorIncrement > 1)
+        led_brightness = analogRead(_subwooferPin);
+
+        if (_colorIncrement > 0)
         {
 
-        } else if (_colorIncrement < -1)
+        } else if (_colorIncrement < 0)
+        {
+            for (uint16_t i = 0; i < led_count; i++ )
+            {
+                leds[i] = 
+            } 
+        } else          // When equal to zero
         {
 
         }
+        _lastUpdate = millis();
     }
 }
 

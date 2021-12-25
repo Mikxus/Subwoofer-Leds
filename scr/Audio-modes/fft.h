@@ -22,7 +22,7 @@ class fft : public timer1
 {
     private:
     arduinoFFT FFT = arduinoFFT();
-    bool _arrAllocated;                     // value which track if memory is allocated for fft's bins
+    bool _arrAllocated = 0;                     // value which track if memory is allocated for fft's bins
     double * _vImag;                        // pointer for the fft bin's imaginary values
     bool allocMem();
     void deallocMem();
