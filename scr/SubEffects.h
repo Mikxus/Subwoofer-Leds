@@ -2,21 +2,20 @@
 #define SUBEFFECTS_H
 
 
-#ifndef __INC_FASTSPI_LED2_H
-#include <FastLED.h>
-#endif
-
-
-
 #include <Arduino.h>
-//#define DEBUG                                  // Uncomment to enable DEBUG serial prints
+//#define DEBUG                             // Uncomment to enable DEBUG serial prints
 
 #ifndef LEDCONTROL_H
-#include "Audio-modes/fft.h"   // ! has to be declared here
-#endif
+#include "Audio-modes/fft.h"                // ! has to be declared here
 #include "Audio-modes/ledControl.h"
+#endif
 
-class Modes : public fft , public ledControl
+long int _calibratedNoiseZero;
+
+uint8_t _subwooferPin;      // global variable for subwoofer pin
+                            // used in timer1's ISR
+
+class Modes : public fft
 {
     private:
     bool _initialized;
@@ -26,8 +25,8 @@ class Modes : public fft , public ledControl
     uint8_t _modeCount;
 
     public:
-    
-    void Update();              
+    ledControl ledController;
+    void Update();
     void NextMode();
     void PreviousMode();
     void SetMode(uint8_t mode);
@@ -40,11 +39,14 @@ class Modes : public fft , public ledControl
 class SubEffects : public Modes
 {
 protected:
-    uint8_t _ledDataPin;
-    uint16_t _ledCount;
+    //uint8_t _ledDataPin;
+    //uint16_t _ledCount;
+
 public:
-    SubEffects(uint8_t subPin = 0,uint8_t led_dataPin = -1,uint16_t led_count = 1);
+
+    SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]);
     ~SubEffects();
+    void CalibrateSoundLevel();      // If the leds are flashing when there is no sound use this. This calibrates the leds zero point above the noise level. ? 
 };
 #include "SubEffects.cpp"
 

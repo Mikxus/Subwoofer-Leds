@@ -2,14 +2,13 @@
 #define TIMER1_H
 
 
-class timer1                                                     // Manages the arduino uno's timer1
+class timer1                                     // Manages the arduino uno's timer1
 {
     protected:
 
     void Start(uint16_t _size, uint16_t freq);
     void Stop();
-
-    ~timer1();                                                  // Deconstructor
+    ~timer1();
 };
 
 #include "timer1.cpp"

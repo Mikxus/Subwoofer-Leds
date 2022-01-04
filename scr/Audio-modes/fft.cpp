@@ -109,7 +109,6 @@ uint16_t fft::Calculate()
 {
     if (_fftBinReady)
     {   
-
         cli();
         FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
         FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);
@@ -139,7 +138,7 @@ uint16_t fft::Calculate()
         }
         _fftBinReady = false;             // after calculations set _arrReady to false
         return val;
-    }
+    } else return 0;
 }
  
 void fft::Benchmark()

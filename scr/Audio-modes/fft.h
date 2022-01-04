@@ -33,8 +33,8 @@ class fft : public timer1
     bool SetSampleSize(uint16_t size = 64);     // Changes the fft bin size
     void SetFrequency(uint16_t freq = 700);     // Changes the fft frequency
     void Stop();                                // Stops the fft
-    bool Init();                                // Initializes timer1 for interrupt and allocates fft bins
-    uint16_t Calculate();
+    bool Init();                                // Initializes uno's timer1 for interrupts and allocates fft bins
+    uint16_t Calculate();                       // Returns the loudest frequency if FFT bins are ready. Othervise it just returns 0.
     void Benchmark();
     ~fft();
 };
