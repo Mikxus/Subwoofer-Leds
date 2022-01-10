@@ -73,46 +73,42 @@ void Modes::Update() {          // This chooses wich "mode" to use.
 
 void Modes::NextMode()
 {
-    if (_currentMode + 1 < _modeCount)
-    {
-        _currentMode += 1;
-    }
+    if (_currentMode + 1 < _modeCount) _currentMode++;
+    else _currentMode = 0;
 }
 
 void Modes::PreviousMode()
 {
-    if (_currentMode - 1 < _modeCount)
-    {
-        _currentMode -= 1;
-    }
+    if (_currentMode != 1) _currentMode--;              // if variable mode - 1 is 0 set the variable to the max amount of "modes"
+    else _currentMode = _modeCount;
 }
 
-void Modes::SetMode(uint8_t mode)
+void Modes::SetMode(uint8_t wantedMode)
 {
-    if (mode < _modeCount)
+    if (wantedMode <= _modeCount)
     {
-        _currentMode = mode;
+        _currentMode = wantedMode;
     }
 }
 
 volatile uint16_t _fftArrPos;
-ISR(TIMER1_COMPB_vect)
+ISR(TIMER1_COMPB_vect)                              // Interrupt routine for the fft library. each iteration it checks if the sapling has completed. If not it saves the current analog input to the array
 {
     if (!_fftBinReady)
     {
         uint16_t val = analogRead(_subwooferPin);
-        if ( val > _calibratedNoiseZero )           // check if the reading is above the noise level
+        if ( val <= _calibratedNoiseZero )           // check if the reading is above the noise level if it isn't sets the value to zero
         {
-            if (_fftArrPos < _fftBinSize )
-            {
-                // save the value to an array.
-                _vReal[_fftArrPos] = val;
-                _fftArrPos += 1;
-            } else
-            {
-                _fftArrPos = 0;
-                _fftBinReady = true;
-            }
+            val = 0;
+        }
+        if (_fftArrPos < _fftBinSize )              // if the _fftArrPos is within the array size save the value. else set the value to zero and set _fftBinReady to true
+        {
+            _vReal[_fftArrPos] = val;
+            _fftArrPos += 1;
+        } else
+        {
+            _fftArrPos = 0;
+            _fftBinReady = true;
         }
     }
 }
