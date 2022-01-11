@@ -62,7 +62,6 @@ void Modes::Update() {          // This chooses wich "mode" to use.
         uint16_t brightness = analogRead(_subwooferPin);
         brightness = constrain(brightness, _calibratedNoiseZero, 450);
         brightness = map(brightness,_calibratedNoiseZero,450,0,1023);
-        Serial.println(brightness);
         ledController.Fade(val, brightness); // Calls the ledcontrollers basic fade function to update the leds.
         break;
     

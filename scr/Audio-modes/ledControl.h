@@ -1,13 +1,11 @@
-
 #ifndef LEDCONTROL_H
 #define LEDCONTROL_H
 
 #ifndef __INC_FASTSPI_LED2_H
 #include <FastLED.h>
 #endif
-//FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
 
-float _realUpdateRate;                       // Variable for the fade functions
+float _deltaTime;                       // Variable for the fade functions
 
 struct moving_average_filter
 {
@@ -21,7 +19,6 @@ struct moving_average_filter
 float moving_average_filter::calc(float val)
 {
     _sampleTotal = _sampleTotal - _window[_curReadIndex];   // subtract the last reading
-
     _window[_curReadIndex] = val;                           // add the latest value
     _sampleTotal += _window[_curReadIndex];                  // add the reading to the total
     _sampleAvg = _sampleTotal / 2.0;                          // calculate the average
@@ -33,14 +30,18 @@ float moving_average_filter::calc(float val)
 struct weighted_moving_average_filter
 {
     float _Alpha = 0.1;
-    float result = 0.0;
+    float _result = 0.0;
+    float _r = 1.5;
     float calc(float analogRead);
 };
 
 float weighted_moving_average_filter::calc(float val)
 {
-    result = _Alpha * val + (1 - _Alpha) * result;
-    return result;
+    /*_r = -( _deltaTime / log( 1 - _Alpha ) );      // calculate the smoothing factor
+    _Alpha = _deltaTime / _r;*/
+    _Alpha = _r * (_deltaTime / 100000.0);
+    _result = _Alpha * val + (1 - _Alpha) * _result;
+    return _result;
 }
 
 
@@ -53,7 +54,7 @@ protected:
     uint16_t _attack = 20,_decay = 40, _sustain = 0;
     uint16_t _colorFade = 70;                       // fade time for the hsv color. example 0 -> 359 would take 70 ms
     */
-    uint16_t _lastUpdate;
+    float _lastUpdate;
     uint8_t _lastBassHz;
     uint8_t _lastBrightness;
 
