@@ -55,7 +55,7 @@ protected:
     uint16_t _colorFade = 70;                       // fade time for the hsv color. example 0 -> 359 would take 70 ms
     */
     float _lastUpdate;
-    uint8_t _lastBassHz;
+    uint8_t _lastHue;
     uint8_t _lastBrightness;
 
     int16_t _currentColorValue;
@@ -65,8 +65,7 @@ protected:
     CFastLED* _FastLED;  
     CRGB* _leds;                                    // Pointer which will hold the FastLED object.
 public:
-    //CRGB* leds = new CRGB[led_count];
-    void Fade(uint8_t bassHz = 0,uint16_t brightness = 0);
+    void Fade(uint8_t bassHz = 0,uint16_t brightness = 0);  // Fading function which smoothens the input and then updates all leds to the same value.
     void SetAttack(uint16_t attack = 0);
     void SetDecay(uint16_t decay = 0);
     void Init(uint8_t led_dataPin ,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]); // initialize led controller   
