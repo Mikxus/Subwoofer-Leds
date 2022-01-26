@@ -22,10 +22,9 @@ Currently only supports arduino uno and nano boards. You can find information fo
    > Takes the following arguments. 
    > 1. Analog pin's number 2.  Led's Data pin 3. FastLED object 4. CRGB led array
 
-Control members.
 * void **NextMode**( );
-> Increments the lighting mode by 1. 
-> **!** Overflows if exceedes the lighting mode count.
+  > Increments the lighting mode by 1. 
+  > **!** Overflows if exceedes the lighting mode count.
 * void **PreviusMode**( );
   > Decrements the lighting mode by 1.
   > **!** Overflows to highest lighting mode.
