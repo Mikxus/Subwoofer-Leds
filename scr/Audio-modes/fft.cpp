@@ -109,12 +109,12 @@ uint16_t fft::Calculate()
 {
     if (_fftBinReady)
     {   
-        cli();
+        //cli();
         FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
         FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);
         FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);
         uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);   // find the peak hz
-        sei();
+        //sei();
         /*                                          // for debug 
         Serial.println(F("DEBUG"));
         Serial.print(F("Printing _vReal array: "));
@@ -136,7 +136,7 @@ uint16_t fft::Calculate()
         {
             _vImag[i] = 0;
         }
-        _fftBinReady = false;             // after calculations set _arrReady to false
+        _fftBinReady = false;             // after calculations set _fftBinReady to false
         return val;
     } else return 0;
 }

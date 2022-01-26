@@ -37,7 +37,7 @@ Currently only supports arduino uno and nano boards. You can find information fo
   >Calibrates for the dc offset. The calibration takes 1.5 seconds.
   >Useful for preventing the leds blinking randomly.
 
-    ## [APIS for creating a new effects](/docs/api/apis_for_light_modes.md)
+    ## [Advanced APIs](/docs/api/apis_for_light_modes.md)
      
 # License
 
