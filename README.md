@@ -17,7 +17,7 @@ Currently only supports arduino uno and nano boards. You can find information fo
 
 **Useful for just using the library.**
 
-* **SubEffects**( uint8_t audioPin, uint8_t led_dataPin, **CFastLED** & fastLedObj, **CRGB** ledObj[] );
+* **SubEffects**( uint8_t audioPin, uint8_t led_dataPin, **CFastLED** & fastLedObj, **CRGB** ledObj[ ] );
    >Used to initialize the library.
    > Takes the following arguments. 
    > 1. Analog pin's number 2.  Led's Data pin 3. FastLED object 4. CRGB led array
@@ -33,7 +33,11 @@ Currently only supports arduino uno and nano boards. You can find information fo
   > Sets the lighting mode to the corresponding number.
   > **!** Allowed values 0 - 255
 
-    ## APIS for creating a new effects
+* void **CalibrateSoundLevel**( );
+  >Calibrates for the dc offset. The calibration takes 1.5 seconds.
+  >Useful for preventing the leds blinking randomly.
+
+    ## [APIS for creating a new effects](../docs/apis_for_light_modes.md)
      
 # License
 

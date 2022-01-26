@@ -10,7 +10,7 @@
 #include "Audio-modes/ledControl.h"
 #endif
 
-long int _calibratedNoiseZero;
+uint16_t _calibratedNoiseZero;
 
 uint8_t _subwooferPin;      // global variable for subwoofer pin
                             // used in timer1's ISR
@@ -43,7 +43,6 @@ protected:
     //uint16_t _ledCount;
 
 public:
-
     SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]);
     ~SubEffects();
     void CalibrateSoundLevel();      // Corrects for dc offset in signal. When called it records for 1.5 the highest voltage.
