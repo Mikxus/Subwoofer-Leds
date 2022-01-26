@@ -13,7 +13,7 @@ void ledControl::Fade(uint8_t hue,uint16_t brightness)
 {
     //bright._Alpha = 0.07;                                 // Temporary values used for debug
     color._r = 1.0;
-   if (hue == 0) hue = _lasthue;                   // if the color value is 0 use the last value;
+   if (hue == 0) hue = _lasthue;                            // if the color value is 0 use the last value;
     else _lasthue = hue;
 
     float val =  bright.calc(brightness);

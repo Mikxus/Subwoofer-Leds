@@ -46,7 +46,7 @@ public:
 
     SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]);
     ~SubEffects();
-    void CalibrateSoundLevel();      // If the leds are flashing when there is no sound use this. This calibrates the leds zero point above the noise level. ? 
+    void CalibrateSoundLevel();      // Corrects for dc offset in signal. When called it records for 1.5 the highest voltage.
 };
 #include "SubEffects.cpp"
 

@@ -62,7 +62,7 @@ void Modes::Update() {          // This chooses wich "mode" to use.
         uint16_t brightness = analogRead(_subwooferPin);
         brightness = constrain(brightness, _calibratedNoiseZero, 450);
         brightness = map(brightness,_calibratedNoiseZero,450,0,1023);
-        ledController.Fade(val, brightness); // Calls the ledcontrollers basic fade function to update the leds.
+        ledController.Fade(val, brightness);                // Calls the ledcontrollers basic fade function to update the leds.
         break;
     
     default:
@@ -78,7 +78,7 @@ void Modes::NextMode()
 
 void Modes::PreviousMode()
 {
-    if (_currentMode != 1) _currentMode--;              // if variable mode - 1 is 0 set the variable to the max amount of "modes"
+    if (_currentMode != 1) _currentMode--;          // if variable mode - 1 is 0 set the variable to the max amount of "modes"
     else _currentMode = _modeCount;
 }
 
@@ -96,7 +96,7 @@ ISR(TIMER1_COMPB_vect)                              // Interrupt routine for the
     if (!_fftBinReady)
     {
         uint16_t val = analogRead(_subwooferPin);
-        if ( val <= _calibratedNoiseZero )           // check if the reading is above the noise level if it isn't sets the value to zero
+        if ( val <= _calibratedNoiseZero )          // check if the reading is above the noise level if it isn't sets the value to zero
         {
             val = 0;
         }
