@@ -15,7 +15,7 @@ An interface for the ardunoFFT library.
   >Initializes the library in following order:
   > 1. Allocates the bins needed for fft.
   > 2. Configures the arduino's timer1 to interrupt continiusly at some frequency.
-  > The frequency can be changed with [SetFrequency();](/SetFrequency()).
+  > The frequency can be changed with [SetFrequency();](#void-setfrequency-uint16_t-hz-).
   >
    >**Returns:** 0 when allocation fails, otherwise 1.
 
