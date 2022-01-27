@@ -6,6 +6,16 @@ void timer1::Start(uint16_t size, uint16_t freq)
     uint16_t real_sample_rate;
     real_sample_rate = 16000000 / (freq * size) -1;
     cli();
+    if (!PRTIM1)                           // check if the timer is disabled
+    {
+        #ifdef DEBUG
+        sei();
+        Serial.print(F("Timer1 is disabled | Turning it on"));
+        cli();
+        #endif
+        PRTIM1 = 0;
+    {
+    
                                            // set timer1 interrupt at 1kHz
     TCCR1A = 0;                            // set entire TCCR1A register to 0
     TCCR1B = 0;                            // same for TCCR1B
@@ -20,11 +30,18 @@ void timer1::Start(uint16_t size, uint16_t freq)
 
 void timer1::Stop()
 {
+    /*
     TCCR1A = 0;                            // set entire TCCR1A register to 0
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            // initialize counter value to 0
+    */
+   PRTIM1 = 1;                              // Power reduction for timer1. in simple terms it gets turned off.
 }
 
+void timer1::Continue()
+{
+    PRTIM1 = 0;
+}
 timer1::~timer1()
 {
     Stop();
