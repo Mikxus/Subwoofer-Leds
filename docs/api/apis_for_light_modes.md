@@ -32,9 +32,7 @@ An interface for the ardunoFFT library.
   >Changes the bin size for the fft.
 
 	> **Returns:** 0 if there isn't enough memory otherwise returns 1.
-
 	> **! Notes !**
-
 	> * ****Sample size must be power of 2.****
 
 * ## void **SetFrequency**( uint16_t Hz );
