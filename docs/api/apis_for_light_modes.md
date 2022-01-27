@@ -27,13 +27,10 @@ An interface for the ardunoFFT library.
 
 * ## bool **SetSampleSize**( uint16_t size )
 
-  > If nothing entered it uses 64 as the default value.
-
-  >Changes the bin size for the fft.
-
+  	> If nothing entered it uses 64 as the default value.
+  	>Changes the bin size for the fft.
 	> **Returns:** 0 if there isn't enough memory otherwise returns 1.
-	> **! Notes !**
-	> * ****Sample size must be power of 2.****
+	> **! Note** the ****Sample size must be power of 2.****
 
 * ## void **SetFrequency**( uint16_t Hz );
 	> **Default value:** 700
