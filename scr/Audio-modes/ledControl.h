@@ -30,7 +30,7 @@
 #endif
 
 uint16_t _deltaTime;                       // Variable for the fade functions
-
+/*
 enum smoothBrightness
 {
     10 = 1.5,
@@ -43,8 +43,8 @@ enum smoothBrightness
     3 = 0.01,
     2 = 0.005,
     1= 0.0001
-} SmoothFactor;
-
+};
+*/
 struct moving_average_filter
 {
     float _window[2];
@@ -69,7 +69,7 @@ struct weighted_moving_average_filter
 {
     float _Alpha = 0.1;
     float _result = 0.0;
-    float _r = 0.035;
+    float _r = 0.04;
     float calc(float analogRead);
 };
 
@@ -97,10 +97,6 @@ private:
 protected:
     weighted_moving_average_filter bright, color;
 
-    /*
-    uint16_t _attack = 20,_decay = 40, _sustain = 0;
-    uint16_t _colorFade = 70;                       // fade time for the hsv color. example 0 -> 359 would take 70 ms
-    */
     float _lastUpdate;
 
     int16_t _currentColorValue;

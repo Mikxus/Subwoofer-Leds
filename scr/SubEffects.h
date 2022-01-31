@@ -62,10 +62,6 @@ class Modes : public fft
 
 class SubEffects : public Modes
 {
-protected:
-    //uint8_t _ledDataPin;
-    //uint16_t _ledCount;
-
 public:
     SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]);
     ~SubEffects();

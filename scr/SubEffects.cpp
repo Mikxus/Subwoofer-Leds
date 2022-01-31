@@ -22,8 +22,6 @@
  * SOFTWARE.
 */
 
-//#include <Arduino.h>
-
 //#DEBUG
 
 SubEffects::SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_amount, CFastLED & fastLedObj, CRGB ledObj[])
@@ -46,9 +44,16 @@ void SubEffects::CalibrateSoundLevel()
         {
             _calibratedNoiseZero = val;
         }
-    }   
-    _calibratedNoiseZero += 5;
-    constrain(_calibratedNoiseZero, 0, 1023);
+    }
+    _calibratedNoiseZero += 1;
+
+    #ifdef DEBUG
+    if (_calibratedNoiseZero > 600);
+    {
+        Serial.print(F("!Warning Noise level high: "));
+        Serial.println(_calibratedNoiseZero);
+    }
+    #endif
 }
 
 SubEffects::~SubEffects()
@@ -82,6 +87,7 @@ void Modes::Update() {          // This chooses wich "mode" to use.
         }
         uint16_t val;
         val = fft::Calculate();                             // Calculates the strongest frequency.
+        //if (val != 0) {Serial.print(F("freq: ")); Serial.println(val);}
         val = constrain(val,0,255);
         uint16_t brightness = analogRead(_subwooferPin);
         brightness = constrain(brightness, _calibratedNoiseZero, 450);

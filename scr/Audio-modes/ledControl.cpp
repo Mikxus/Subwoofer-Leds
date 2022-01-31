@@ -15,7 +15,7 @@ void ledControl::logTime()
     _lastUpdate = micros();
 }
 
-void ledcontrol::logLastHSV(uint8_t hue, uint8_t saturation, uint8_t value)
+void ledControl::logLastHSV(uint8_t hue, uint8_t saturation, uint8_t value)
 {
     _lastHue = hue;
     _lastSaturation = saturation;
@@ -25,26 +25,27 @@ void ledcontrol::logLastHSV(uint8_t hue, uint8_t saturation, uint8_t value)
 void ledControl::Fade(uint8_t hue,uint16_t brightness)   
 {
     //bright._Alpha = 0.07;                                 // Temporary values used for debug
-    color._r = 0.0005;
+    color._r = 0.03;
    if (hue == 0) hue = _lastHue;                            // if the color value is 0 use the last value;
     else _lastHue = hue;
 
     float val =  bright.calc(brightness);
     float colorVal = color.calc(hue);
-    //Serial.print("val "); Serial.println(colorVal);
+    //Serial.print("val "); Serial.println(val);
     //Serial.flush();
     val = map(val, 0, 500, 0, 255);
-    if (val < 1) val = 0;  
+    //if (val < 1) val = 0;  
     
-    _leds[0].setHSV(colorVal, 255, val);
-    _FastLED->showColor(_leds[0],brightness);               // not sure if works. But should set all leds to single color in _leds[0]
+    _FastLED->showColor(CHSV(colorVal,255,round(val)));            // sets all leds to the same hsv color
+    //_leds[0].setHSV(colorVal, 255, val);
+    //_FastLED->showColor(_leds[0],brightness);             // not sure if works. But should set all leds to single color in _leds[0]
     /*                 
     for(uint16_t i = 0; i < _led_count; i++)                // Calculate each leds value
     {
         _leds[i].setHSV(colorVal, 255, val);
     }
     */
-    _FastLED->show();                                       // Update the leds
+    //_FastLED->show();                                       // Update the leds
 
     logTime();                                              // log the time used.
 

@@ -117,8 +117,13 @@ bool fft::Init()
         Serial.println(" Bytes for fft bins");
         Serial.flush();
         #endif
-
-        Start(_fftBinSize, _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
+        uint16_t achievedFreq;
+        achievedFreq = Start(_frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
+        /*Serial.print(F("Achieved freq: "));
+        Serial.print(achievedFreq);
+        Serial.print(F(" Wanted freq: "));
+        Serial.println(_frequency);
+        delay(1500);*/
     }
     return 1;
 }
@@ -133,12 +138,12 @@ uint16_t fft::Calculate()
 {
     if (_fftBinReady)
     {   
-        //cli();
+        cli();
         FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
         FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);
         FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);
         uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);   // find the peak hz
-        //sei();
+        sei();
         /*                                          // for debug 
         Serial.println(F("DEBUG"));
         Serial.print(F("Printing _vReal array: "));
