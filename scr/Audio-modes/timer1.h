@@ -25,21 +25,22 @@
 #ifndef TIMER1_H
 #define TIMER1_H
 
-#ifndef __AVR_ATmega328P__                        // check for processor type
+#ifndef __AVR_ATmega328P__                       // check for processor type
 #warning "Timer1 library currently only supports ATmega328p based boards";
 #endif
 
-class timer1                                     // Manages the arduino uno's timer1
+class timer1                                    // Manages the arduino uno's timer1
 {
     private:
+    uint32_t _achievedFrequency;                // Stores the achieved frequency
     const uint16_t prescalers[5] = { 1, 8, 64, 256, 1024};
-    void SetPrescaler(uint16_t value);     // Sets the prescaler
-    protected:
-
-    uint16_t Start(uint16_t freq);                // initializes the timer1's settings | Returns the hz it was able to set
-    void Stop();                                  // turns off the timer
-    void Continue();                              // Turns the timer back on
-    ~timer1();
+    void SetPrescaler(uint16_t value);          // Sets the prescaler
+    public:
+    uint32_t GetTimerFrequency();               // Returns the frequency achieved
+    void Start(uint16_t freq);                  // initializes the timer1's settings | Returns the hz it was able to set
+    void Stop();                                // turns off the timer
+    void Continue();                            // Turns the timer back on
+    ~timer1();                                  // Resets timer1 to it's default values.
 };
 
 #include "timer1.cpp"

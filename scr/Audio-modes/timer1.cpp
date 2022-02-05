@@ -59,21 +59,22 @@ void timer1::SetPrescaler(uint16_t value)               // Reference: ATmega328p
         break;
 
     default:
-        Serial.println(F("Not working"));       // for debug. will be deleted after testing.
-        Serial.print(F("Value: "));
+        #ifdef DEBUG
+        Serial.print(F("Timer1: Incorrect prescaler value given: "));
         Serial.println(value);
+        #endif
         break;
     }
 }
 
-uint16_t timer1::Start(uint16_t freq)
+void timer1::Start(uint16_t freq)
 {  
     uint16_t OCR1A_value;
     uint8_t bestPrescaler;
 
     for (uint8_t i = 0; i < 4;i++)         // check for the most accurate prescaler. Prescaler is in laymen's terms a clock divider.
     {
-        OCR1A_value = 16000000 / ( freq * prescalers[i] );
+        OCR1A_value = 16000000 / ( freq * prescalers[i] ) - 1;
         if ( OCR1A_value <= uint16_t(-1))  // check if the value is under 16bit. The arduino uno's timer1 OCR1A register only supports 16 bit values
         {
             bestPrescaler =  i;
@@ -90,39 +91,37 @@ uint16_t timer1::Start(uint16_t freq)
         Serial.print(F("Timer1 is disabled | Turning it on"));
         cli();
         #endif
-        PRR |= (0 << PRTIM1);
+        PRR &= 0x767;                      // Disables timer1 powersave feature.
     }
     
-                                           // set timer1 interrupt at 1kHz
     TCCR1A = 0;                            // set entire TCCR1A register to 0
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            // initialize counter value to 0 
-                                           // OCR1A = real_sample_rate; // = (16*10^6) / (2000*64) - 1 (must be under 16bit) set compare match register for 1khz increments
-    OCR1A = OCR1A_value;
+
+    OCR1A = OCR1A_value;                   // OCR1A = (16*10^6) / ( frequency * prescaler ) - 1 (must be under 16bit)
     TCCR1B |= (1 << WGM12);                // turn on CTC mode
     SetPrescaler(prescalers[bestPrescaler]);
-    //TCCR1B |= (1 << CS11) | (1 << CS10);   // Set CS11 and CS10 bits for 64 prescaler
-    TIMSK1 = (1 << OCIE1B);                // enable timer1 compare B interrupt
+    //TCCR1B |= (1 << CS11) | (1 << CS10); // Set CS11 and CS10 bits for 64 prescaler
+    TIMSK1 |= (1 << OCIE1B);               // enable timer1 compare B interrupt
     sei();                                 // enable interrupts
-    return 16000000 / prescalers[bestPrescaler] / OCR1A_value;  // Returns the hz achieved
+    _achievedFrequency = 16000000 / prescalers[bestPrescaler] / OCR1A_value;  // Calculate and save the frequency achieved
 }
 
 void timer1::Stop()
 {
-    /*
-    TCCR1A = 0;                            // set entire TCCR1A register to 0
-    TCCR1B = 0;                            // same for TCCR1B
-    TCNT1  = 0;                            // initialize counter value to 0
-    */
    PRR |= (1 << PRTIM1);                   // Turns timer1 to off
 }
 
 void timer1::Continue()                    // Disables the power reduction
 {
-    PRR |= (0 << PRTIM1);
+    PRR &= 0x767;                          // turns timer1 on
 }
 
-timer1::~timer1()
+timer1::~timer1()                           
 {
-    Stop();
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCNT1 = 0;
+    OCR1A = 0;
+    TIMSK1 &= 0x4;
 }

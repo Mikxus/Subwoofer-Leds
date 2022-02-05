@@ -117,13 +117,7 @@ bool fft::Init()
         Serial.println(" Bytes for fft bins");
         Serial.flush();
         #endif
-        uint16_t achievedFreq;
-        achievedFreq = Start(_frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
-        /*Serial.print(F("Achieved freq: "));
-        Serial.print(achievedFreq);
-        Serial.print(F(" Wanted freq: "));
-        Serial.println(_frequency);
-        delay(1500);*/
+        Start(_frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
     }
     return 1;
 }
