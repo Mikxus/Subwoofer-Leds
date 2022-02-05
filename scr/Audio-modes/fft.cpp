@@ -70,6 +70,9 @@ bool fft::allocMem()
         Serial.flush();
         #endif // DEBUG
 
+        if (_vReal != NULL) free(_vReal);       // check if variable got allocated, then free it
+        if (_vImag != NULL) free(_vImag);       // same here
+
         return 0;                               // failed to allocate enough memory
     }
     _arrAllocated = 1;
