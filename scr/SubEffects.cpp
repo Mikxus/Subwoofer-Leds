@@ -68,31 +68,33 @@ void Modes::Update() {          // This chooses wich "mode" to use.
     switch (_currentMode)
     {
     case 0:
+    {
         if(!_initialized)       // Checks if all necessary components are initialized
         {
             if( fft::Init() )
             {
                 #ifdef DEBUG
-                Serial.println(F("FFT initialized succesfully"));
+                    Serial.println(F("FFT initialized succesfully"));
                 #endif
                 _initialized = true;
             } else 
             {
-                 #ifdef DEBUG
-                Serial.println(F("FFT failed to be initialized"));
+                #ifdef DEBUG
+                    Serial.println(F("FFT failed to be initialized"));
                 #endif
                 break;
-                _initialized = false;
             }
         }
         uint16_t val;
         val = fft::Calculate();                             // Calculates the strongest frequency.
         //if (val != 0) {Serial.print(F("freq: ")); Serial.println(val);}
         val = constrain(val,0,255);
+        val = map(val,0,255,100,255);
         uint16_t brightness = analogRead(_subwooferPin);
         brightness = constrain(brightness, _calibratedNoiseZero, 450);
         brightness = map(brightness,_calibratedNoiseZero,450,0,1023);
         ledController.Fade(val, brightness);                // Calls the ledcontrollers basic fade function to update the leds.
+    }
         break;
     
     default:

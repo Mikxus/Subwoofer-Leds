@@ -12,28 +12,19 @@ SubEffects effect( 0, DATA_PIN, NUM_LEDS, FastObj, leds);         // effect( aud
 
 void setup() {
   pinMode(LED_BUILTIN,OUTPUT);
-  Serial.begin(38400);
+  pinMode(12,OUTPUT);
+  Serial.begin(115200);
   effect.CalibrateSoundLevel();                             // 1,5s delay + calibrates the noise level.
-  //Serial.print(F("New zero is:"));
-  //Serial.println(_calibratedNoiseZero);
-  delay(1000);
+
   FastObj.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);  // GRB ordering is typical
-  FastLED.setMaxRefreshRate(0);                             // For best performance. !May cause some led strips to flicker                                                           
+  FastLED.setMaxRefreshRate(0);                             // For best performance. !May cause some led strips to flicker
+  effect.SetFftFrequency(5600);
 }
 
+
 void loop() {
-  float updates;
-  unsigned long last_fps = 0;
     while (true)
     {
-      if (millis() > last_fps + 250)
-      {
-        //updates * 1000.0 / 250.0;
-        Serial.print("FPS: ");
-        Serial.println(FastObj.getFPS());
-        //updates = 0;
-        last_fps = millis();
-      }
       effect.Update();
     }
 }

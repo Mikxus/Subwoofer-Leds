@@ -43,14 +43,15 @@ bool fft::SetSampleSize(uint16_t size) {
     
 }
 
-void fft::SetFrequency(uint16_t freq)
+void fft::SetFftFrequency(uint32_t freq)
 {
     #ifdef DEBUG
         Serial.println(F("Updating timer1 Frequency to: "));
         Serial.println(_frequency);
         Serial.flush();
     #endif // DEBUG
-    _frequency = freq;
+    SetTimerFrequency(freq);
+    _frequency = GetTimerFrequency();
 }
 
 bool fft::allocMem()

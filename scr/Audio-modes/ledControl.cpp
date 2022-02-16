@@ -6,7 +6,7 @@ void ledControl::Init(uint8_t led_dataPin, uint16_t led_count, CFastLED& fastLed
 {
     _FastLED = &fastLedObj;
     _led_count = led_count;
-    _leds = leds;               // Save the pointer
+    _leds = leds;               // Save the object
 }
 
 void ledControl::logTime()
@@ -25,13 +25,13 @@ void ledControl::logLastHSV(uint8_t hue, uint8_t saturation, uint8_t value)
 void ledControl::Fade(uint8_t hue,uint16_t brightness)   
 {
     //bright._Alpha = 0.07;                                 // Temporary values used for debug
-    color._r = 0.03;
-   if (hue == 0) hue = _lastHue;                            // if the color value is 0 use the last value;
+    color._r = 0.008;
+   if (hue == 100) hue = _lastHue;                            // if the color value is 0 use the last value;
     else _lastHue = hue;
 
     float val =  bright.calc(brightness);
     float colorVal = color.calc(hue);
-    //Serial.print("val "); Serial.println(val);
+    //Serial.print("col "); Serial.println(colorVal);
     //Serial.flush();
     val = map(val, 0, 500, 0, 255);
     //if (val < 1) val = 0;  

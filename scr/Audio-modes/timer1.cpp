@@ -60,14 +60,46 @@ void timer1::SetPrescaler(uint16_t value)               // Reference: ATmega328p
 
     default:
         #ifdef DEBUG
-        Serial.print(F("Timer1: Incorrect prescaler value given: "));
-        Serial.println(value);
+            Serial.print(F("Timer1: Incorrect prescaler value given: "));
+            Serial.println(value);
+            Serial.print(F("Correct values are: "));
+            for (uint8_t i = 0; i < sizeof(prescalers); i++)
+            {
+                Serial.print(prescalers[i]);
+                if (i != sizeof(prescalers) -1 ) Serial.println(F(", "));
+            }
         #endif
         break;
     }
 }
 
-void timer1::Start(uint16_t freq)
+uint32_t timer1::GetTimerFrequency()
+{
+    return _achievedFrequency;
+}
+
+void timer1::SetTimerFrequency(uint32_t frequency)
+{
+    uint16_t OCR1A_value;
+    uint8_t bestPrescaler;
+
+    for (uint8_t i = 0; i < 4;i++)         // check for the most accurate prescaler. Prescaler is in laymen's terms a clock divider.
+    {
+        OCR1A_value = 16000000 / ( frequency * prescalers[i] ) - 1;
+        if ( OCR1A_value <= uint16_t(-1))  // check if the value is under 16bit. The arduino uno's timer1 OCR1A register only supports 16 bit values
+        {
+            bestPrescaler =  i;
+            break;                         // break since the smallest prescaler is the most accurate
+        }
+    }
+    cli();
+    SetPrescaler(prescalers[ bestPrescaler ]);
+    OCR1A = OCR1A_value;
+    sei();
+    _achievedFrequency = 16000000 / prescalers[bestPrescaler] / OCR1A_value;
+}
+
+void timer1::Start(uint32_t freq)
 {  
     uint16_t OCR1A_value;
     uint8_t bestPrescaler;
@@ -87,9 +119,9 @@ void timer1::Start(uint16_t freq)
     if (PRTIM1)                            // check if the timer is disabled
     {
         #ifdef DEBUG
-        sei();
-        Serial.print(F("Timer1 is disabled | Turning it on"));
-        cli();
+            sei();
+            Serial.print(F("Timer1 is disabled | Turning it on"));
+            cli();
         #endif
         PRR &= 0x767;                      // Disables timer1 powersave feature.
     }
