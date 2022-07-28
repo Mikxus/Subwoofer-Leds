@@ -22,7 +22,6 @@
  * SOFTWARE.
 */
 
-#include <Arduino.h>
 #include "timer1.h"
 
 void timer1::SetPrescaler(uint16_t value)               // Reference: ATmega328p Datasheet          ! TCR1B register should be set to 0 before calling this function
@@ -53,7 +52,7 @@ void timer1::SetPrescaler(uint16_t value)               // Reference: ATmega328p
         break;
 
     case 1024:                  // 1/1024 prescaler
-        TCCR1B |= (1<< CS12);
+        TCCR1B |= (1 << CS12);
         //TCCR1B |= (0 << CS11);
         TCCR1B |= (1 << CS10);
         break;
@@ -73,7 +72,7 @@ void timer1::SetPrescaler(uint16_t value)               // Reference: ATmega328p
     }
 }
 
-uint32_t timer1::GetTimerFrequency()
+float timer1::GetTimerFrequency()
 {
     return _achievedFrequency;
 }
@@ -101,12 +100,13 @@ void timer1::SetTimerFrequency(uint32_t frequency)
 
 void timer1::Start(uint32_t freq)
 {  
-    uint16_t OCR1A_value;
+    uint32_t OCR1A_value;
     uint8_t bestPrescaler;
 
-    for (uint8_t i = 0; i < 4;i++)         // check for the most accurate prescaler. Prescaler is in laymen's terms a clock divider.
+    for (uint8_t i = 0; i < 4;i++)         // check for the most accurate prescaler
     {
         OCR1A_value = 16000000 / ( freq * prescalers[i] ) - 1;
+        
         if ( OCR1A_value <= uint16_t(-1))  // check if the value is under 16bit. The arduino uno's timer1 OCR1A register only supports 16 bit values
         {
             bestPrescaler =  i;
@@ -116,37 +116,35 @@ void timer1::Start(uint32_t freq)
     //Serial.print(F("New prescaler used: "));
     //Serial.println(prescalers[bestPrescaler]);
     cli();                                 // disable interrupts
+
     if (PRTIM1)                            // check if the timer is disabled
     {
-        #ifdef DEBUG
-            sei();
-            Serial.print(F("Timer1 is disabled | Turning it on"));
-            cli();
-        #endif
-        PRR &= 0x767;                      // Disables timer1 powersave feature.
+        PRR &= ~( 1 << PRTIM1 );            // Enable timer1
     }
     
     TCCR1A = 0;                            // set entire TCCR1A register to 0
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            // initialize counter value to 0 
 
-    OCR1A = OCR1A_value;                   // OCR1A = (16*10^6) / ( frequency * prescaler ) - 1 (must be under 16bit)
+    OCR1A = (uint16_t) OCR1A_value;        // OCR1A = (16*10^6) / ( frequency * prescaler ) - 1 (must be under 16bit)
     TCCR1B |= (1 << WGM12);                // turn on CTC mode
-    SetPrescaler(prescalers[bestPrescaler]);
-    //TCCR1B |= (1 << CS11) | (1 << CS10); // Set CS11 and CS10 bits for 64 prescaler
+
+    SetPrescaler(prescalers[bestPrescaler]); // Set prescaler
+
     TIMSK1 |= (1 << OCIE1B);               // enable timer1 compare B interrupt
     sei();                                 // enable interrupts
-    _achievedFrequency = 16000000 / prescalers[bestPrescaler] / OCR1A_value;  // Calculate and save the frequency achieved
+    
+    _achievedFrequency = 16000000.0 / (float) prescalers[bestPrescaler] / (float) OCR1A_value;  // Calculate and save the frequency achieved
 }
 
-void timer1::Stop()
+inline void timer1::Stop()
 {
-   PRR |= (1 << PRTIM1);                   // Turns timer1 to off
+   PRR |= 0x4;                   // Turns timer1 off
 }
 
-void timer1::Continue()                    // Disables the power reduction
+inline void timer1::Continue()                    // Disables the power reduction
 {
-    PRR &= 0x767;                          // turns timer1 on
+    PRR &= 0x7b;                          // turns timer1 on   // might be wrong number
 }
 
 timer1::~timer1()                           
@@ -156,4 +154,27 @@ timer1::~timer1()
     TCNT1 = 0;
     OCR1A = 0;
     TIMSK1 &= 0x4;
+}
+
+volatile uint16_t _fftArrPos;
+ISR(TIMER1_COMPB_vect)                              // Interrupt routine for the fft library. each iteration it checks if the sapling has completed. If not it saves the current analog input to the array
+{
+    if (!_fftBinReady)
+    {
+        uint16_t val = analogRead(_subwooferPin);
+        if ( val <= _calibratedNoiseZero )          // check if the reading is above the noise level if it isn't sets the value to zero
+        {
+            val = 0;
+        }
+        if (_fftArrPos < _fftBinSize )              // if the _fftArrPos is within the array size save the value. else set the value to zero and set _fftBinReady to true
+        {
+            _vReal[_fftArrPos] = val;
+            _fftArrPos += 1;
+        } else
+        {
+            _fftArrPos = 0;
+            _fftBinReady = true;
+        }
+        return;
+    }
 }

@@ -22,51 +22,108 @@
  * SOFTWARE.
 */
 
+
 #ifndef SUBEFFECTS_H
 #define SUBEFFECTS_H
 
 
-#include <Arduino.h>
-//#define DEBUG                             // Uncomment to enable DEBUG serial prints
+/* Detect if the processor is supported */
 
-#ifndef LEDCONTROL_H
-#include "Audio-modes/fft.h"                // ! has to be declared here
-#include "Audio-modes/ledControl.h"
+#if defined(__AVR_ATmega328P__)
+    #define _SUBEFFECTS_AVR_ATMEGA328_
+#else
+        #error This library currently only supports AVR ATmega328 chip;      // comment out if you would still like to continue + remember to define  _SUBEFFECTS_AVR_ATMEGA328P_
 #endif
 
-uint16_t _calibratedNoiseZero;
 
-uint8_t _subwooferPin;      // global variable for subwoofer pin
-                            // used in timer1's ISR
+/* ------------------------------------ */
 
-class Modes : public fft
-{
-    private:
-    bool _initialized;
 
-    protected:
-    uint8_t _currentMode;
-    uint8_t _modeCount;
+/* Definitions */
 
-    public:
-    ledControl ledController;
-    void Update();
-    void NextMode();
-    void PreviousMode();
-    void SetMode(uint8_t mode);
+#define DEBUG                    // Uncomment to enable debug messages
 
-    Modes();
-    //~Modes();
-};
+#define MAX_STRIPS 2                // Max led strips
+
+#define NUM_OF_MODES 1              // Number of modes
+
+#define NUM_OF_PALETTES 1           // Number of color palettes
+
+/*-------------*/
+
+
+
+/* includes for the SubEffects class */
+#include <Arduino.h>
+#include "colorPalettes.h"
+#include "Audio-modes/audioModes.h"
+#include "utils/ledStrip.h"
+#include "utils/colorMath.h"
+/* -------------------------------- */
+
+
+
+
 // Base class
 
-class SubEffects : public Modes
+class SubEffects
 {
-public:
-    SubEffects(uint8_t subPin, uint8_t led_dataPin,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]);
-    ~SubEffects();
-    void CalibrateSoundLevel();      // Corrects for dc offset in signal. When called it records for 1.5 seconds to find the highest voltage.
-};
-#include "SubEffects.cpp"
+private:
 
+    bool _initialized;
+    ledStrip *_strips[MAX_STRIPS];
+    uint8_t _stripsPos = 0;                                 // Keeps count on the number of ledStrips allocated
+    
+    CFastLED* _fastPtr = nullptr;
+    //bool SetModeToStrip(uint8_t modeIndex, uint8_t identifier);
+    bool UpdateStripValues(uint8_t identifier);             // Updates strip's settings with the current global settings. 
+    void UpdateAllStripsValues();                           // Updates all strip's settings
+    uint8_t GetStripPos(uint8_t identifier);                // Returns the position of the strip in the _strips array
+    ledStrip * GetStripPtr(uint8_t identifier);             // Returns the corresponding strip's pointer. If not found, returns nullpointer.
+    //bool SetPalettePtr(uint8_t index,uint8_t identifier); // Returns the corresponding color palette
+
+protected:
+    uint8_t _brightValue;           // Current global brightness
+    uint8_t _currentMode;           // Current global mode
+    uint8_t _currentPalette;        // Current global color palette
+
+public:
+    SubEffects(CFastLED* _fastPtr); 
+    
+    /* Led strip controls */
+    CRGB* GetLedsPtr(uint8_t identifier);                                                             // returns CRGB* leds[] array if identifier matches to led strip   
+    uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrSize);                     // Adds new ledStrip to the library & allocates the led array from the heap. 
+    uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrsize, CRGB* ledArray);     // 
+    void RemoveAllStrips();                     // Removes all led strips
+    bool RemoveLedStrip(CRGB* ledArray);        // Removes led strip wich ledArray ptr corresponds
+    bool RemoveLedStrip(uint8_t identifier);    // Removes led strip with corresponding identifier
+    /* ------------------ */
+
+    void CalibrateNoise();                       // Corrects for noise in signal. Calibrates all led Strips. Calibration takes 1.5 s
+    
+    /* Brightness controls */
+    void SetBrightness(uint8_t brightness);     // Sets global brightness to given value.
+    bool IncreaseBrightness();                  // Increase global brightness. 
+    bool DecreaseBrightness();                  // Decrease global brightness.
+    /* ------------------- */
+
+    inline void Update() __attribute__((always_inline)); // Updates the led strips
+
+    /* Mode controls */
+    void NextMode();                            
+    void PreviousMode();
+    void SetMode(uint8_t mode);
+    /* ------------- */
+
+    /* Color palette controls */
+    void NextColor();
+    void PreviusColor();
+    bool SetColor(uint8_t paletteIndex);
+    /* ---------------------- */
+
+    ~SubEffects();
+
+};
+
+#include "SubEffects.cpp"
 #endif 

@@ -22,22 +22,25 @@
  * SOFTWARE.
 */
 
-#include <Arduino.h>
-
 #ifndef FFT_H
 #define FFT_H
 
-//#include "timer1/timer1.h"
-#include <MemoryFree.h>
+#include <Arduino.h>
 
 #ifndef MEMORY_FREE_H
-#pragma ("You can get the memory free library at: https://github.com/McNeight/MemoryFree")
+#error ("You can get the memory free library at: https://github.com/McNeight/MemoryFree")
 #endif
 
-#include "timer1.h"
 #include <arduinoFFT.h>
 
-//#include "/home/mikko/Documents/code/Subwoofer-Leds/SubEffects/scr/SubEffects.h"
+#if defined( _SUBEFFECTS_AVR_ATMEGA328P_ )
+    #include "avr/atmega328p/timer1.h"
+#else
+    #error " FFT.h only supports only avr ATmega328P";
+#endif
+
+
+/* Variables for the timer isr */
 volatile uint16_t _fftBinSize = 64; // default size
 volatile bool _fftBinReady;
 double * _vReal;
@@ -46,13 +49,13 @@ class fft : public timer1
 {
     private:
     arduinoFFT FFT = arduinoFFT();              // Create object of arduinoFFT();
-    bool _arrAllocated = 0;                     // value which track if memory is allocated for fft's bins
-    double * _vImag;                            // pointer for the fft bin's imaginary values
+    bool _arrAllocated = 0;                     // Flag to knwo if fft bins are allocated
+    double * _vImag = nullptr;                  // Pointer for the fft bin's imaginary values
     bool allocMem();
     void deallocMem();
     
     protected:
-    uint16_t _frequency = 700;                  // default value
+    uint16_t _frequency = 700;                  // Frequency for the fft
 
     public:
     bool SetSampleSize(uint16_t size = 64);     // Changes the fft bin size

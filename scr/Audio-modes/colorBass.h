@@ -22,28 +22,33 @@
  * SOFTWARE.
 */
 
-#ifndef TIMER1_H
-#define TIMER1_H
+#ifndef _COLORBASS_H
+#define _COLORBASS_H
 
-#ifndef __AVR_ATmega328P__                       // check for processor type
-#warning "Timer1 library currently only supports ATmega328p based boards";
-#endif
+/* includes */
+#include "inttypes.h"
+#include "../utils/fft.h"
+#include "../utils/colorMath.h"
+#include "audioModes.h"
+/* -------- */
 
-class timer1                                    // Manages the arduino uno's timer1
+
+class colorBass : public audioMode                     // Simple bass effect
 {
-    private:
-    uint32_t _achievedFrequency;                // Stores the achieved frequency
-    const uint16_t prescalers[5] = { 1, 8, 64, 256, 1024};
-    void SetPrescaler(uint16_t value);          // Sets the prescaler
-    
-    public:
-    uint32_t GetTimerFrequency();               // Returns the frequency achieved | atm doesn't work
-    void SetTimerFrequency(uint32_t frequency);                   // Sets the given frequency
-    void Start(uint32_t freq);                  // initializes the timer1's settings | Returns the hz it was able to set
-    void Stop();                                // turns off the timer
-    void Continue();                            // Turns the timer back on
-    ~timer1();                                  // Resets timer1 to it's default values.
-};
+    uint16_t _lastBrightness = 0;
+    bool _update = 0;
+    bool _initFlag = 0;
+    uint16_t _lastFreq = 0;
 
-#include "timer1.cpp"
+
+    ledControl ledController;
+    approxFFT FFT;                                     // fft object;
+    
+public:
+    colorBass();
+    virtual bool Update();                             // Calculates values for the led
+
+    ~colorBass() = default;    
+};
+#include "colorBass.cpp"
 #endif

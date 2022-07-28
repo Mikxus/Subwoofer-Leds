@@ -33,7 +33,7 @@ bool fft::SetSampleSize(uint16_t size) {
     #endif // DEBUG
 
     deallocMem();
-    if ( size < freeMemory()) 
+    if ( size * sizeof(double) * 2 < freeMemory() ) 
     {
         _fftBinSize = size;
         return 1;
@@ -87,14 +87,14 @@ void fft::deallocMem()
         free(_vReal);
         free(_vImag);
         _arrAllocated = 0;
-        _vReal = NULL;
-        _vImag = NULL;
+        _vReal = nullptr;
+        _vImag = nullptr;
 
         #ifdef DEBUG
-        Serial.println(F("Deallocated the fft bins"));
-        Serial.println(F("Free mem: ")); 
-        Serial.println( freeMemory() );
-        Serial.flush();
+            Serial.println(F("Deallocated the fft bins"));
+            Serial.println(F("Free mem: ")); 
+            Serial.println( freeMemory() );
+            Serial.flush();
         #endif // DEBUG
     } else return;
 }
@@ -104,24 +104,24 @@ bool fft::Init()
     if (!allocMem() ) 
     {
         #ifdef DEBUG
-        Serial.println(F("FFT bin allocation failed"));
-        Serial.print(F("Not enough memory for: "));
-        Serial.print(_fftBinSize * sizeof(double));
-        Serial.println(" Bytes");
-        Serial.flush();
-        #endif
+            Serial.println(F("FFT bin allocation failed"));
+            Serial.print(F("Not enough memory for: "));
+            Serial.print(_fftBinSize * sizeof(double));
+            Serial.println(F(" Bytes"));
+            Serial.flush();
+            #endif
         return 0;
 
     } else
     {
         #ifdef DEBUG
-        Serial.println(F("FFT bin alloction succesfull"));
-        Serial.print(F("Allocated: "));
-        Serial.print(_fftBinSize * sizeof(double));
-        Serial.println(" Bytes for fft bins");
-        Serial.flush();
+            Serial.println(F("FFT bin alloction succesfull"));
+            Serial.print(F("Allocated: "));
+            Serial.print(_fftBinSize * sizeof(double));
+            Serial.println(F(" Bytes for fft bins"));
+            Serial.flush();
         #endif
-        Start(_frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
+        Start( _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
     }
     return 1;
 }
@@ -137,28 +137,13 @@ uint16_t fft::Calculate()
     if (_fftBinReady)
     {   
         cli();
-        FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD);
-        FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);
-        FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);
-        uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);   // find the peak hz
+
+        FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD); // takes approx 5ms
+        FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);                // takes approx 16ms
+        FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);                  // takes approx < 2ms
+        uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);        // find the peak hz. Takes approx < 1ms;
+
         sei();
-        /*                                          // for debug 
-        Serial.println(F("DEBUG"));
-        Serial.print(F("Printing _vReal array: "));
-        Serial.print(sizeof(double) * _fftBinSize);
-        Serial.println(" Bytes");
-        cli();
-                                             
-        for (int i = 0; i < _fftBinSize; i++)
-        {
-            if (i % 10 == 0) Serial.println();
-            
-            Serial.print((uint32_t) _vReal[i]);
-            if (i % 10 != 9) Serial.print(F(","));
-        }
-        Serial.println();
-        sei();
-        */ 
         for (uint16_t i = 0; i < _fftBinSize; i++)
         {
             _vImag[i] = 0;
