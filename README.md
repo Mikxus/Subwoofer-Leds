@@ -1,6 +1,5 @@
 # SubEffects 0.1.0v
-Library wich provides some neat audio responsive light effects.
-Currently only supports arduino uno and nano boards. You can find information for the led chips supported by [FastLED](https://github.com/FastLED/FastLED#supported-led-chipsets) library.
+This library intends to provide an easy way to create and use light effects with different led strips. You can find information for the led chips supported by [FastLED](https://github.com/FastLED/FastLED#supported-led-chipsets) library.
 >**! Library is still under development. Many things will be added or removed.**
 
 # Light modes
