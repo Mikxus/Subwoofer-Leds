@@ -37,10 +37,8 @@ bool fft::SetSampleSize(uint16_t size) {
     {
         _fftBinSize = size;
         return 1;
-    } else {
-        return 0;
     }
-    
+    return 0;   
 }
 
 void fft::SetFftFrequency(uint32_t freq)
@@ -50,8 +48,8 @@ void fft::SetFftFrequency(uint32_t freq)
         Serial.println(_frequency);
         Serial.flush();
     #endif // DEBUG
-    SetTimerFrequency(freq);
-    _frequency = GetTimerFrequency();
+    _frequency = SetTimerFrequency(freq);
+    return;
 }
 
 bool fft::allocMem()
@@ -96,7 +94,8 @@ void fft::deallocMem()
             Serial.println( freeMemory() );
             Serial.flush();
         #endif // DEBUG
-    } else return;
+    }
+    return;
 }
 
 bool fft::Init()
@@ -121,7 +120,7 @@ bool fft::Init()
             Serial.println(F(" Bytes for fft bins"));
             Serial.flush();
         #endif
-        Start( _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
+        _frequency = Start( _frequency );     // Calls timer1 wich setups the arduino uno's timer to interrupt at given frequency.
     }
     return 1;
 }
@@ -130,27 +129,26 @@ void fft::Stop() {
 
     timer1::Stop();
     deallocMem();
+    return;
 }
 
 uint16_t fft::Calculate()
 {
     if (_fftBinReady)
     {   
-        cli();
-
         FFT.Windowing(_vReal, _fftBinSize, FFT_WIN_TYP_HAMMING, FFT_FORWARD); // takes approx 5ms
         FFT.Compute(_vReal, _vImag, _fftBinSize, FFT_FORWARD);                // takes approx 16ms
         FFT.ComplexToMagnitude(_vReal, _vImag, _fftBinSize);                  // takes approx < 2ms
         uint16_t val = FFT.MajorPeak(_vReal, _fftBinSize, _frequency);        // find the peak hz. Takes approx < 1ms;
 
-        sei();
         for (uint16_t i = 0; i < _fftBinSize; i++)
         {
             _vImag[i] = 0;
         }
         _fftBinReady = false;             // after calculations set _fftBinReady to false
         return val;
-    } else return 0;
+    }
+    return 0;
 }
 
 uint16_t fft::CalculateOptimized()
@@ -159,20 +157,6 @@ uint16_t fft::CalculateOptimized()
     {
         
     }
-}
- 
-void fft::Benchmark()
-{
-    if (!_arrAllocated) 
-    {
-        if (!allocMem() )   // check if fft bin's allocation fails
-        {
-            return;          // if it does, No need to calculate fft when there is no data.
-        }
-
-    }
-    _fftBinReady = 1;
-    Calculate();
 }
 
 fft::~fft()

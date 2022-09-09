@@ -47,17 +47,17 @@ double * _vReal;
 
 class fft : public timer1
 {
-    private:
+private:
     arduinoFFT FFT = arduinoFFT();              // Create object of arduinoFFT();
     bool _arrAllocated = 0;                     // Flag to knwo if fft bins are allocated
     double * _vImag = nullptr;                  // Pointer for the fft bin's imaginary values
     bool allocMem();
     void deallocMem();
     
-    protected:
-    uint16_t _frequency = 700;                  // Frequency for the fft
+protected:
+    uint32_t _frequency = 700;                  // Frequency for the fft
 
-    public:
+public:
     bool SetSampleSize(uint16_t size = 64);     // Changes the fft bin size
     void SetFftFrequency(uint32_t freq = 700);     // Changes the fft frequency
     void Stop();                                // Stops the fft
