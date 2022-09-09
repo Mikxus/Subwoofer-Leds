@@ -37,26 +37,6 @@ SubEffects::SubEffects(CFastLED* fptr)
 {
 }
 
-/*
-bool SubEffects::SetModeToStrip(uint8_t modeIndex, uint8_t identifier)
-{
-    uint8_t i = 0;
-    i = GetStripPos(identifier);
-    if (i == 255) return 0;                                                 // strip not found
-
-    if ( !loadMode( modeIndex, _strips[i], _fastPtr) )    // Load new mode and check if it loaded succesfully                           // Check if mode was loaded succesfully
-    {
-        #ifdef DEBUG
-            Serial.print("Not enough memory for mode ");
-            Serial.println(modeIndex);
-        #endif
-
-        return 0;
-    }
-
-    return 1;                                                   // success
-}
-*/
 
 /**
  * @brief Returns the position of the led strip pointer in 
@@ -205,39 +185,34 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
     {
         #ifdef DEBUG
             Serial.println(F("SubEffects: Max number of led strips reached"));
-            digitalWrite(13,HIGH);
         #endif
-
         return 0;                                    
     }
 
+    if (_strips[_stripsPos] != nullptr) return 0;
 
-    if (_strips[_stripsPos] == nullptr)                  // check if the pointer "holds" object
-    {                                                    // if it doesn't, allocate new object for it
-        _strips[_stripsPos] = new ledStrip;              // if empty pointer allocate new struct
-        if (_strips[_stripsPos] == nullptr)              // if no space available return 0
-        {
-            #ifdef DEBUG
-                Serial.println(F("SubEffects: Failed to allocate space for new led struct\n"));
-                digitalWrite(13,HIGH);
-
-            #endif
-
-            return 0;                                
-        }
+    _strips[_stripsPos] = new ledStrip;
+    if (_strips[_stripsPos] == nullptr)
+    {
+        #ifdef DEBUG
+            Serial.println(F("SubEffects: Failed to allocate space for new led struct\n"));
+        #endif
+        return 0;                                
     }
+    /* Assing values to strip struct  */
+    _strips[_stripsPos]->ledArr = ledArray;
+    _strips[_stripsPos]->arrSize = ledArrSize;
+    _strips[_stripsPos]->mode = ledMode;
+    _strips[_stripsPos]->inputPin = audioPin;
+    _strips[_stripsPos]->identifier = _stripsPos + 1;                                                         // increase _stripsPos
 
-    _strips[_stripsPos]->ledArr = ledArray;               // Assing the ledArray pointer
-    _strips[_stripsPos]->arrSize = ledArrSize;            // Assign the size of the array
-    _strips[_stripsPos]->mode = ledMode;                  // Assign the mode
-    _strips[_stripsPos]->inputPin = audioPin;             // Assign the audio pin
-    _strips[_stripsPos]->identifier = _stripsPos + 1;     // Create identifier for the strip                                                              // increase _stripsPos
-
-    _strips[_stripsPos]->SetMode(ledMode, _fastPtr);      // Set mode for the strip
-    _strips[_stripsPos]->SetColor(_currentPalette); // Set color palette
+    _strips[_stripsPos]->SetMode(ledMode, _fastPtr);
+    _strips[_stripsPos]->SetColor(_currentPalette);
 
     _stripsPos++;
-    return _stripsPos;                                    // Return the new strip's identifier               
+
+    /* Return strip's idenifier */
+    return _stripsPos;           
 }
 
 /**
@@ -337,6 +312,7 @@ void SubEffects::CalibrateNoise()
             } 
         }
     #endif
+    return;
 }
 
 /**
@@ -347,6 +323,7 @@ void SubEffects::CalibrateNoise()
 void SubEffects::SetBrightness(uint8_t brightness)
 {
     _brightValue = brightness;
+    return;
 }
 /**
  * @brief Increases the global brightness
