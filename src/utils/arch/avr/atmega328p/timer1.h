@@ -34,19 +34,20 @@
     #error "timer1 only supports only avr ATmega328";
 #endif
 
+const uint8_t prescalers[5] PROGMEM = {
+        (1 << CS10) | (0 << CS11) | (0 << CS12), // 0
+        (0 << CS10) | (1 << CS11) | (0 << CS12), // 8
+        (1 << CS10) | (1 << CS11) | (0 << CS12), // 64
+        (0 << CS10) | (0 << CS11) | (1 << CS12), // 256
+        (1 << CS10) | (0 << CS11) | (1 << CS12)  // 1024
+    };
+
 class timer1                                    // Manages the arduino uno's / nano's timer1
 {
-    const uint8_t prescalers[5] PROGMEM = {
-        ~((1 << CS10) | (0 << CS11) | (0 << CS12)), // 0
-        ~((0 << CS10) | (1 << CS11) | (0 << CS12)), // 8
-        ~((1 << CS10) | (1 << CS11) | (0 << CS12)), // 64
-        ~((0 << CS10) | (0 << CS11) | (1 << CS12)), // 256
-        ~((1 << CS10) | (0 << CS11) | (1 << CS12))  // 1024
-    };
 
 protected:
     void SetPrescaler(uint8_t bitmask);          // Sets the prescaler
-    
+
 public:
     uint32_t SetTimerFrequency(uint32_t frequency); // Sets the given frequency
     uint32_t Start(uint32_t freq);                  // initializes the timer1's settings | Returns the hz it was able to set

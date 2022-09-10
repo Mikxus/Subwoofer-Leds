@@ -46,7 +46,8 @@ uint32_t timer1::SetTimerFrequency(uint32_t frequency)
         }
     }
     /* Get prescaler bitmask from flash */
-    TCCR1B &= pgm_read_byte_near(prescalers + prescaler_offset);
+    TCCR1B = 0;
+    TCCR1B |= pgm_read_byte_near( prescalers + prescaler_offset);
     OCR1A = OCR1A_value;
 
     return 16000000 / TCCR1B / OCR1A_value;
