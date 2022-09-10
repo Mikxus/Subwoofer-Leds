@@ -129,65 +129,6 @@ public:
     T limit( T value );
 };
 
-/*
- // Create struct for double exponential smoothing
-struct double_exponential_smoothing_filter
-{
-    float _alpha = 0.001;         // smooths small changes
-    float _beta = 0.01;   // smooths large changes
-    float _result = 0.0;
-    float calc(float analogRead);
-
-    float _st0 = 0.0;   // previus result
-    float _bt0 = 0.0;   // 
-
-private:
-    float _deltaTime = 0.0;
-    void log_time() { _deltaTime = micros(); }
-
-};
-
-
-// implement the function
-float double_exponential_smoothing_filter::calc(float analogRead)
-{
-    float _st = 0.0;    // Current result
-    float _bt = 0.0;    //
-
-    // calculate delta time
-    _deltaTime = micros() - _deltaTime;
-    
-    // Scale _deltaTime to seconds
-    _deltaTime /= 1000000.0;
-    if (_deltaTime >= 0.5) _deltaTime = 0.001;
-
-    // Calculate time constant from _deltaTime
-    float real_alpha =  abs(_deltaTime / log(1.0 - _alpha));
-    //real_alpha = abs( 1.0 - log(1.0 - real_alpha) );
-
-    float real_beta = abs(_deltaTime / log(1.0 - _beta));
-    //real_beta = 1.0 - log(1.0 - real_beta);
-
-    if (real_alpha > 1.0) real_alpha = 1.0;   // limit to 1
-    if (real_beta > 1.0) real_beta = 1.0;
-
-    // Calculate smoothed value with the real alpha and beta
-
-    _st = real_alpha * analogRead + (1.0 - real_alpha) * (_st0 + _bt0); // smoothens the small trends
-    if (_st < 0.0) _st = 0.0;
-
-    _bt = real_beta*(_st - _st0) + ( 1 - real_beta) * _bt0;   // smoothens over all trend
-    
-    if (_bt < 0.0) _bt = 0.0;
-
-
-    _st0 = _st; 
-    _bt0 = _bt0;
-    log_time();
-    return _bt;
-}
-
-*/
 
 class ledControl                        
 {
@@ -201,10 +142,10 @@ private:
     bool _breathDir;           // 0 for down 1 for up
 
 protected:
-    EWMA bright = EWMA(0.15);
-    EWMA bright2 = EWMA(0.20);
+    EWMA bright = EWMA(0.19);
+    EWMA bright2 = EWMA(0.25);
 
-    constantChangeRater<float> color = constantChangeRater<float>( 1,  19);
+    constantChangeRater<float> color = constantChangeRater<float>( 1,  15);
 
     float _lastUpdate = 0.0;
 

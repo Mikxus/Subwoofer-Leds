@@ -137,8 +137,6 @@ bool ledStrip::SetColorPalette(uint8_t colorIndex)
             colorPalette = blueBass_p;
             return 1;
         
-
-
         default:
             #ifdef DEBUG
                 Serial.print(F("ledStrip: color palette not found. index: "));
@@ -156,6 +154,5 @@ bool ledStrip::SetColorPalette(uint8_t colorIndex)
 ledStrip::~ledStrip()
 {
     unloadMode();
-    if (dynAllocated) free (ledArr);
-    
+    if (dynAllocated) free (ledArr);   
 }

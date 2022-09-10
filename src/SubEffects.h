@@ -41,7 +41,7 @@
 
 /* Definitions */
 
-#define DEBUG                    // Uncomment to enable debug messages
+//#define DEBUG                    // Uncomment to enable debug messages
 
 #define MAX_STRIPS 2                // Max led strips
 

@@ -42,43 +42,44 @@ colorBass::colorBass()
         #endif
     }
     _calibratedNoiseZero = _ledStrip->inputCalZero;
-    ledController.Init(_FastLED,_ledStrip);            // initialize ledcontroller
+    ledController.Init(_FastLED,_ledStrip);
 }
 
+/**
+ * @brief Changes leds color based on the frequency of bass. Led brightness is controlled by the magnitude
+ *        of the input signal.
+ *
+ *
+ * @returns booL: 1 If value has changed. 
+ */
 bool colorBass::Update()
 {
     uint16_t freq = 0;
 
     if (_update == 1)
     {
-        freq = FFT.Calculate();                                         // Get the frequency
+        freq = FFT.Calculate();
     }
     
-    if (freq == 0) freq = _lastFreq;                                    // if the frequency value is 0 use the last value;
+    if (freq == 0) freq = _lastFreq;
     else _lastFreq = freq;
 
-    uint16_t brightness = analogRead(_ledStrip->inputPin);              // Get the amplitude of signal
+    uint16_t brightness = analogRead(_ledStrip->inputPin);
 
-    if (brightness <= _calibratedNoiseZero) freq = _lastFreq;                   // if the amplitude is below the calibrated noise zero value, set the frequency to last one 
+    if (brightness <= _calibratedNoiseZero) freq = _lastFreq;
 
-    brightness = constrain(brightness, _ledStrip->inputCalZero, 800);   // then constrain it to predefined range
-    brightness = map(brightness, _ledStrip->inputCalZero,550,0,255);    // then map it
+    brightness = constrain(brightness, _ledStrip->inputCalZero, 800);
+    brightness = map(brightness, _ledStrip->inputCalZero,550,0,255);
     
 
-    if (brightness == _lastBrightness)                                  // The fade method will not stay 0 always, it will fluctuati little bit
-    {                                                                   // so we check if the fade hits "bottom" then not allowing it to fluctuate by not calling it
-        //Serial.println(F("Calling Fade"));
-        //Serial.flush();
+    if (brightness == _lastBrightness)
+    {
         if (! ledController.Fade(freq, (uint8_t) brightness) ) 
         {
-           // Serial.println(F("Exited Fade = 0"));
-           // Serial.flush();
             _update = 0;
-            return 0;          // until brightness changes
+            return 0;
         } else 
         {
-            //Serial.println(F("Exited Fade = 1"));
-           // Serial.flush();
             _update = 1;
             return 1;
         }
@@ -88,13 +89,7 @@ bool colorBass::Update()
 
     _lastBrightness = brightness;
 
-    //Serial.println(F("Calling Fade2"));
-    //Serial.flush();
-    if ( ledController.Fade(freq, brightness) ) {
-
-        return 1;             // Calls the Fade function in ledController. Returns 1 if any value was updated
-    } else
-    {
-        return 0;
-    }
+    /* Applies smoothing to color & brightness. 
+    Then applies resulting color to ledArr */
+    return ledController.Fade(freq, brightness);
 }

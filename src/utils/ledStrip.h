@@ -25,7 +25,6 @@
 #ifndef _SUBEFFECTS_LEDSTRIP_H_
 #define _SUBEFFECTS_LEDSTRIP_H_
 
-#define DEBUG
 
 #include "../Audio-modes/audioModes.h"
 

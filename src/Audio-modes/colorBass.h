@@ -27,7 +27,7 @@
 
 /* includes */
 #include "inttypes.h"
-#include "../utils/fft.h"
+#include "../utils/approxFFT.h"
 #include "../utils/colorMath.h"
 #include "audioModes.h"
 /* -------- */
