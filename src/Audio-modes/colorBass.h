@@ -26,10 +26,11 @@
 #define _COLORBASS_H
 
 /* includes */
-#include "inttypes.h"
+#include <inttypes.h>
+#include "audioModes.h"
 #include "../utils/approxFFT.h"
 #include "../utils/colorMath.h"
-#include "audioModes.h"
+#include "../utils/ledStrip.h"
 /* -------- */
 
 
@@ -37,18 +38,28 @@ class colorBass : public audioMode                     // Simple bass effect
 {
     uint16_t _lastBrightness = 0;
     bool _update = 0;
-    bool _initFlag = 0;
     uint16_t _lastFreq = 0;
 
-
-    ledControl ledController;
     approxFFT FFT;                                     // fft object;
     
+private:
+    inline uint8_t fade(uint16_t freq, uint16_t brightness);
+    inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
+
+    EWMA bright = EWMA(0.19);
+    EWMA bright2 = EWMA(0.25);
+    constantChangeRater<float> color_smooth = constantChangeRater<float>( 1.0F,  15.0F);
+
+    /* Last Values */
+    uint8_t m_last_r;
+    uint8_t m_last_g;
+    uint8_t m_last_b;
+
 public:
     colorBass();
     virtual bool Update();                             // Calculates values for the led
 
     ~colorBass() = default;    
 };
-#include "colorBass.cpp"
+
 #endif

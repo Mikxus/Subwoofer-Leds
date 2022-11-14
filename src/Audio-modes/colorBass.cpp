@@ -22,7 +22,6 @@
  * SOFTWARE.
 */
 
-
 #include "colorBass.h"
 
 
@@ -33,7 +32,6 @@ colorBass::colorBass()
         #ifdef DEBUG
         Serial.println(F("FFT initialized succesfully"));
         #endif
-        _initFlag = 1;
     } else 
     {
         #ifdef DEBUG
@@ -42,7 +40,6 @@ colorBass::colorBass()
         #endif
     }
     _calibratedNoiseZero = _ledStrip->inputCalZero;
-    ledController.Init(_FastLED,_ledStrip);
 }
 
 /**
@@ -74,7 +71,7 @@ bool colorBass::Update()
 
     if (brightness == _lastBrightness)
     {
-        if (! ledController.Fade(freq, (uint8_t) brightness) ) 
+        if (! fade(freq, (uint8_t) brightness) ) 
         {
             _update = 0;
             return 0;
@@ -91,5 +88,43 @@ bool colorBass::Update()
 
     /* Applies smoothing to color & brightness. 
     Then applies resulting color to ledArr */
-    return ledController.Fade(freq, brightness);
+    return fade(freq, brightness);
+}
+
+
+/**
+ * @brief Smoothens the inputted values
+ * 
+ * @param hue 
+ * @param brightness 
+ */
+uint8_t colorBass::fade(uint16_t hue, uint16_t brightness) {
+
+    /* Smoothen the input values */
+    float val = bright2.calc( bright.calc((float)brightness) );                   // Calculate the smoothing
+    float colorVal = color_smooth.limit((float)hue);
+    
+    /* Limit color value */
+    if ( colorVal > 255 ) colorVal = 255;
+    if ( colorVal < 0 ) colorVal = 0;
+
+    /* Fill ledArr with the smoothened values */
+    fill_solid( _ledStrip->ledArr, _ledStrip->arrSize, ColorFromPalette( _ledStrip->colorPalette, (uint8_t) colorVal,(uint8_t) val, LINEARBLEND ));   // Sets whole strip to same color using a color palette
+    //fill_solid(_strip->ledArr, _strip->arrSize, CHSV( (uint8_t) colorVal, 255, (uint8_t) val ));   // Sets whole strip to same color using a color palette
+
+
+    /* Check if any rgb values have changed */
+    if ( _ledStrip->ledArr->r == m_last_r && _ledStrip->ledArr->g == m_last_g && _ledStrip->ledArr->b == m_last_b ) return 0;   // if no value changed return 0
+
+    logLastValue( _ledStrip->ledArr->r , _ledStrip->ledArr->g, _ledStrip->ledArr->r );                       // save the last hsv values
+
+    return 1;
+}
+
+inline void colorBass::logLastValue(uint8_t r, uint8_t g, uint8_t b)
+{
+    m_last_r = r;
+    m_last_g = g;
+    m_last_b = b;
+    return;
 }
