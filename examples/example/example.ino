@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
+#include <inttypes.h>
 #include <SubEffects.h>
 
 /* Definitions for the led strip */
@@ -7,7 +8,7 @@
 #define DATA_PIN 6               // data pin for leds
 #define AUDIO_PIN 0              // analog pin for the led strip
 #define LED_CHIPSET WS2812B      // Led chipset
-#define COLOR_ORDER GRB          // led strip's color order rgb | grb brg
+#define COLOR_ORDER GRB          // led strip's color order: rgb grb brg
 /* ----------------------------- */
 
 
@@ -21,10 +22,9 @@ void setup() {
   pinMode(DATA_PIN, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(12, OUTPUT);
-  delay(500);
+  
   Serial.begin(38400);
-  Serial.println(F("Start"));
-  Serial.flush();
+  DEBUG(F("Example project: "));
 
   // Add new ledstrip for the SubEffect object
   uint8_t ledID = 0;
@@ -36,17 +36,9 @@ void setup() {
   FastObj.setDither(0);
 
   // Calibrate all led strips' input values
-  effect.CalibrateNoise();                             
-  
+  effect.CalibrateNoise();           
 }
 
-unsigned long last_ms = 0;
-uint16_t fps;
-
-
 void loop() {
-  PORTB |= B00010000;           // pin 12 high
-  //fps += 1; 
   effect.Update();              // Update the led strips
-  PORTB &= B11101111;           // pin 12 low
 }
