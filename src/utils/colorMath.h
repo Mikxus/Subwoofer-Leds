@@ -26,16 +26,14 @@
 #ifndef _COLOR_MATH_H_
 #define _COLOR_MATH_H_
 
-#include <FastLED.h>
-#include "ledStrip.h"
+#include <Arduino.h>
+#include <inttypes.h>
 #include <math.h>
-#include <sys/types.h>
-
+#include "../config.h"
 
 extern void fill_solid(struct CHSV* leds, int numToFill, const struct CRGB& hsvColor);
 
 
-float _lastTime;                       // Variable for the fade functions
 struct moving_average_filter
 {
     float _window[2];
@@ -43,18 +41,7 @@ struct moving_average_filter
     uint8_t _curReadIndex;
     float _sampleAvg;
     float calc(float val);
-};
-
-float moving_average_filter::calc(float val)
-{
-    _sampleTotal = _sampleTotal - _window[_curReadIndex];   // subtract the last reading
-    _window[_curReadIndex] = val;                           // add the latest value
-    _sampleTotal += _window[_curReadIndex];                  // add the reading to the total
-    _sampleAvg = _sampleTotal / 2.0;                          // calculate the average
-    _curReadIndex += 1;
-    if ( _curReadIndex >= 2 ) _curReadIndex = 0;
-    return _sampleAvg;
-}   
+}; 
 
 struct weighted_moving_average_filter
 {
@@ -69,15 +56,6 @@ struct weighted_moving_average_filter
     //float _fading = 1.0;
     float calc(float analogRead);
 };
-
-// Create function that takes in a float then smooths it, with given smoothing factor
-// comment the output range of the function
-float weighted_moving_average_filter::calc(float analogRead)
-{
-    _result = _Alpha * analogRead + (1 - _Alpha) * _result;
-    return _result;
-    // output range: 0.0 to 1.0
-}
 
 // Expotentially weighted mowing average
 
@@ -114,7 +92,6 @@ struct EWMA
     example: changeLimiter<int> limiter( 300, 20 );
 
 */
-
 template< class T > class constantChangeRater {
 private:
     T unit; 
@@ -129,41 +106,42 @@ public:
     T limit( T value );
 };
 
-
-class ledControl                        
+template< class T> constantChangeRater<T>::constantChangeRater( T changeRate, T changeTime)
+: unit( changeRate )
+, changeTime( changeTime )
 {
-private:
-    void logTime();                                 // saves the time. Used for determining the time delta
-    inline void logLastValue(uint8_t hue = 0, uint8_t saturation = 255, uint8_t value = 0) __attribute__ ((always_inline));  // logs current hsv values
+    stepSize = changeRate / changeTime;
+}
+
+template< class T> T constantChangeRater<T>::limit( T value )
+{
+    // Value wich tells how many steps of changetime we're going
+    T timeSteps = ( millis() - lastTime ) / changeTime;
+
+    if ( timeSteps > 1.0 ) timeSteps = 2;
+
+    // lets calculate how many changeRates we want to go
+    T changes = (value - lastValue) / unit;
+
+    if (timeSteps < 1.0 )
+    {     
+        changes = constrain( changes, -1, 1);
+    } else {
+        if (changes < 0) changes = -1;
+        else changes = 1;
+        
+        changes *= timeSteps;
+    }
+
+
+    lastValue += unit * changes * timeSteps;
     
-    uint8_t _lastHue;
-    uint8_t _lastSaturation;
-    uint8_t _lastValue;
-    bool _breathDir;           // 0 for down 1 for up
-
-protected:
-    EWMA bright = EWMA(0.19);
-    EWMA bright2 = EWMA(0.25);
-
-    constantChangeRater<float> color = constantChangeRater<float>( 1,  15);
-
-    float _lastUpdate = 0.0;
-
-    ledStrip* _strip;
-    CFastLED* _FastLED;  
-
-public:
-    void Init( CFastLED* fastLedObj, ledStrip* strip);
-    bool Fade(uint8_t bassHz = 0,uint8_t brightness = 0);  // Fading function which smoothens the input and then updates all leds to the same value.
-    void SetAttack(uint16_t attack = 0);
-    void SetDecay(uint16_t decay = 0);
-    void Init(uint8_t led_dataPin ,uint16_t led_count, CFastLED & fastLedObj, CRGB ledObj[]); // initialize led controller   
+    lastTime = millis();
     
+    return lastValue;
+}
 
-    ledControl();
-    ~ledControl();
-};
-
-#include "colorMath.cpp"
-
+template<class T> constantChangeRater<T>::~constantChangeRater()
+{
+}
 #endif
