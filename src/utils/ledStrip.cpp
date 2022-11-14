@@ -23,7 +23,6 @@
 */
 
 #include "ledStrip.h"
-#define DEBUG
 
 void ledStrip::SetBrightness(uint8_t value)
 {
@@ -35,7 +34,7 @@ bool ledStrip::SetColor(uint8_t index)
     if (index >= NUM_OF_PALETTES ) return 0;
 
     paletteIndex = index;
-    if (!SetColorPalette(paletteIndex))
+    if ( !SetColorPalette(paletteIndex) )
     {
         #ifdef DEBUG
             Serial.print(F("Failed to set color palette: "));
@@ -108,7 +107,6 @@ bool ledStrip::loadMode( uint8_t modeIndex, CFastLED *fptr)
         #ifdef DEBUG
             Serial.print(F("audioMode: Not enough memory for mode: "));
             Serial.println(modeIndex);
-            digitalWrite(13,HIGH);
         #endif
         return 0;   
     }
@@ -154,5 +152,6 @@ bool ledStrip::SetColorPalette(uint8_t colorIndex)
 ledStrip::~ledStrip()
 {
     unloadMode();
-    if (dynAllocated) free (ledArr);   
+    if (dynAllocated) free (ledArr);
+    return;
 }

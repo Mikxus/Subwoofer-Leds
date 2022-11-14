@@ -26,7 +26,12 @@
 #define _SUBEFFECTS_LEDSTRIP_H_
 
 
+#include <FastLED.h>
+#include <inttypes.h>
+#include "../config.h"
+#include "../colorPalettes.h"
 #include "../Audio-modes/audioModes.h"
+
 
 extern uint8_t scale8(uint8_t i, fract8 scale);  // Scaling function declared in  FastLED/scr/scale8.h
 extern uint16_t scale16( uint16_t i, fract16 scale );
@@ -65,14 +70,6 @@ protected:
     bool loadMode( uint8_t modeIndex, CFastLED *fptr); // "assings" mode to given audioMode object
     void unloadMode();
 
-} __attribute__((packed));
-
-/* include here the color mode libraries */
-/* Remember to create new switch case statement for your mode in ledstrip.cpp */
-
+};
 #include "../Audio-modes/colorBass.h"
-
-/* ------------------------------------- */
-
-#include "ledStrip.cpp"
 #endif
