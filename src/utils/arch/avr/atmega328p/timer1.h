@@ -24,7 +24,9 @@
 #ifndef _TIMER1_H_
 #define _TIMER1_H_
 
+#include <Arduino.h>
 #include <inttypes.h>
+#include "../../../../config.h"
 
 #ifdef __AVR_ATmega328P__
     #include <avr/io.h>
@@ -34,13 +36,14 @@
     #error "timer1 only supports only avr ATmega328";
 #endif
 
-const uint8_t prescalers[5] PROGMEM = {
-        (1 << CS10) | (0 << CS11) | (0 << CS12), // 0
-        (0 << CS10) | (1 << CS11) | (0 << CS12), // 8
-        (1 << CS10) | (1 << CS11) | (0 << CS12), // 64
-        (0 << CS10) | (0 << CS11) | (1 << CS12), // 256
-        (1 << CS10) | (0 << CS11) | (1 << CS12)  // 1024
-    };
+extern volatile bool _fftBinReady;
+extern volatile uint16_t _fftArrPos;
+extern volatile uint8_t _subwooferPin;
+extern volatile uint16_t _calibratedNoiseZero;
+extern volatile uint8_t _fftBinSize;
+extern volatile uint16_t *_vReal;
+
+extern const uint8_t prescalers[5];
 
 class timer1                                    // Manages the arduino uno's / nano's timer1
 {
@@ -51,10 +54,8 @@ protected:
 public:
     uint32_t SetTimerFrequency(uint32_t frequency); // Sets the given frequency
     uint32_t Start(uint32_t freq);                  // initializes the timer1's settings | Returns the hz it was able to set
-    inline void Stop();                         // turns off the timer
-    inline void Continue();                     // Turns the timer back on
+    void Stop();                         // turns off the timer
+    void Continue();                     // Turns the timer back on
     ~timer1();                                  // Resets timer1 to it's default values.
 };
-
-#include "timer1.cpp"
 #endif

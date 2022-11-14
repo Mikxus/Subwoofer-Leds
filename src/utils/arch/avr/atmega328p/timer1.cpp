@@ -21,6 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
+#include "timer1.h"
+
+const uint8_t prescalers[5] PROGMEM = {
+    (1 << CS10) | (0 << CS11) | (0 << CS12), // 0
+    (0 << CS10) | (1 << CS11) | (0 << CS12), // 8
+    (1 << CS10) | (1 << CS11) | (0 << CS12), // 64
+    (0 << CS10) | (0 << CS11) | (1 << CS12), // 256
+    (1 << CS10) | (0 << CS11) | (1 << CS12)  // 1024
+};
 
 void timer1::SetPrescaler( uint8_t bitmask )            // Reference: ATmega328p Datasheet          ! TCR1B register should be set to 0 before calling this function
 {                                                       // https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf                                          
@@ -47,7 +56,7 @@ uint32_t timer1::SetTimerFrequency(uint32_t frequency)
     }
     /* Get prescaler bitmask from flash */
     TCCR1B = 0;
-    TCCR1B |= pgm_read_byte_near( prescalers + prescaler_offset);
+    TCCR1B = pgm_read_byte_near( prescalers + prescaler_offset);
     OCR1A = OCR1A_value;
 
     return 16000000 / TCCR1B / OCR1A_value;
@@ -83,7 +92,7 @@ uint32_t timer1::Start(uint32_t freq)
  * @brief Stops timer1
  *
  */
-inline void timer1::Stop()
+void timer1::Stop()
 {
    PRR |= ( 1 << PRTIM1 );
    return;
