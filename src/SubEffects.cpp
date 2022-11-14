@@ -22,10 +22,7 @@
  * SOFTWARE.
 */
 
-
 #include "SubEffects.h"
-#include "utils/colorMath.h"
-#include "utils/ledStrip.h"
 
 /**
  * @brief Construct a new Sub Effects:: Sub Effects object
@@ -153,10 +150,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t mode, uint16_t ledArrS
 
     if (ledsPtr == nullptr)                                                 // Check if allocation failed
     {
-        #ifdef DEBUG
-            Serial.println(F("SubEffects: Failed to allocate space for leds data array"));
-        #endif
-
+        ERROR(F("Failed to allocate space for leds data array"));
         return 0;
     }
 
@@ -183,9 +177,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
 {
     if ( _stripsPos >= MAX_STRIPS )                      // Check if there is space for new strip. if there isn't return 0
     {
-        #ifdef DEBUG
-            Serial.println(F("SubEffects: Max number of led strips reached"));
-        #endif
+        WARN(F("SubEffects: Max number of led strips reached\n"));
         return 0;                                    
     }
 
@@ -194,9 +186,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
     _strips[_stripsPos] = new ledStrip;
     if (_strips[_stripsPos] == nullptr)
     {
-        #ifdef DEBUG
-            Serial.println(F("SubEffects: Failed to allocate space for new led struct\n"));
-        #endif
+        ERROR(F("SubEffects: Failed to allocate space for new led struct\n"));
         return 0;                                
     }
     /* Assing values to strip struct  */
@@ -238,9 +228,7 @@ bool SubEffects::RemoveLedStrip(CRGB* ledArray)                          // Remo
             if (RemoveLedStrip(_strips[i]->identifier) ) return 1;       // return 1 if deleted succesfully
         }
     }
-    #ifdef DEBUG
-        Serial.println(F("SubEffects: Strip not found"));
-    #endif
+    INFO(F("SubEffects: Strip not found"));
 
     return 0;
 }
@@ -305,10 +293,7 @@ void SubEffects::CalibrateNoise()
         {
             if (_strips[i]->inputCalZero >= 700)        // Todo: implement this to be independent of the adc accuracy
             {
-                Serial.print(F("!Warning High noise level on input pin: "));
-                Serial.print(_strips[i]->inputPin);
-                Serial.print(F("  Value: "));
-                Serial.println(_strips[i]->inputCalZero);
+                WARN(F("!Warning High noise level on input pin: "), _strips[i]->inputPin, F("\n\rValue: "), _strips[i]->inputCalZero );
             } 
         }
     #endif
@@ -361,19 +346,14 @@ bool SubEffects::DecreaseBrightness()
  * @brief Calls each led strip's "effect"
  * 
  */
-inline void SubEffects::Update() 
+void SubEffects::Update()
 {
     bool change = 0;
     for (uint8_t i = 0; i < _stripsPos; i++)
     {
         if (_strips[i]->modeUpdatePtr == nullptr) 
         {
-            // print debug message
-            #ifdef DEBUG
-                Serial.print(F("SubEffects: Mode not set for strip with id: "));
-                Serial.println(_strips[i]->identifier);
-            #endif
-
+            DEBUG(F("SubEffects: Mode not set for strip with id: "), _strips[i]->identifier);
             continue;                                          // if mode isn't set for strip, skip it.
         }
         
@@ -382,6 +362,7 @@ inline void SubEffects::Update()
 
     // if there was anything changed show the leds
     if (change) _fastPtr->show();
+    return;
 }
 
 /**
