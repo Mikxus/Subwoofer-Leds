@@ -26,7 +26,6 @@
 #ifndef _AUDIO_MODES_H_
 #define _AUDIO_MODES_H_
 
-#include <inttypes.h>
 #include <FastLED.h>
 
 struct ledStrip;
