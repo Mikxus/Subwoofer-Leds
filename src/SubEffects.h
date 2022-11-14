@@ -22,12 +22,8 @@
  * SOFTWARE.
 */
 
-
 #ifndef SUBEFFECTS_H
 #define SUBEFFECTS_H
-
-
-/* Detect if the processor is supported */
 
 #if defined(__AVR_ATmega328P__)
     #define _SUBEFFECTS_AVR_ATMEGA328_
@@ -36,35 +32,18 @@
 #endif
 
 
-/* ------------------------------------ */
-
-
-/* Definitions */
-
-//#define DEBUG                    // Uncomment to enable debug messages
-
-#define MAX_STRIPS 2                // Max led strips
-
-#define NUM_OF_MODES 1              // Number of modes
-
-#define NUM_OF_PALETTES 1           // Number of color palettes
-
-/*-------------*/
-
-
-
 /* includes for the SubEffects class */
 #include <Arduino.h>
-#include "colorPalettes.h"
-#include "Audio-modes/audioModes.h"
-#include "utils/ledStrip.h"
+#include <inttypes.h>
+#include <FastLED.h>
+#include "config.h"
+#include "utils/debug.h"
 #include "utils/colorMath.h"
+#include "utils/ledStrip.h"
 /* -------------------------------- */
 
+#include "Audio-modes/colorBass.h"
 
-
-
-// Base class
 
 class SubEffects
 {
@@ -107,7 +86,7 @@ public:
     bool DecreaseBrightness();                  // Decrease global brightness.
     /* ------------------- */
 
-    inline void Update() __attribute__((always_inline)); // Updates the led strips
+    void Update(); // Updates the led strips
 
     /* Mode controls */
     void NextMode();                            
@@ -122,8 +101,5 @@ public:
     /* ---------------------- */
 
     ~SubEffects();
-
 };
-
-#include "SubEffects.cpp"
 #endif 
