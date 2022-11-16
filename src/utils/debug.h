@@ -65,6 +65,9 @@ typedef enum {
 #define DEBUG_OUT_NC(args) \
     Serial.print(args)
 
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wnarrowing"
+
 /**
  * @brief Sets terminal to debug_level_t color
  * 
@@ -73,10 +76,33 @@ typedef enum {
  */
 void set_terminal_color( debug_level_t level, bool reset_color = 0 );
 
-template <class ...Args> debug_print( debug_level_t debug_level, newline_t newline , Args&... arg )
+template <class ...Args> void debug_print( debug_level_t debug_level, newline_t newline , Args&... arg )
 {
     set_terminal_color(debug_level);
-    char x[] = {DEBUG_OUT_NC(arg)...};
+
+#if CONF_APPEND_DEBUG_LEVEL == 1
+    switch (debug_level)
+    {
+    case debug:
+        DEBUG_OUT(F("DEBUG: "));
+        break;
+
+    case info:
+        DEBUG_OUT(F("INFO: "));
+        break;
+
+    case warn:
+        DEBUG_OUT(F("WARNING: "));
+        break;
+
+    case error:
+        DEBUG_OUT(F("ERROR: ")); 
+        break;
+    }
+#endif    
+    /* My eyes */
+    using expand_t = uint8_t[];
+    expand_t {0,(DEBUG_OUT_NC(arg),0)...};
     set_terminal_color(debug_level, 1);
 
     if (newline) DEBUG_OUT(F("\n\r"));
@@ -84,35 +110,36 @@ template <class ...Args> debug_print( debug_level_t debug_level, newline_t newli
     return;
 }
 
-template <class ...T>  DEBUG( const T&... debug_text ) 
+template <class ...T> void DEBUG( [[maybe_unused]] const T&... debug_text ) 
 {
     #if CONF_ENABLE_DEBUG == 1
-    debug_print( debug, no_newline, debug_text...);
+    debug_print( debug, newline, debug_text...);
     #endif
     return;
 }
 
-template <class ...T> ERROR( const T&... debug_text ) 
+template <class ...T> void ERROR( [[maybe_unused]] const T&... debug_text ) 
 {
     #if CONF_ENABLE_ERROR == 1
-    debug_print( error, no_newline, debug_text...);
+    debug_print( error, newline, debug_text...);
     #endif
     return;
 }
 
-template <class ...T> INFO( const T&... debug_text ) 
+template <class ...T> void INFO( [[maybe_unused]] const T&... debug_text ) 
 {
     #if CONF_ENABLE_INFO == 1
-    debug_print( info, no_newline, debug_text...);
+    debug_print( info, newline, debug_text...);
     #endif
     return;
 }
 
-template <class ...T>  WARN( const T&... debug_text ) 
+template <class ...T> void WARN( [[maybe_unused]] const T&... debug_text ) 
 {
     #if CONF_ENABLE_WARN == 1
-    debug_print( warn, no_newline, debug_text...);
+    debug_print( warn, newline, debug_text...);
     #endif
     return;
 }
+#pragma GCC diagnostic pop
 #endif

@@ -1,6 +1,6 @@
 #include "debug.h"
 
-void set_terminal_color( debug_level_t level, bool reset_color = 0 )
+void set_terminal_color( debug_level_t level, bool reset_color )
 {   
     #if CONF_ENABLE_TERMINAL_COLOR == 1
     if (reset_color)
