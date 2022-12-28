@@ -147,9 +147,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t mode, uint16_t ledArrS
         return 0;
     }
 
-    DEBUG(F("Before Addledstrip"));
     uint8_t state = AddLedStrip( audioPin, mode, ledArrSize, ledsPtr );
-    DEBUG(F("AFter ADDLED"));
     if (!state )                                        // Check if AddledStrip() fails
     {
         delete ledsPtr;                                  // free allocated space
@@ -176,7 +174,6 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
     }
 
     if (_strips[_stripsPos] != nullptr) return 0;
-    DEBUG(F("Before new ledtsitp"));
     _strips[_stripsPos] = new ledStrip;
     if (_strips[_stripsPos] == nullptr)
     {
@@ -189,13 +186,10 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
     _strips[_stripsPos]->mode = ledMode;
     _strips[_stripsPos]->inputPin = audioPin;
     _strips[_stripsPos]->identifier = _stripsPos + 1;                                                         // increase _stripsPos
-    DEBUG(F("BEFORE SETMODE"));
     _strips[_stripsPos]->SetMode(ledMode, _fastPtr);
-    DEBUG(F("BEFORE set color "));
     _strips[_stripsPos]->SetColor(_currentPalette);
 
     _stripsPos++;
-    DEBUG(F("Returning addledstrip no malloc"));
     /* Return strip's idenifier */
     return _stripsPos;           
 }
