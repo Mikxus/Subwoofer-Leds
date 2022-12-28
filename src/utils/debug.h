@@ -65,6 +65,9 @@ typedef enum {
 #define DEBUG_OUT_NC(args) \
     Serial.print(args)
 
+#define DEBUG_OUT_FLUSH()   \
+    Serial.flush();
+
 #pragma GCC diagnostic push 
 #pragma GCC diagnostic ignored "-Wnarrowing"
 
@@ -107,6 +110,10 @@ template <class ...Args> void debug_print( debug_level_t debug_level, newline_t 
 
     if (newline) DEBUG_OUT(F("\n\r"));
 
+#if CONF_FLUSH_DEBUG == 1
+    DEBUG_OUT_FLUSH();
+#endif
+    
     return;
 }
 
