@@ -46,15 +46,10 @@ uint8_t SubEffects::GetStripPos(uint8_t identifier)
 {
     for (uint8_t i = 0; i < _stripsPos; i++)
     {
-        if (_strips[i]->identifier == identifier)
-        {
-            return i;
-        }
+        if (_strips[i]->identifier == identifier) return i;
     }
-    #ifdef DEBUG
-        Serial.print(F("SubEffects: Strip not found: "));
-        Serial.println(identifier);
-    #endif
+
+    ERROR(F("SubEffects: Strip not found: "), identifier);
     return 255;
 }
 
@@ -64,7 +59,7 @@ uint8_t SubEffects::GetStripPos(uint8_t identifier)
  * @param identifier    Id of the led strip
  * @return ledStrip*    
  */
-ledStrip * SubEffects::GetStripPtr(uint8_t identifier)
+ledStrip* SubEffects::GetStripPtr(uint8_t identifier)
 {
     for (uint8_t i = 0; i < MAX_STRIPS; i++)
     {
@@ -125,11 +120,9 @@ CRGB* SubEffects::GetLedsPtr(uint8_t identifier)
 {
     for (uint8_t i = 0; i < _stripsPos; i++)
     {
-        if ( _strips[i]->identifier == identifier )
-        {
-            return _strips[i]->ledArr;
-        }
+        if ( _strips[i]->identifier == identifier ) return _strips[i]->ledArr;
     }
+    ERROR(F("SubEffects: ledStrip not found with ID: "), identifier);
     return nullptr;                                 // return nullptr if the led wasn't found
 }
 
@@ -154,8 +147,9 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t mode, uint16_t ledArrS
         return 0;
     }
 
+    DEBUG(F("Before Addledstrip"));
     uint8_t state = AddLedStrip( audioPin, mode, ledArrSize, ledsPtr );
-
+    DEBUG(F("AFter ADDLED"));
     if (!state )                                        // Check if AddledStrip() fails
     {
         delete ledsPtr;                                  // free allocated space
@@ -182,7 +176,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
     }
 
     if (_strips[_stripsPos] != nullptr) return 0;
-
+    DEBUG(F("Before new ledtsitp"));
     _strips[_stripsPos] = new ledStrip;
     if (_strips[_stripsPos] == nullptr)
     {
@@ -195,12 +189,13 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
     _strips[_stripsPos]->mode = ledMode;
     _strips[_stripsPos]->inputPin = audioPin;
     _strips[_stripsPos]->identifier = _stripsPos + 1;                                                         // increase _stripsPos
-
+    DEBUG(F("BEFORE SETMODE"));
     _strips[_stripsPos]->SetMode(ledMode, _fastPtr);
+    DEBUG(F("BEFORE set color "));
     _strips[_stripsPos]->SetColor(_currentPalette);
 
     _stripsPos++;
-
+    DEBUG(F("Returning addledstrip no malloc"));
     /* Return strip's idenifier */
     return _stripsPos;           
 }
@@ -228,7 +223,7 @@ bool SubEffects::RemoveLedStrip(CRGB* ledArray)                          // Remo
             if (RemoveLedStrip(_strips[i]->identifier) ) return 1;       // return 1 if deleted succesfully
         }
     }
-    INFO(F("SubEffects: Strip not found"));
+    ERROR(F("SubEffects: Strip not found"));
 
     return 0;
 }
@@ -242,7 +237,6 @@ bool SubEffects::RemoveLedStrip(CRGB* ledArray)                          // Remo
  */
 bool SubEffects::RemoveLedStrip(uint8_t identifier)
 {   
-
     uint8_t i = 0;
 
     i = GetStripPos(identifier);
@@ -288,14 +282,11 @@ void SubEffects::CalibrateNoise()
             if (val > _strips[i]->inputCalZero) _strips[i]->inputCalZero = val + 1;
         }
     }
-    #ifdef DEBUG
-        for (uint8_t i = 0; i < _stripsPos; i++)        // checks for high noise
-        {
-            if (_strips[i]->inputCalZero >= 700)        // Todo: implement this to be independent of the adc accuracy
-            {
-                WARN(F("!Warning High noise level on input pin: "), _strips[i]->inputPin, F("\n\rValue: "), _strips[i]->inputCalZero );
-            } 
-        }
+    #ifdef DEBUG_CHECKS
+    for (uint8_t i = 0; i < _stripsPos; i++)
+    {
+        INFO(F("Strip: "), _strips[i]->identifier, F(" input pin: "), _strips[i]->inputPin, F(" Calibration value: "), _strips[i]->inputCalZero );
+    }
     #endif
     return;
 }
@@ -356,7 +347,6 @@ void SubEffects::Update()
             DEBUG(F("SubEffects: Mode not set for strip with id: "), _strips[i]->identifier);
             continue;                                          // if mode isn't set for strip, skip it.
         }
-        
         if (_strips[i]->modeUpdatePtr->Update() ) change = 1;
     }
 
