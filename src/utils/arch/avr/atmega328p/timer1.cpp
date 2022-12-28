@@ -23,7 +23,7 @@
 */
 #include "timer1.h"
 
-const uint8_t prescalers[5] PROGMEM = {
+constexpr uint8_t prescalers[5] PROGMEM = {
     (1 << CS10) | (0 << CS11) | (0 << CS12), // 0
     (0 << CS10) | (1 << CS11) | (0 << CS12), // 8
     (1 << CS10) | (1 << CS11) | (0 << CS12), // 64
@@ -39,27 +39,31 @@ void timer1::SetPrescaler( uint8_t bitmask )            // Reference: ATmega328p
 
 uint32_t timer1::SetTimerFrequency(uint32_t frequency)
 {
-    uint32_t OCR1A_value;
-    uint8_t prescaler_offset = 5;
+    uint32_t OCR1A_value = 16000000 / frequency;
+    uint8_t prescaler_offset = 0;
+    const uint16_t prescaler_values[] = {1, 8, 64, 256, 1024};
 
     /* Loop trough all prescalers from lowest to up. */
     /* Sets the first prescaler wich is the closest to target frequency */
-
-    for (uint8_t i = 0; i < 4;i++)
+    for (uint8_t i = 0; i < 5; i++)
     {
-        OCR1A_value = 16000000 / ( frequency * pgm_read_byte_near(prescalers + i) ) - 1;
         if ( OCR1A_value <= 0xffff )
         {
-            prescaler_offset =  i;
+            prescaler_offset = i;
             break;
         }
+        OCR1A_value = 16000000 / ( prescaler_values[i] * frequency );
     }
-    /* Get prescaler bitmask from flash */
-    TCCR1B = 0;
-    TCCR1B = pgm_read_byte_near( prescalers + prescaler_offset);
-    OCR1A = OCR1A_value;
+    
+    if ( OCR1A_value > 0xffff ) OCR1A_value = 0xffff;
 
-    return 16000000 / TCCR1B / OCR1A_value;
+    /* Clear prescaler bits & set prescalers */
+    TCCR1B &= ~((1 << CS10) | (1 << CS11) | (1 << CS12));
+    TCCR1B |= pgm_read_word_near( prescalers + prescaler_offset);
+    OCR1A = OCR1A_value;
+    DEBUG(F("TIMER: OCR1_value: "), OCR1A);
+    DEBUG(F("TIMER: TCCR1B: "), TCCR1B);
+    return 16000000 / prescaler_values[prescaler_offset] / OCR1A_value;
 }
 
 /**
@@ -70,7 +74,6 @@ uint32_t timer1::SetTimerFrequency(uint32_t frequency)
 uint32_t timer1::Start(uint32_t freq)
 {  
     cli();
-
     /* Enable timer if disabled. */
     if (PRTIM1) PRR &= ~( 1 << PRTIM1 );
     
@@ -78,10 +81,8 @@ uint32_t timer1::Start(uint32_t freq)
     TCCR1B = 0;                            // same for TCCR1B
     TCNT1  = 0;                            // initialize counter value to 0 
     TCCR1B |= (1 << WGM12);                // turn on CTC mode
-
     freq = SetTimerFrequency(freq);
     TIMSK1 |= (1 << OCIE1B);               // enable timer1 compare B interrupt
-    
     sei();
 
     /* Return the achieved frequency */
@@ -122,6 +123,7 @@ timer1::~timer1()
 volatile uint16_t _fftArrPos;
 ISR(TIMER1_COMPB_vect)                              // Interrupt routine for the fft library. each iteration it checks if the sapling has completed. If not it saves the current analog input to the array
 {
+    PORTB |= B00010000;           // pin 12 high
     if (!_fftBinReady)
     {
         uint16_t val = analogRead(_subwooferPin);
@@ -139,5 +141,6 @@ ISR(TIMER1_COMPB_vect)                              // Interrupt routine for the
             _fftBinReady = true;
         }
     }
+    PORTB &= ~B00010000;
     return;
 }
