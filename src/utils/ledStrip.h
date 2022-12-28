@@ -31,6 +31,7 @@
 #include "../config.h"
 #include "../colorPalettes.h"
 #include "../Audio-modes/audioModes.h"
+#include "debug.h"
 
 
 extern uint8_t scale8(uint8_t i, fract8 scale);  // Scaling function declared in  FastLED/scr/scale8.h
