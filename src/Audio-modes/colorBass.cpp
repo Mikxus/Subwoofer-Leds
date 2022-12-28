@@ -29,17 +29,13 @@ colorBass::colorBass()
 {
     if ( FFT.Init() )
     {
-        #ifdef DEBUG
-        Serial.println(F("FFT initialized succesfully"));
-        #endif
+        INFO(F("FFT initialized succesfully"));
     } else 
     {
-        #ifdef DEBUG
-        Serial.println(F("FFT failed to be initialized"));
-        digitalWrite(13,HIGH);
-        #endif
+        ERROR(F("FFT failed to be initialized"));
     }
     _calibratedNoiseZero = _ledStrip->inputCalZero;
+    return;
 }
 
 /**
@@ -59,7 +55,7 @@ bool colorBass::Update()
     }
     
     if (freq == 0) freq = _lastFreq;
-    else _lastFreq = freq;
+    else { _lastFreq = freq; DEBUG(F("Freq: "), freq); }
 
     uint16_t brightness = analogRead(_ledStrip->inputPin);
 
@@ -108,10 +104,8 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness) {
     if ( colorVal > 255 ) colorVal = 255;
     if ( colorVal < 0 ) colorVal = 0;
 
-    /* Fill ledArr with the smoothened values */
+    /* Fill ledArr with the smoothed values */
     fill_solid( _ledStrip->ledArr, _ledStrip->arrSize, ColorFromPalette( _ledStrip->colorPalette, (uint8_t) colorVal,(uint8_t) val, LINEARBLEND ));   // Sets whole strip to same color using a color palette
-    //fill_solid(_strip->ledArr, _strip->arrSize, CHSV( (uint8_t) colorVal, 255, (uint8_t) val ));   // Sets whole strip to same color using a color palette
-
 
     /* Check if any rgb values have changed */
     if ( _ledStrip->ledArr->r == m_last_r && _ledStrip->ledArr->g == m_last_g && _ledStrip->ledArr->b == m_last_b ) return 0;   // if no value changed return 0
