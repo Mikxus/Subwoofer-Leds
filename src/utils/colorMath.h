@@ -30,6 +30,7 @@
 #include <inttypes.h>
 #include <math.h>
 #include "../config.h"
+#include "debug.h"
 
 extern void fill_solid(struct CHSV* leds, int numToFill, const struct CRGB& hsvColor);
 
@@ -61,28 +62,26 @@ struct weighted_moving_average_filter
 
 struct EWMA
 {
-    float _alpha = 0.26;        // Lower value smoother
-    float _lastValue = 0;    
-    float _deltaTime = 0;
+    float _alpha =  0.0F;
+    float _last_val = 0.0F;    
+    float _timeElapsed = 0.0F;
 
-    EWMA(float Alpha = 0.26) : _alpha( Alpha ) {}
-    float calc( float sensorValue ) {
-        _deltaTime = micros() - _deltaTime;
-        
-        _deltaTime /= 10000.0;
+    EWMA(float Alpha = 0.30) : _alpha( Alpha ) {}
 
-        if (_deltaTime > 1.0) _deltaTime = 1.0;
+    float calc( float sensor_value )
+    {
+        _timeElapsed = (micros() - _timeElapsed) / 1000;
 
-        float real_alpha =  _deltaTime / exp(1.0 - _alpha);
+        float real_alpha = _alpha / ( _timeElapsed  + 1.0F );
 
-
-        _lastValue = (1.0F - real_alpha) * _lastValue + real_alpha * sensorValue;
+        _last_val = (1.0F  - real_alpha) * _last_val + real_alpha * sensor_value;
         log_time();
-        return _lastValue;
+        return _last_val;
     }
-
-    void log_time() {
-        _deltaTime = micros();
+    
+    void log_time() 
+    {
+        _timeElapsed = micros();
     }
 };
 
