@@ -31,6 +31,7 @@
 #include "../utils/approxFFT.h"
 #include "../utils/colorMath.h"
 #include "../utils/ledStrip.h"
+#include "../utils/debug.h"
 /* -------- */
 
 
@@ -46,9 +47,9 @@ private:
     inline uint8_t fade(uint16_t freq, uint16_t brightness);
     inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
 
-    EWMA bright = EWMA(0.19);
-    EWMA bright2 = EWMA(0.25);
-    constantChangeRater<float> color_smooth = constantChangeRater<float>( 1.0F,  15.0F);
+    EWMA bright = EWMA(0.09);
+    EWMA bright2 = EWMA(0.20);
+    constantChangeRater<float> color_smooth = constantChangeRater<float>( 1024.0F,  170.0F);
 
     /* Last Values */
     uint8_t m_last_r;
