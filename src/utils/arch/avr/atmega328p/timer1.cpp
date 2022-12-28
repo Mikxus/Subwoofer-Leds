@@ -61,8 +61,6 @@ uint32_t timer1::SetTimerFrequency(uint32_t frequency)
     TCCR1B &= ~((1 << CS10) | (1 << CS11) | (1 << CS12));
     TCCR1B |= pgm_read_word_near( prescalers + prescaler_offset);
     OCR1A = OCR1A_value;
-    DEBUG(F("TIMER: OCR1_value: "), OCR1A);
-    DEBUG(F("TIMER: TCCR1B: "), TCCR1B);
     return 16000000 / prescaler_values[prescaler_offset] / OCR1A_value;
 }
 
