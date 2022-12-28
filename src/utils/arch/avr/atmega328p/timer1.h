@@ -27,6 +27,7 @@
 #include <Arduino.h>
 #include <inttypes.h>
 #include "../../../../config.h"
+#include "../../../debug.h"
 
 #ifdef __AVR_ATmega328P__
     #include <avr/io.h>
