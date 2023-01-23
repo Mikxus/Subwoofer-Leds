@@ -21,8 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-
-
 #ifndef _AUDIO_MODES_H_
 #define _AUDIO_MODES_H_
 
@@ -48,6 +46,4 @@ public:
                                         // update shouldn't call FastLED.show() or any other function that updates the led strips
     virtual ~audioMode() = default;
 };
-
-
 #endif
