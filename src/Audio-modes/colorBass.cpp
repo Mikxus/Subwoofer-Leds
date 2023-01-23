@@ -21,21 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-
 #include "colorBass.h"
 
-
 colorBass::colorBass()
+: fft_obj(0, 64, 700, fixed_8)
 {
-    if ( FFT.Init() )
-    {
-        INFO(F("FFT initialized succesfully"));
-    } else 
-    {
-        ERROR(F("FFT failed to be initialized"));
-    }
-    _calibratedNoiseZero = _ledStrip->inputCalZero;
-    return;
 }
 
 /**
@@ -43,7 +33,7 @@ colorBass::colorBass()
  *        of the input signal.
  *
  *
- * @returns booL: 1 If value has changed. 
+ * @returns bool: 1 If value has changed. 
  */
 bool colorBass::Update()
 {
@@ -51,7 +41,7 @@ bool colorBass::Update()
 
     if (_update == 1)
     {
-        freq = FFT.Calculate();
+        freq = fft_obj.calculate();
     }
     
     if (freq == 0) freq = _lastFreq;
@@ -59,7 +49,7 @@ bool colorBass::Update()
 
     uint16_t brightness = analogRead(_ledStrip->inputPin);
 
-    if (brightness <= _calibratedNoiseZero) freq = _lastFreq;
+    if (brightness <= _ledStrip->inputCalZero) freq = _lastFreq;
 
     brightness = constrain(brightness, _ledStrip->inputCalZero, 800);
     brightness = map(brightness, _ledStrip->inputCalZero,550,0,255);
@@ -70,12 +60,10 @@ bool colorBass::Update()
         if (! fade(freq, (uint8_t) brightness) ) 
         {
             _update = 0;
-            return 0;
-        } else 
-        {
-            _update = 1;
-            return 1;
-        }
+            return _update;
+        } 
+        _update = 1;
+        return _update;
     }
 
     if (_update == 0) _update = 1;
@@ -98,7 +86,7 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness) {
 
     /* Smoothen the input values */
     float val = bright2.calc( bright.calc((float)brightness) );                   // Calculate the smoothing
-    float colorVal = color_smooth.limit((float)hue);
+    float colorVal = color_smooth.calc((float)hue);
     
     /* Limit color value */
     if ( colorVal > 255 ) colorVal = 255;
