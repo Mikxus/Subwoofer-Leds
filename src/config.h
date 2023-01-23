@@ -1,8 +1,12 @@
 /* Definitions */
 
-#define DEBUG_CHECKS                     // Uncomment to enable additional debug checks
 
-#define MAX_STRIPS 2                // Max led strips
+
+/**
+ * @brief Max number of ledstrips.
+ * @note 254 is theoretically the maxinium.
+ */
+#define MAX_STRIPS 1
 
 #define NUM_OF_MODES 1              // Number of modes
 
@@ -11,6 +15,12 @@
 
 
 /* Debug settings */
+
+/**
+ * @brief Enables additional debug checks, when uncommented.
+ * 
+ */
+#define DEBUG_CHECKS
 
 /* 1 to enable output */
 #define CONF_ENABLE_DEBUG   1 
@@ -25,6 +35,11 @@
  */
 #define CONF_APPEND_DEBUG_LEVEL 1
 
+/**
+ * @brief If enabled. Prints the filename on debug 
+ * 
+ */
+#define PRINT_FILE_NAME 0
 
 /*
  * @brief Flushes debug output after every write.
@@ -40,3 +55,5 @@
 #define CONF_INFO_COLOR CYAN
 #define CONF_WARN_COLOR YELLOW
 #define CONF_ERROR_COLOR RED 
+
+/* END of debug settings */
