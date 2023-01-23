@@ -24,6 +24,11 @@
 
 #include "ledStrip.h"
 
+/**
+ * @brief Sets brightness
+ * 
+ * @param value 
+ */
 void ledStrip::SetBrightness(uint8_t value)
 {
     brightness = value;
@@ -49,9 +54,9 @@ bool ledStrip::SetColor(uint8_t index)
 
 bool ledStrip::SetMode(uint8_t modeIndex, CFastLED * fptr)
 {
-    if ( modeIndex >= NUM_OF_MODES) return 0;       // if invalid input return 0
+    if ( modeIndex >= NUM_OF_MODES ) return 0;       // if invalid input return 0
 
-    if ( !loadMode( mode, fptr) )                          // check if fails
+    if ( !loadMode( mode, fptr) )                   // check if fails
     {
         ERROR("ledStrip.cpp: Failed to set mode: ", modeIndex);
         return 0;
@@ -100,6 +105,36 @@ bool ledStrip::loadMode( uint8_t modeIndex, CFastLED *fptr)
     INFO(F("Succesfully loaded mode: "), modeIndex, F(" for strip: "), identifier);
     return 1;
 }
+
+/**
+ * @brief Loads allocated mode to ledStrip.
+ * 
+ * @param ptr 
+ * @param fptr 
+ * @return true 
+ * @return false 
+ */
+bool ledStrip::loadObj( audioMode* ptr, CFastLED* fptr)
+{
+    // check if modeUpdatePtr is already loaded
+    if (modeUpdatePtr != nullptr)
+    {
+        // unload mode
+        INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
+        unloadMode();
+    }
+
+    modeUpdatePtr = ptr;
+    if (modeUpdatePtr == nullptr)
+    {
+        ERROR(F("ledStrip: null audio mode"));
+        return 0;
+    }
+    modeUpdatePtr->initValues(this, fptr);
+    INFO(F("Succesfully loaded mode: "), reinterpret_cast<uint16_t>( ptr ), F(" for strip: "), identifier);
+    return 1;
+}
+
 
 void ledStrip::unloadMode()
 {
