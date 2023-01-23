@@ -2,3 +2,4 @@
 .vscode/**
 .git
 *.sh
+.gdb_history
