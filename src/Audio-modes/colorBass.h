@@ -21,17 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-
 #ifndef _COLORBASS_H
 #define _COLORBASS_H
 
 /* includes */
 #include <inttypes.h>
 #include "audioModes.h"
-#include "../utils/approxFFT.h"
+//#include "../utils/approxFFT.h"
 #include "../utils/colorMath.h"
 #include "../utils/ledStrip.h"
 #include "../utils/debug.h"
+#include "../utils/FFT.h"
 /* -------- */
 
 
@@ -41,16 +41,16 @@ class colorBass : public audioMode                     // Simple bass effect
     bool _update = 0;
     uint16_t _lastFreq = 0;
 
-    approxFFT FFT;                                     // fft object;
+    FFT fft_obj;
     
 private:
     inline uint8_t fade(uint16_t freq, uint16_t brightness);
     inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
 
-    EWMA bright = EWMA(0.09);
-    EWMA bright2 = EWMA(0.20);
-    constantChangeRater<float> color_smooth = constantChangeRater<float>( 1024.0F,  170.0F);
-
+    EWMA bright = EWMA(0.20);
+    EWMA bright2 = EWMA(0.27);
+    //constantChangeRater<float> color_smooth = constantChangeRater<float>( 1024.0F,  170.0F);
+    EWMA color_smooth = EWMA(0.01);
     /* Last Values */
     uint8_t m_last_r;
     uint8_t m_last_g;
