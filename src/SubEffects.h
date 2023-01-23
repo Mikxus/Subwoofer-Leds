@@ -28,7 +28,7 @@
 #if defined(__AVR_ATmega328P__)
     #define _SUBEFFECTS_AVR_ATMEGA328_
 #else
-        #error This library currently only supports AVR ATmega328 chip;      // comment out if you would still like to continue + remember to define  _SUBEFFECTS_AVR_ATMEGA328P_
+    #error This library currently only supports AVR ATmega328 chip;      // comment out if you would still like to continue + remember to define  _SUBEFFECTS_AVR_ATMEGA328P_
 #endif
 
 
@@ -40,6 +40,7 @@
 #include "utils/debug.h"
 #include "utils/colorMath.h"
 #include "utils/ledStrip.h"
+#include "utils/interrupt.h"
 /* -------------------------------- */
 
 #include "Audio-modes/colorBass.h"
@@ -92,6 +93,7 @@ public:
     void NextMode();                            
     void PreviousMode();
     void SetMode(uint8_t mode);
+    bool loadMode(audioMode* ptr, uint8_t identifier);
     /* ------------- */
 
     /* Color palette controls */

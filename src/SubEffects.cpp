@@ -392,6 +392,19 @@ void SubEffects::SetMode(uint8_t wantedMode)
     return;
 }
 
+bool SubEffects::loadMode(audioMode* ptr, uint8_t identifier)
+{
+    ledStrip* strip = GetStripPtr(identifier);
+    if (strip == nullptr)
+    {
+        ERROR(F("LoadMode failed: Invalid identifier "), identifier);
+        return 0;
+    }
+
+    strip->loadObj(ptr, _fastPtr);
+    return 1;
+}
+
 /**
  * @brief Incresses global color palette and sets all leds strips to it
  * @return None 
