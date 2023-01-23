@@ -41,25 +41,19 @@ struct moving_average_filter
     float _sampleTotal;
     uint8_t _curReadIndex;
     float _sampleAvg;
+
     float calc(float val);
 }; 
 
 struct weighted_moving_average_filter
 {
-
-    // declare _alpha and _fading as floats
     float _Alpha = 0.05;    // smoothing factor
-    //float _fading = 0.0;    // fading factor
-
-
-    //float _Alpha = 0.4;
     float _result = 0.0;
-    //float _fading = 1.0;
+
     float calc(float analogRead);
 };
 
 // Expotentially weighted mowing average
-
 struct EWMA
 {
     float _alpha =  0.0F;
@@ -86,10 +80,11 @@ struct EWMA
 };
 
 
-/* template for a constant rate of change
-    Initialized with max rate of change +, then the time in ms
-    example: changeLimiter<int> limiter( 300, 20 );
-
+/**
+ * @brief template for a constant rate of change
+ *  Initialized with max rate of change +, then the time in ms
+ *  example: changeLimiter<int> limiter( 300, 20 );
+ * 
 */
 template< class T > class constantChangeRater {
 private:
@@ -99,10 +94,12 @@ private:
     uint32_t lastTime = 0;
 
     T lastValue = 0;
+
 public:
     constantChangeRater( T changeRate, T changeTime );       // max change in ms
-    ~constantChangeRater();
+    ~constantChangeRater() = default;
     T limit( T value );
+
 };
 
 template< class T> constantChangeRater<T>::constantChangeRater( T changeRate, T changeTime)
@@ -140,7 +137,4 @@ template< class T> T constantChangeRater<T>::limit( T value )
     return lastValue;
 }
 
-template<class T> constantChangeRater<T>::~constantChangeRater()
-{
-}
 #endif
