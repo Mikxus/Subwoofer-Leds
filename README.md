@@ -10,11 +10,10 @@ SubEffects is an Arduino library that makes creating dynamic, audio-responsive l
 - Easy to use 8bit fixed point FFT [implementation](https://github.com/Klafyvel/AVR-FFT/tree/main/Fixed8FFT)
 
 ## Installation
-
-1. Go to the [releases tab](https://github.com/Mikxus/rISR/releases) on the rISR repository
+1. Go to the [tags tab](https://github.com/Mikxus/SubEffects/tags) on the rISR repository
 2. Download the latest version of the library as a .zip file
 3. Open the Arduino IDE
-4. Go to Sketch > Include Library > Add .ZIP Library
+4. Click on the toolbar Sketch > Include Library > Add .ZIP Library
 5. Select the downloaded .zip file and click open
 6. The library should now be installed and ready to use in the Arduino IDE.
 
