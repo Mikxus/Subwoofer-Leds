@@ -231,15 +231,10 @@ uint8_t bit_reverse(const uint8_t nbits, uint8_t val)
     return val;
 }
 
-fixed8_t fixed16_to_fixed8(fixed16_t x)
-{
-    return (fixed8_t)(x >> 8);
-}
-
 /* Signed fractional multiply of two 8-bit numbers. */
 fixed8_t fixed_mul_8_8(fixed8_t a, fixed8_t b)
 {
-    fixed8_t result;
+    fixed8_t result = 0;
 
     asm(
         "fmuls %[a],%[b]"
@@ -312,20 +307,10 @@ fixed16_t fixed_mul_16_16(fixed16_t a, fixed16_t b)
     return result;
 }
 
-/* Overloading utilities */
-fixed8_t fixed_mul_8_16(fixed8_t a, fixed16_t b)
-{
-    return fixed_mul_8_8(a, fixed16_to_fixed8(b));
-}
-fixed8_t fixed_mul_16_8(fixed16_t a, fixed8_t b)
-{
-    return fixed_mul_8_8(fixed16_to_fixed8(a), b);
-}
-
 /* fixed point addition with saturation to ±1.*/
 fixed8_t fixed_add_saturate_8_8(fixed8_t a, fixed8_t b)
 {
-    fixed8_t result;
+    fixed8_t result = 0;
     asm(
         "clr %[result]"
         "\n\t"
@@ -362,7 +347,7 @@ fixed8_t fixed_add_saturate_8_8(fixed8_t a, fixed8_t b)
 /* Fixed point addition with saturation to ±1. */
 fixed16_t fixed_add_saturate_16_16(fixed16_t a, fixed16_t b)
 {
-    fixed16_t result;
+    fixed16_t result = 0;
     asm(
         "movw %A[result], %A[a]"
         "\n\t"
@@ -399,14 +384,31 @@ fixed16_t fixed_add_saturate_16_16(fixed16_t a, fixed16_t b)
 
     return result;
 }
+
 /* Overloading utilities */
+fixed8_t fixed_mul_8_16(fixed8_t a, fixed16_t b)
+{
+    return fixed_mul_8_8(a, fixed16_to_fixed8(b));
+}
+
+fixed8_t fixed_mul_16_8(fixed16_t a, fixed8_t b)
+{
+    return fixed_mul_8_8(fixed16_to_fixed8(a), b);
+}
+
 fixed8_t fixed_add_saturate_8_16(fixed8_t a, fixed16_t b)
 {
     return fixed_add_saturate_8_8(a, fixed16_to_fixed8(b));
 }
+
 fixed8_t fixed_add_saturate_16_8(fixed16_t a, fixed8_t b)
 {
     return fixed_add_saturate_8_8(fixed16_to_fixed8(a), b);
+}
+
+fixed8_t fixed16_to_fixed8(fixed16_t x)
+{
+    return (fixed8_t)(x >> 8);
 }
 
 /* Approximate modulus with a 5% margin error.
@@ -447,28 +449,27 @@ Fixed8FFT::Fixed8FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency
 : FFT_backend_template( input_pin, sample_size, frequency, backend )
 {
     if (!allocate_data_array()) return;
-    interrupt_data = &TIMER1_COMPB_data;
     cli();
-    interrupt_data->data = reinterpret_cast<int8_t*>(m_data);
-    interrupt_data->array_pos = 0;
-    interrupt_data->adc_pin = input_pin;
-    interrupt_data->offset_x = 70;
-    interrupt_data->scale_x = 4;
+    interrupt_data.data = reinterpret_cast<int8_t*>(m_data);
+    interrupt_data.array_pos = 0;
+    interrupt_data.adc_pin = input_pin;
+    interrupt_data.offset_x = 70;
+    interrupt_data.scale_x = 4;
 
     for (uint8_t i = 0; i < 16; i++)
     {
         if (sample_size >> i == 1)
         {
-            interrupt_data->array_size = i;
-            uint16_t temp = interrupt_data->array_size;
+            interrupt_data.array_size = i;
+            uint16_t temp = interrupt_data.array_size;
             sei();
-            DEBUG(F("Array size: "), temp);
+            DEBUG(F("Fixed8FFT: input array size:"), 1<<temp);
             return;
         }
     }
     sei();
     ERROR(F("Failed to get array size. Sample_size: "), sample_size);
-    interrupt_data->array_size = 0;
+    interrupt_data.array_size = 0;
 }
 
 bool Fixed8FFT::allocate_data_array() 
@@ -477,52 +478,85 @@ bool Fixed8FFT::allocate_data_array()
 
     if (m_data != nullptr) return 1;
 
-    ERROR(F("Fixed8FFT: Failed to allocate data array. Size: "), sizeof(fixed8_t)* m_sample_size , F(" bytes"));
+    ERROR(F("Fixed8FFT: Failed to allocate data array. Size: "), sizeof(fixed8_t) * m_sample_size , F(" bytes"));
     return 0;
 }
 
 uint16_t Fixed8FFT::calculate()
 {
-    if (interrupt_data->array_pos == 1 << interrupt_data->array_size)
+    if (interrupt_data.array_pos == 1 << interrupt_data.array_size)
     {
-        PORTB |= B00010000; // pin 12 high
         uint16_t temp = 0;
 
-        if (millis() % 1000 == 0) calculate_scaling();
+        if (millis() - last_result_time < 250)
+        {
+            calculate_scaling();
+            last_result_time = millis();
+        }
 
         //INFO(F("Before fft"));
-        /*for (uint8_t i = 0; i < 1 << interrupt_data->array_size; i++)
+        /*for (uint8_t i = 0; i < 1 << interrupt_data.array_size; i++)
         {
-            DEBUG(interrupt_data->data[i]);
+            DEBUG(interrupt_data.data[i]);
         }*/
-        fft(interrupt_data->data, m_sample_size);
+        fft(interrupt_data.data, m_sample_size);
 
         /*INFO(F("After FFT:"));
-        for (uint8_t i = 0; i < interrupt_data->array_size; i++)
+        for (uint8_t i = 0; i < interrupt_data.array_size; i++)
         {
-            DEBUG(interrupt_data->data[i]);
+            DEBUG(interrupt_data.data[i]);
         }*/
-        temp = modulus(interrupt_data->data, m_sample_size, 700.0F);
+        temp = modulus(interrupt_data.data, m_sample_size, m_sampling_frequency);
         //INFO(F("After Modulus:"));
-        /*for (uint8_t i = 0; i < interrupt_data->array_size; i++)
+        /*for (uint8_t i = 0; i < interrupt_data.array_size; i++)
         {
-            DEBUG(interrupt_data->data[i]);
+            DEBUG(interrupt_data.data[i]);
         }*/
 
-        PORTB &= B11101111; // pin 12 low
-        interrupt_data->array_pos = 0;
+        interrupt_data.array_pos = 0;
 
-        //ERROR(F("TIMER1 offset: "), (uint16_t) interrupt_data->offset_x);
-        //ERROR(F("TIMER1 scale: "), (uint16_t) interrupt_data->scale_x);
+        //ERROR(F("TIMER1 offset: "), (uint16_t) interrupt_data.offset_x);
+        //ERROR(F("TIMER1 scale: "), (uint16_t) interrupt_data.scale_x);
 
-        //uint16_t test = (interrupt_data->offset_x * 8 - interrupt_data->scale_x * 32) & 0x3FF;
+        //uint16_t test = (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32) & 0x3FF;
         //WARN(F("min_val: "), test);
-        //WARN(F("max_val: "), (interrupt_data->offset_x * 8 + interrupt_data->scale_x * 32) & 0x3FF);
+        //WARN(F("max_val: "), (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32) & 0x3FF);
         return temp;
     }
     return 0;
 }
 
+__attribute__ ((signal)) void __vector_timer1_compb_adc_read_byte()
+{
+    //PORTB |= B00010000; // pin 12 high
+
+    adc_sample_interrupt *data = (struct adc_sample_interrupt*) isr_vector_data_pointer_table[ TIMER1_COMPB_ ];
+    
+    /* Check if data array is filled with data */
+    if ( data->array_pos >= 1 << data->array_size ) {
+        PORTB &= B11101111; // pin 12 low
+        return; 
+    }
+
+    ADMUX = (1 << 6) | (data->adc_pin & 0x15);
+
+    /* Start conversion */
+    _SFR_BYTE(ADCSRA) |= _BV(ADSC);
+
+    /* Adc is cleared when conversion finishes */
+    while (bit_is_set(ADCSRA, ADSC));
+
+    uint16_t min_val = constrain(data->offset_x * 8 - data->scale_x * 32, 0, 1024 );
+    uint16_t max_val = constrain(data->offset_x * 8 + data->scale_x * 32, 0, 1024 );
+    
+    /* Scale the adc reading to best fit in uint8_t. Then save it */
+    data->data[1 << data->array_pos] = map(constrain(ADC, min_val, max_val), min_val, max_val, -128, 127);    
+
+    data->array_pos += 1;
+
+    //PORTB &= B11101111; // pin 12 low
+    return;
+}
 
 #define Fixed8FFT_min_dynamic_range 200
 
@@ -530,8 +564,8 @@ uint16_t Fixed8FFT::calculate()
 
 void Fixed8FFT::calculate_scaling()
 {
-    if (interrupt_data->array_pos != 1 << interrupt_data->array_size) return;
-    
+    if (interrupt_data.array_pos != 1 << interrupt_data.array_size) return;
+    cli();
     int16_t highest = -128;
     int16_t lowest = 127;
     int32_t average = 0;
@@ -553,15 +587,26 @@ void Fixed8FFT::calculate_scaling()
     used_dynamic_range = highest - lowest;
 
     real_lowest = map( lowest, -128, 127,
-        (interrupt_data->offset_x * 8 - interrupt_data->scale_x * 32),
-        (interrupt_data->offset_x * 8 + interrupt_data->scale_x * 32));
+        (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
+        (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32));
 
     real_highest = map( highest, -128, 127,
-        (interrupt_data->offset_x * 8 - interrupt_data->scale_x * 32),
-        (interrupt_data->offset_x * 8 + interrupt_data->scale_x * 32));
+        (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
+        (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32));
     
     real_dynamic_range = real_highest - real_lowest;
 
+    /*
+    DEBUG(F("Dynamic range: "), used_dynamic_range);
+    DEBUG(F("Real dynamic range: "), real_dynamic_range);
+    DEBUG(F("Input range LO: "), map( -128, -128, 127,
+            (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
+            (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32)), F(" HI: "), map( 128, -128, 127,
+            (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
+            (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32)));
+    DEBUG(F("HIGH: "), real_highest);
+    DEBUG(F("LOW: "), real_lowest);
+    */
     /* Check if we can use offset to get better signal range */
     if ( highest == 127  || lowest == -128 )
     {
@@ -572,29 +617,29 @@ void Fixed8FFT::calculate_scaling()
 
         /* Convert average from -128-127 to original adc reading */
         average = map( average, -128, 127,
-            (interrupt_data->offset_x * 8 - interrupt_data->scale_x * 32),
-            (interrupt_data->offset_x * 8 + interrupt_data->scale_x * 32));
+            (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
+            (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32));
 
         //INFO(F("Real average: "), average);
         /* Calculate offset */
-        average = average - interrupt_data->offset_x * 8;
+        average = average - interrupt_data.offset_x * 8;
         //INFO(F("Offset fix: "), average);
         
-        average = interrupt_data->offset_x + average;
+        average = interrupt_data.offset_x + average;
         //INFO(F("New average: "), average);
 
         /* Check if new range is under 0*/
         if ( map( -128, -128, 127,
-        (average * 8 - interrupt_data->scale_x * 32),
-        (average * 8 + interrupt_data->scale_x * 32)) < 0) goto skip_offset;
+        (average * 8 - interrupt_data.scale_x * 32),
+        (average * 8 + interrupt_data.scale_x * 32)) < 0) goto skip_offset;
 
         /* Check if new range is over 1024*/
         if (map( 127, -128, 127,
-        (average * 8 - interrupt_data->scale_x * 32),
-        (average * 8 + interrupt_data->scale_x * 32)) > 1024 ) goto skip_offset;
+        (average * 8 - interrupt_data.scale_x * 32),
+        (average * 8 + interrupt_data.scale_x * 32)) > 1024 ) goto skip_offset;
 
-        interrupt_data->offset_x = constrain( average, 0, 128);
-        //DEBUG(F("New offset: "), (uint16_t) interrupt_data->offset_x);
+        interrupt_data.offset_x = constrain( average, 0, 128);
+        //DEBUG(F("New offset: "), (uint16_t) interrupt_data.offset_x);
 
     }
     skip_offset:
@@ -602,33 +647,29 @@ void Fixed8FFT::calculate_scaling()
     
     if ( used_dynamic_range > 230 )
     {
-        interrupt_data->scale_x = constrain(interrupt_data->scale_x + 1, 0, 16);
-        //DEBUG(F("SCALE_X: "), (uint8_t) interrupt_data->scale_x);
+        interrupt_data.scale_x = constrain(interrupt_data.scale_x + 1, 0, 16);
+        //DEBUG(F("SCALE_X: "), (uint8_t) interrupt_data.scale_x);
 
     } else if (used_dynamic_range < Fixed8FFT_optimal_dynamic_range8bit)
     {
-        interrupt_data->scale_x = constrain(interrupt_data->scale_x - 1, 3, 16);
-        //DEBUG(F("SCALE_X: "), (uint8_t) interrupt_data->scale_x);
+        interrupt_data.scale_x = constrain(interrupt_data.scale_x - 1, 5, 16);
+        //DEBUG(F("SCALE_X: "), (uint8_t) interrupt_data.scale_x);
 
     }
-    /*
-    DEBUG(F("Dynamic range: "), used_dynamic_range);
-    DEBUG(F("Real dynamic range: "), real_dynamic_range);
-    DEBUG(F("Input range LO: "), map( -128, -128, 127,
-            (interrupt_data->offset_x * 8 - interrupt_data->scale_x * 32),
-            (interrupt_data->offset_x * 8 + interrupt_data->scale_x * 32)), F(" HI: "), map( 128, -128, 127,
-            (interrupt_data->offset_x * 8 - interrupt_data->scale_x * 32),
-            (interrupt_data->offset_x * 8 + interrupt_data->scale_x * 32)));
-    DEBUG(F("HIGH: "), real_highest);
-    DEBUG(F("LOW: "), real_lowest); */
-    /* Scale values to its "real" value */
-    
-
+    sei();
+    return;
 }
 
 vector_t Fixed8FFT::get_read_vector()
 {
     return __vector_timer1_compb_adc_read_byte;
+}
+
+/* Possible mem corruption. If Fixed8FFT gets destroyed before 
+     &interrupt_data gets removed from the isr_vector_data_pointer_table */
+void *Fixed8FFT::get_read_vector_data_pointer()
+{
+    return (void*)&interrupt_data;
 }
 
 Fixed8FFT::~Fixed8FFT()
