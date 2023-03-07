@@ -51,7 +51,7 @@ void setup() {
 
   // Add new ledstrip for the FastLED object
   FastObj.addLeds<LED_CHIPSET, DATA_PIN, COLOR_ORDER>( effect.GetLedsPtr( ledID ) , NUM_LEDS);  // GRB ordering is typical
-  FastObj.setMaxRefreshRate(0);                                                                 // Set refresh rate to unlimited for best 
+  FastObj.setMaxRefreshRate(0);                                                                 // Set refresh rate to unlimited for best performance
   FastObj.setDither(0);
 
   /* Calibrate all led strips' input values */

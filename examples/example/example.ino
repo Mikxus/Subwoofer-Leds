@@ -20,10 +20,12 @@ SubEffects effect( &FastObj );    // Create SubEffects object then pass CFastLED
 void setup() {
   pinMode(AUDIO_PIN, INPUT);
   pinMode(DATA_PIN, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
   
   Serial.begin(38400);
   delay(500);
-  DEBUG(F("Example project: "));
+  DEBUG(F("Example project"));
   
   // Add new ledstrip for the SubEffect object
   uint8_t ledID = 0;
