@@ -47,10 +47,10 @@ private:
     inline uint8_t fade(uint16_t freq, uint16_t brightness);
     inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
 
-    EWMA bright = EWMA(0.20);
-    EWMA bright2 = EWMA(0.27);
+    EWMAtest bright1 = EWMAtest(0.04F);
+    EWMAtest bright2 = EWMAtest(0.04F);
     //constantChangeRater<float> color_smooth = constantChangeRater<float>( 1024.0F,  170.0F);
-    EWMA color_smooth = EWMA(0.01);
+    EWMAtest color_smooth = EWMAtest(0.4F);
     /* Last Values */
     uint8_t m_last_r;
     uint8_t m_last_g;

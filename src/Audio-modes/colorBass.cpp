@@ -43,9 +43,9 @@ bool colorBass::Update()
     {
         freq = fft_obj.calculate();
     }
-    
+
     if (freq == 0) freq = _lastFreq;
-    else { _lastFreq = freq; DEBUG(F("Freq: "), freq); }
+    else { _lastFreq = freq; DEBUG(F("Freq: "), freq); }    
 
     uint16_t brightness = analogRead(_ledStrip->inputPin);
 
@@ -54,9 +54,10 @@ bool colorBass::Update()
     brightness = constrain(brightness, _ledStrip->inputCalZero, 800);
     brightness = map(brightness, _ledStrip->inputCalZero,550,0,255);
     
-
+    /* if no change in brightness */
     if (brightness == _lastBrightness)
     {
+        /* check if fade is complete */
         if (! fade(freq, (uint8_t) brightness) ) 
         {
             _update = 0;
@@ -85,7 +86,7 @@ bool colorBass::Update()
 uint8_t colorBass::fade(uint16_t hue, uint16_t brightness) {
 
     /* Smoothen the input values */
-    float val = bright2.calc( bright.calc((float)brightness) );                   // Calculate the smoothing
+    float val = bright2.calc( bright1.calc((float)brightness) );                   // Calculate the smoothing
     float colorVal = color_smooth.calc((float)hue);
     
     /* Limit color value */
