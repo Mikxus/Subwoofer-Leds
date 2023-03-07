@@ -1,6 +1,0 @@
-[submodule "rISR"]
-	path = lib/rISR
-	url = https://github.com/Mikxus/rISR
-[submodule "src/lib/rISR"]
-	path = src/lib/rISR
-	url = https://github.com/Mikxus/rISR
