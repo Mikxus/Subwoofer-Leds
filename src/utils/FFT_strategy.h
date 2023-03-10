@@ -27,7 +27,7 @@
 #include "../lib/rISR/src/rISR.h"
 
 /**
- * @brief Enum for implemented backend
+ * @brief Enum for implemented backends
  * 
  */
 typedef enum {
@@ -41,8 +41,8 @@ typedef enum {
 class FFT_backend_template
 {
 protected:
-    uint16_t m_sample_size = 0;
-    void *m_data;
+    uint16_t m_sample_size;
+    void *m_data = nullptr;
 
     /**
      * @brief Allocates array of custom data size * sample size. Then sets data to point to it
@@ -52,7 +52,10 @@ protected:
      */
     virtual bool allocate_data_array();
 
+    virtual void deallocate_data_array();
+
 public:
+    uint32_t m_sampling_frequency = 0.0F;
     
     /**
      * @brief Construct a new fft backend template object
@@ -67,6 +70,8 @@ public:
     {
     }
 
+    virtual bool set_sample_size(uint16_t sample_size);
+
     /**
      * @brief Calculates fft & returns the loudest hz.
      * 
@@ -80,6 +85,13 @@ public:
      * @return void*
      */
     virtual vector_t get_read_vector() = 0;
+
+    /**
+     * @brief Get the read vector data pointer
+     * 
+     * @return void* 
+     */
+    virtual void *get_read_vector_data_pointer() = 0;
     
     virtual ~FFT_backend_template() = default;
 };
