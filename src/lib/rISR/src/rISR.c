@@ -256,6 +256,12 @@ extern "C"
         unsafe_dynamic_isr( SPM_READY_vect, SPM_READY_ )
 #endif
 
+__attribute__ ((signal)) runtime_bad_isr( void )
+{
+    return;
+}
+
+
 void bind_isr( isr_vectors isr_name, vector_t vector )
 {
     isr_vector_table[ isr_name ] = vector;

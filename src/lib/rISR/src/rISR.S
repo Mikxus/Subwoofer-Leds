@@ -24,6 +24,8 @@
 #include <avr/io.h>
 #include "config.h"
 
+.extern runtime_bad_isr
+
 .section .data
 .global isr_vector_table
 
@@ -245,12 +247,6 @@ isr_vector_data_pointer_table_size:
     #define data_pointer_table_lenght . - isr_vector_data_pointer_table
     .byte data_pointer_table_lenght
 #endif
-
-/* Default isr */
-.global runtime_bad_isr
-.section .text
-runtime_bad_isr:
-    reti
 
 /* Ensure our vector table is copied to memory */
 .global __do_copy_data
