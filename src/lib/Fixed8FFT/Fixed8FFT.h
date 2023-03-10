@@ -7,6 +7,7 @@
 #include "../../utils/debug.h"
 #include "../../utils/interrupt.h"
 #include "../../utils/FFT_strategy.h"
+#include "../rISR/src/rISR.h"
 
 typedef int16_t fixed16_t;
 typedef int8_t fixed8_t;
@@ -99,6 +100,35 @@ extern fixed8_t fixed_add_saturate_8_8( fixed8_t a, fixed8_t b );
  */
 extern fixed16_t fixed_add_saturate_16_16(fixed16_t a, fixed16_t b);
 
+
+/**
+ * @brief Isr for reading 8bit adc value using timer1 compb interrupt
+ * 
+ */
+extern void __vector_timer1_compb_adc_read_byte();
+
+#ifndef _FIXED8FFT_ADC_SAMPLE_INTERRUPT_STRUCT_
+#define _FIXED8FFT_ADC_SAMPLE_INTERRUPT_STRUCT_
+/**
+ * @brief Exapmle adc read interrupt data structure
+ * 
+ */
+struct adc_sample_interrupt {
+    struct {
+        volatile uint32_t adc_pin : 4;      // Adc input pin
+        volatile uint32_t array_size : 4;   // data array size in power of 2. Represented like this 2^array_size. Max size 11. 2^(2^4) = 4096
+        volatile uint32_t array_pos : 12;   // array pos. max size 4096
+        
+        /* Values to scale the input data */
+        volatile uint32_t offset_x : 7;
+        volatile uint32_t scale_x: 5;
+    };
+
+    /* pointer to int8_t array */
+    int8_t* volatile data;
+};
+#endif
+
 /* Concrete strategy class for 8bit fft */
 class Fixed8FFT : public FFT_backend_template
 {
@@ -109,14 +139,18 @@ private:
      */
     void calculate_scaling();
 
-    adc_sample_interrupt* interrupt_data;
+    adc_sample_interrupt interrupt_data;
+    uint32_t last_result_time = 0;
 
 protected:
     bool allocate_data_array() override;
+
 public:
     Fixed8FFT( uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend bits );
     uint16_t calculate() override;
     vector_t get_read_vector() override;
+    void *get_read_vector_data_pointer() override;
     ~Fixed8FFT();
+
 };
 #endif

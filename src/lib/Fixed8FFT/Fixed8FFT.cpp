@@ -33,7 +33,7 @@ fixed16_t two_sines_sq[] = {
     0x000a  // 2sin²(-π/256)
 };
 
-uint8_t fft(fixed8_t x[], const int size)
+uint8_t fft(fixed8_t x[], int size)
 {
     if (size == 1)
         return 0;
@@ -415,7 +415,7 @@ fixed8_t fixed16_to_fixed8(fixed16_t x)
    See here (https://klafyvel.me/blog/articles/approximate-euclidian-norm/)
    for why it works.
    */
-uint16_t modulus(fixed8_t x[], const int size, float frequency)
+uint16_t modulus(fixed8_t x[], int size, float frequency)
 {
     uint8_t i, i_maxi = 0;
     fixed8_t a = 0, b = 0;
@@ -463,7 +463,8 @@ Fixed8FFT::Fixed8FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency
             interrupt_data.array_size = i;
             uint16_t temp = interrupt_data.array_size;
             sei();
-            DEBUG(F("Fixed8FFT: input array size:"), 1<<temp);
+            DEBUG(F("Fixed8FFT: input array size:"), 1 << temp);
+            DEBUG(F("m_sample_size: "), m_sample_size);
             return;
         }
     }
@@ -479,6 +480,34 @@ bool Fixed8FFT::allocate_data_array()
     if (m_data != nullptr) return 1;
 
     ERROR(F("Fixed8FFT: Failed to allocate data array. Size: "), sizeof(fixed8_t) * m_sample_size , F(" bytes"));
+    return 0;
+}
+
+void Fixed8FFT::deallocate_data_array()
+{
+    if (m_data == nullptr) return;
+    
+    free(m_data);
+    return;
+
+}
+
+bool Fixed8FFT::set_sample_size(uint16_t sample_size)
+{
+    if (m_sample_size == sample_size) return 1;
+
+    /* Check if number is not power of 2 */
+    if (sample_size != 0 && (sample_size & (sample_size - 1)) != 0)
+    {
+        ERROR(F("approxFFT sample size is not power of 2. Size"), sample_size);
+        return 0;
+    }
+
+    cli();
+    m_sample_size = sample_size;
+    deallocate_data_array();
+    allocate_data_array();
+    sei();
     return 0;
 }
 
@@ -526,6 +555,8 @@ uint16_t Fixed8FFT::calculate()
     return 0;
 }
 
+volatile float adc_sin_value = 0;
+
 __attribute__ ((signal)) void __vector_timer1_compb_adc_read_byte()
 {
     //PORTB |= B00010000; // pin 12 high
@@ -550,8 +581,7 @@ __attribute__ ((signal)) void __vector_timer1_compb_adc_read_byte()
     uint16_t max_val = constrain(data->offset_x * 8 + data->scale_x * 32, 0, 1024 );
     
     /* Scale the adc reading to best fit in uint8_t. Then save it */
-    data->data[1 << data->array_pos] = map(constrain(ADC, min_val, max_val), min_val, max_val, -128, 127);    
-
+    data->data[data->array_pos] = map(constrain(ADC, min_val, max_val), min_val, max_val, -128, 127);    
     data->array_pos += 1;
 
     //PORTB &= B11101111; // pin 12 low
@@ -674,8 +704,6 @@ void *Fixed8FFT::get_read_vector_data_pointer()
 
 Fixed8FFT::~Fixed8FFT()
 {
-    if (m_data == nullptr)
+    deallocate_data_array();
     return;
-
-    free(m_data);
 }
