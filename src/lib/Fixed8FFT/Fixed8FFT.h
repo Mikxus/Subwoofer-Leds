@@ -109,6 +109,7 @@ extern void __vector_timer1_compb_adc_read_byte();
 
 #ifndef _FIXED8FFT_ADC_SAMPLE_INTERRUPT_STRUCT_
 #define _FIXED8FFT_ADC_SAMPLE_INTERRUPT_STRUCT_
+
 /**
  * @brief Exapmle adc read interrupt data structure
  * 
@@ -116,8 +117,8 @@ extern void __vector_timer1_compb_adc_read_byte();
 struct adc_sample_interrupt {
     struct {
         volatile uint32_t adc_pin : 4;      // Adc input pin
-        volatile uint32_t array_size : 4;   // data array size in power of 2. Represented like this 2^array_size. Max size 11. 2^(2^4) = 4096
-        volatile uint32_t array_pos : 12;   // array pos. max size 4096
+        volatile uint32_t array_size : 8;   // data array size in power of 2. Max size 256
+        volatile uint32_t array_pos : 9;   // array pos. max size 512 
         
         /* Values to scale the input data */
         volatile uint32_t offset_x : 7;
@@ -144,10 +145,14 @@ private:
 
 protected:
     bool allocate_data_array() override;
+    void deallocate_data_array() override;
+
 
 public:
     Fixed8FFT( uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend bits );
     uint16_t calculate() override;
+
+    bool set_sample_size(uint16_t sample_size) override;
     vector_t get_read_vector() override;
     void *get_read_vector_data_pointer() override;
     ~Fixed8FFT();
