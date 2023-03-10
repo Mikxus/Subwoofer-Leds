@@ -36,7 +36,6 @@ class FFT
 {
 private:
     FFT_backend_template* fft = nullptr;
-    void *interrupt_data = nullptr;
     static timer1 timer;
 
 public:
@@ -55,29 +54,87 @@ public:
                 #endif
                 return;
         }
-        
         if (fft == nullptr)
         {
             ERROR(F("Not enough memory for fft backend: "), bits);
             return;
         }
-        
-        /* TODO: Seutup interrupt's for sampling */
-        if (risr_get_vector(TIMER1_COMPB_) == fft->get_read_vector())
+                
+        if (fft->get_read_vector() == nullptr)
         {
-            ERROR(F("FFH: Timer1 compb vector is already in use"));
+            INFO(F("FFT: fft backend doesn't have read isr"));
+            free(fft); // maybe i should just let the fft obj handle it | aka not free it
             return;
         }
 
+        /* TODO: Seutup interrupt's for sampling */
+        if (get_isr_vector(TIMER1_COMPB_) == fft->get_read_vector())
+        {
+            ERROR(F("FFT: Timer1 compb vector is already in use. Exiting"));
+            free(fft);
+            return;
+        }
+
+        /* Check if fft objects data ptr is available */
+        if (fft->get_read_vector_data_pointer() == nullptr) 
+        {
+            #ifdef DEBUG_CHECKS
+            INFO(F("FFT: Backend: "), bits, F(" doesn't have isr data ptr"));
+            #endif
+            goto skip_data_ptr_bind;
+        }
+        
+        if (get_isr_data_ptr(TIMER1_COMPB_) != nullptr)
+        {
+            ERROR(F("FFT: backend data ptr can't be binded. Since someone has already binded pointer to it"));
+            #ifdef DEBUG_CHECKS
+                Serial.print(F("FFT: Binded data ptr: 0x")); Serial.println((uint16_t) get_isr_data_ptr(TIMER1_COMPB_), HEX);
+                Serial.print(F("FFT: Our data ptr: 0x")); Serial.println((uint16_t) fft->get_read_vector_data_pointer(), HEX);
+            #endif
+
+            free(fft);
+            return;
+        }
+        /* Everything correct. We can now bind data ptr */
         cli();
-        risr_bind(TIMER1_COMPB_, fft->get_read_vector());
+        bind_isr_data_ptr(TIMER1_COMPB_, fft->get_read_vector_data_pointer());
+
+        /* Bind isr */
+        skip_data_ptr_bind:
+
+        cli();
+        bind_isr(TIMER1_COMPB_, fft->get_read_vector());
+        fft->m_sampling_frequency = timer.Start(frequency);
+
         #ifdef DEBUG_CHECKS
+            INFO(F("FFT: Target frequency: "), frequency);
+            INFO(F("FFT: Achieved frequency: "), fft->m_sampling_frequency);
             Serial.print(F("Function: 0x"));
             Serial.print(reinterpret_cast<long unsigned int>(fft->get_read_vector()) , HEX);
             Serial.println(F(" binded to TIMER1_COMPB interrupt"));
         #endif
-        timer.Start(frequency);
         sei();
+    }
+    
+    ~FFT()
+    {
+        if (fft == nullptr) return;
+
+        cli();
+        if (fft->get_read_vector() != nullptr && fft->get_read_vector() == get_isr_vector(TIMER1_COMPB_))
+        {
+            /* Check if fft objects data ptr is used */
+            if (fft->get_read_vector_data_pointer() != nullptr && fft->get_read_vector_data_pointer() == get_isr_data_ptr(TIMER1_COMPB_))
+            {
+                unbind_isr_data_ptr(TIMER1_COMPB_);
+            }
+
+            /* Unbind isr */
+            timer.Stop();
+            unbind_isr(TIMER1_COMPB_);
+        }
+        sei();
+        free(fft);
     }
 
     uint16_t calculate()
