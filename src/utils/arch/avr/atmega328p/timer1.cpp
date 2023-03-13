@@ -117,28 +117,3 @@ timer1::~timer1()
     TIMSK1 &= 0x4;
     return;
 }
-
-volatile uint16_t _fftArrPos;
-ISR(TIMER1_COMPB_vect)                              // Interrupt routine for the fft library. each iteration it checks if the sapling has completed. If not it saves the current analog input to the array
-{
-    PORTB |= B00010000;           // pin 12 high
-    if (!_fftBinReady)
-    {
-        uint16_t val = analogRead(_subwooferPin);
-        if ( val <= _calibratedNoiseZero )          // check if the reading is above the noise level if it isn't sets the value to zero
-        {
-            val = 0;
-        }
-        if (_fftArrPos < _fftBinSize )              // if the _fftArrPos is within the array size save the value. else set the value to zero and set _fftBinReady to true
-        {
-            _vReal[_fftArrPos] = val;
-            _fftArrPos += 1;
-        } else
-        {
-            _fftArrPos = 0;
-            _fftBinReady = true;
-        }
-    }
-    PORTB &= ~B00010000;
-    return;
-}
