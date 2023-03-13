@@ -473,7 +473,7 @@ Fixed8FFT::Fixed8FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency
     interrupt_data.array_size = 0;
 }
 
-bool Fixed8FFT::allocate_data_array() 
+bool Fixed8FFT::allocate_data_array()
 {
     m_data = calloc(m_sample_size, sizeof(fixed8_t));
 
@@ -523,39 +523,16 @@ uint16_t Fixed8FFT::calculate()
             last_result_time = millis();
         }
 
-        //INFO(F("Before fft"));
-        /*for (uint8_t i = 0; i < 1 << interrupt_data.array_size; i++)
-        {
-            DEBUG(interrupt_data.data[i]);
-        }*/
         fft(interrupt_data.data, m_sample_size);
 
-        /*INFO(F("After FFT:"));
-        for (uint8_t i = 0; i < interrupt_data.array_size; i++)
-        {
-            DEBUG(interrupt_data.data[i]);
-        }*/
         temp = modulus(interrupt_data.data, m_sample_size, m_sampling_frequency);
-        //INFO(F("After Modulus:"));
-        /*for (uint8_t i = 0; i < interrupt_data.array_size; i++)
-        {
-            DEBUG(interrupt_data.data[i]);
-        }*/
-
+        cli();
         interrupt_data.array_pos = 0;
-
-        //ERROR(F("TIMER1 offset: "), (uint16_t) interrupt_data.offset_x);
-        //ERROR(F("TIMER1 scale: "), (uint16_t) interrupt_data.scale_x);
-
-        //uint16_t test = (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32) & 0x3FF;
-        //WARN(F("min_val: "), test);
-        //WARN(F("max_val: "), (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32) & 0x3FF);
+        sei();
         return temp;
     }
     return 0;
 }
-
-volatile float adc_sin_value = 0;
 
 __attribute__ ((signal)) void __vector_timer1_compb_adc_read_byte()
 {
@@ -577,6 +554,7 @@ __attribute__ ((signal)) void __vector_timer1_compb_adc_read_byte()
     /* Adc is cleared when conversion finishes */
     while (bit_is_set(ADCSRA, ADSC));
 
+    /* Calculate the scaling values */
     uint16_t min_val = constrain(data->offset_x * 8 - data->scale_x * 32, 0, 1024 );
     uint16_t max_val = constrain(data->offset_x * 8 + data->scale_x * 32, 0, 1024 );
     
