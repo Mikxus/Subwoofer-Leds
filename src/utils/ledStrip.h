@@ -25,12 +25,14 @@
 #ifndef _SUBEFFECTS_LEDSTRIP_H_
 #define _SUBEFFECTS_LEDSTRIP_H_
 
-#define DEBUG
 
+#include <FastLED.h>
+#include <inttypes.h>
+#include "../config.h"
+#include "../colorPalettes.h"
 #include "../Audio-modes/audioModes.h"
+#include "debug.h"
 
-extern uint8_t scale8(uint8_t i, fract8 scale);  // Scaling function declared in  FastLED/scr/scale8.h
-extern uint16_t scale16( uint16_t i, fract16 scale );
 
 
 struct ledStrip                     // Struct for new led strips
@@ -49,7 +51,7 @@ struct ledStrip                     // Struct for new led strips
     uint8_t brightness = 255;               // brightness scale     255 is equal to 100% of the led's brightness
     uint8_t paletteIndex = 0;               // current palette id
    
-    audioMode *modeUpdatePtr = nullptr;             // holds the update class
+    audioMode *modeUpdatePtr = nullptr;     // Pointer to audio mode class
     CRGBPalette16 colorPalette = CRGBPalette16(CRGB::Black); 
 
     /* Methods for controlling the strip */
@@ -57,6 +59,8 @@ struct ledStrip                     // Struct for new led strips
     void SetBrightness(uint8_t value);
     bool SetColor(uint8_t index);
     bool SetMode(uint8_t modeIndex, CFastLED *fptr);
+
+    bool loadObj( audioMode* ptr, CFastLED* fptr);
 
     ~ledStrip();
 protected:
@@ -66,14 +70,6 @@ protected:
     bool loadMode( uint8_t modeIndex, CFastLED *fptr); // "assings" mode to given audioMode object
     void unloadMode();
 
-} __attribute__((packed));
-
-/* include here the color mode libraries */
-/* Remember to create new switch case statement for your mode in ledstrip.cpp */
-
+};
 #include "../Audio-modes/colorBass.h"
-
-/* ------------------------------------- */
-
-#include "ledStrip.cpp"
 #endif

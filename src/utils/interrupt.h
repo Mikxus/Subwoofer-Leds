@@ -1,7 +1,7 @@
 /*
  * MIT License
  * 
- * Copyright (c) 2022 Mikko Johannes Heinänen 
+ * Copyright (c) 2023 Mikko Johannes Heinänen 
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,34 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
+#ifndef _INTERRUPT_H_
+#define _INTERRUPT_H_
 
+#include <Arduino.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include "../lib/rISR/src/rISR.h"
 
-#ifndef _AUDIO_MODES_H_
-#define _AUDIO_MODES_H_
+/* Example adc sampling interrupt vectors */
+extern void __vector_timer1_compb_adc_read_byte();
 
-#include <inttypes.h>
-#include <FastLED.h>
-
-struct ledStrip;
-
-class audioMode                         // mode template
+class interrupt_manager
 {
-protected:
-
-    /* These are inherited */
-
-    ledStrip *_ledStrip;                // Pointer for the led strip struct
-    CFastLED *_FastLED;                 // Pointer for the current FastLED object
-
 public:
-    void initValues(ledStrip *ledStrip, CFastLED *FastLED) { _ledStrip = ledStrip; _FastLED = FastLED; }
     
-    virtual bool Update() = 0;          // function wich should be implemented in the inherited class the following way.
-                                        // updates the led strip's values. 
-                                        // Returns 1 if any led value changed. Othervise 0
-                                        // update shouldn't call FastLED.show() or any other function that updates the led strips
-    virtual ~audioMode() = default;
+    interrupt_manager() = default;
+    ~interrupt_manager() = default;
 };
 
+extern interrupt_manager interrupt;
 
 #endif

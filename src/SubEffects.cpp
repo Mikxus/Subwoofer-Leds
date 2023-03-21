@@ -22,10 +22,7 @@
  * SOFTWARE.
 */
 
-
 #include "SubEffects.h"
-#include "utils/colorMath.h"
-#include "utils/ledStrip.h"
 
 /**
  * @brief Construct a new Sub Effects:: Sub Effects object
@@ -37,26 +34,6 @@ SubEffects::SubEffects(CFastLED* fptr)
 {
 }
 
-/*
-bool SubEffects::SetModeToStrip(uint8_t modeIndex, uint8_t identifier)
-{
-    uint8_t i = 0;
-    i = GetStripPos(identifier);
-    if (i == 255) return 0;                                                 // strip not found
-
-    if ( !loadMode( modeIndex, _strips[i], _fastPtr) )    // Load new mode and check if it loaded succesfully                           // Check if mode was loaded succesfully
-    {
-        #ifdef DEBUG
-            Serial.print("Not enough memory for mode ");
-            Serial.println(modeIndex);
-        #endif
-
-        return 0;
-    }
-
-    return 1;                                                   // success
-}
-*/
 
 /**
  * @brief Returns the position of the led strip pointer in 
@@ -69,15 +46,10 @@ uint8_t SubEffects::GetStripPos(uint8_t identifier)
 {
     for (uint8_t i = 0; i < _stripsPos; i++)
     {
-        if (_strips[i]->identifier == identifier)
-        {
-            return i;
-        }
+        if (_strips[i]->identifier == identifier) return i;
     }
-    #ifdef DEBUG
-        Serial.print(F("SubEffects: Strip not found: "));
-        Serial.println(identifier);
-    #endif
+
+    ERROR(F("SubEffects: Strip not found: "), identifier);
     return 255;
 }
 
@@ -87,7 +59,7 @@ uint8_t SubEffects::GetStripPos(uint8_t identifier)
  * @param identifier    Id of the led strip
  * @return ledStrip*    
  */
-ledStrip * SubEffects::GetStripPtr(uint8_t identifier)
+ledStrip* SubEffects::GetStripPtr(uint8_t identifier)
 {
     for (uint8_t i = 0; i < MAX_STRIPS; i++)
     {
@@ -148,11 +120,9 @@ CRGB* SubEffects::GetLedsPtr(uint8_t identifier)
 {
     for (uint8_t i = 0; i < _stripsPos; i++)
     {
-        if ( _strips[i]->identifier == identifier )
-        {
-            return _strips[i]->ledArr;
-        }
+        if ( _strips[i]->identifier == identifier ) return _strips[i]->ledArr;
     }
+    ERROR(F("SubEffects: ledStrip not found with ID: "), identifier);
     return nullptr;                                 // return nullptr if the led wasn't found
 }
 
@@ -173,15 +143,11 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t mode, uint16_t ledArrS
 
     if (ledsPtr == nullptr)                                                 // Check if allocation failed
     {
-        #ifdef DEBUG
-            Serial.println(F("SubEffects: Failed to allocate space for leds data array"));
-        #endif
-
+        ERROR(F("Failed to allocate space for leds data array"));
         return 0;
     }
 
     uint8_t state = AddLedStrip( audioPin, mode, ledArrSize, ledsPtr );
-
     if (!state )                                        // Check if AddledStrip() fails
     {
         delete ledsPtr;                                  // free allocated space
@@ -203,41 +169,29 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin ,uint8_t ledMode, uint16_t ledA
 {
     if ( _stripsPos >= MAX_STRIPS )                      // Check if there is space for new strip. if there isn't return 0
     {
-        #ifdef DEBUG
-            Serial.println(F("SubEffects: Max number of led strips reached"));
-            digitalWrite(13,HIGH);
-        #endif
-
+        WARN(F("SubEffects: Max number of led strips reached\n"));
         return 0;                                    
     }
 
-
-    if (_strips[_stripsPos] == nullptr)                  // check if the pointer "holds" object
-    {                                                    // if it doesn't, allocate new object for it
-        _strips[_stripsPos] = new ledStrip;              // if empty pointer allocate new struct
-        if (_strips[_stripsPos] == nullptr)              // if no space available return 0
-        {
-            #ifdef DEBUG
-                Serial.println(F("SubEffects: Failed to allocate space for new led struct\n"));
-                digitalWrite(13,HIGH);
-
-            #endif
-
-            return 0;                                
-        }
+    if (_strips[_stripsPos] != nullptr) return 0;
+    _strips[_stripsPos] = new ledStrip;
+    if (_strips[_stripsPos] == nullptr)
+    {
+        ERROR(F("SubEffects: Failed to allocate space for new led struct\n"));
+        return 0;                                
     }
-
-    _strips[_stripsPos]->ledArr = ledArray;               // Assing the ledArray pointer
-    _strips[_stripsPos]->arrSize = ledArrSize;            // Assign the size of the array
-    _strips[_stripsPos]->mode = ledMode;                  // Assign the mode
-    _strips[_stripsPos]->inputPin = audioPin;             // Assign the audio pin
-    _strips[_stripsPos]->identifier = _stripsPos + 1;     // Create identifier for the strip                                                              // increase _stripsPos
-
-    _strips[_stripsPos]->SetMode(ledMode, _fastPtr);      // Set mode for the strip
-    _strips[_stripsPos]->SetColor(_currentPalette); // Set color palette
+    /* Assing values to strip struct  */
+    _strips[_stripsPos]->ledArr = ledArray;
+    _strips[_stripsPos]->arrSize = ledArrSize;
+    _strips[_stripsPos]->mode = ledMode;
+    _strips[_stripsPos]->inputPin = audioPin;
+    _strips[_stripsPos]->identifier = _stripsPos + 1;                                                         // increase _stripsPos
+    _strips[_stripsPos]->SetMode(ledMode, _fastPtr);
+    _strips[_stripsPos]->SetColor(_currentPalette);
 
     _stripsPos++;
-    return _stripsPos;                                    // Return the new strip's identifier               
+    /* Return strip's idenifier */
+    return _stripsPos;           
 }
 
 /**
@@ -263,9 +217,7 @@ bool SubEffects::RemoveLedStrip(CRGB* ledArray)                          // Remo
             if (RemoveLedStrip(_strips[i]->identifier) ) return 1;       // return 1 if deleted succesfully
         }
     }
-    #ifdef DEBUG
-        Serial.println(F("SubEffects: Strip not found"));
-    #endif
+    ERROR(F("SubEffects: Strip not found"));
 
     return 0;
 }
@@ -279,7 +231,6 @@ bool SubEffects::RemoveLedStrip(CRGB* ledArray)                          // Remo
  */
 bool SubEffects::RemoveLedStrip(uint8_t identifier)
 {   
-
     uint8_t i = 0;
 
     i = GetStripPos(identifier);
@@ -325,18 +276,13 @@ void SubEffects::CalibrateNoise()
             if (val > _strips[i]->inputCalZero) _strips[i]->inputCalZero = val + 1;
         }
     }
-    #ifdef DEBUG
-        for (uint8_t i = 0; i < _stripsPos; i++)        // checks for high noise
-        {
-            if (_strips[i]->inputCalZero >= 700)        // Todo: implement this to be independent of the adc accuracy
-            {
-                Serial.print(F("!Warning High noise level on input pin: "));
-                Serial.print(_strips[i]->inputPin);
-                Serial.print(F("  Value: "));
-                Serial.println(_strips[i]->inputCalZero);
-            } 
-        }
+    #ifdef DEBUG_CHECKS
+    for (uint8_t i = 0; i < _stripsPos; i++)
+    {
+        INFO(F("Strip: "), _strips[i]->identifier, F(" input pin: "), _strips[i]->inputPin, F(" Calibration value: "), _strips[i]->inputCalZero );
+    }
     #endif
+    return;
 }
 
 /**
@@ -347,6 +293,7 @@ void SubEffects::CalibrateNoise()
 void SubEffects::SetBrightness(uint8_t brightness)
 {
     _brightValue = brightness;
+    return;
 }
 /**
  * @brief Increases the global brightness
@@ -384,27 +331,22 @@ bool SubEffects::DecreaseBrightness()
  * @brief Calls each led strip's "effect"
  * 
  */
-inline void SubEffects::Update() 
+void SubEffects::Update()
 {
     bool change = 0;
     for (uint8_t i = 0; i < _stripsPos; i++)
     {
         if (_strips[i]->modeUpdatePtr == nullptr) 
         {
-            // print debug message
-            #ifdef DEBUG
-                Serial.print(F("SubEffects: Mode not set for strip with id: "));
-                Serial.println(_strips[i]->identifier);
-            #endif
-
+            DEBUG(F("SubEffects: Mode not set for strip with id: "), _strips[i]->identifier);
             continue;                                          // if mode isn't set for strip, skip it.
         }
-        
         if (_strips[i]->modeUpdatePtr->Update() ) change = 1;
     }
 
     // if there was anything changed show the leds
     if (change) _fastPtr->show();
+    return;
 }
 
 /**
@@ -448,6 +390,19 @@ void SubEffects::SetMode(uint8_t wantedMode)
 
     UpdateAllStripsValues();
     return;
+}
+
+bool SubEffects::loadMode(audioMode* ptr, uint8_t identifier)
+{
+    ledStrip* strip = GetStripPtr(identifier);
+    if (strip == nullptr)
+    {
+        ERROR(F("LoadMode failed: Invalid identifier "), identifier);
+        return 0;
+    }
+
+    strip->loadObj(ptr, _fastPtr);
+    return 1;
 }
 
 /**

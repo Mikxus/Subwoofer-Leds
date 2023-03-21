@@ -1,0 +1,3 @@
+[submodule "rISR"]
+	path = src/lib/rISR
+	url = https://github.com/Mikxus/rISR

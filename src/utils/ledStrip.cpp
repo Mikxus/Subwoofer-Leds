@@ -23,54 +23,42 @@
 */
 
 #include "ledStrip.h"
-#define DEBUG
 
+/**
+ * @brief Sets brightness
+ * 
+ * @param value 
+ */
 void ledStrip::SetBrightness(uint8_t value)
 {
     brightness = value;
+    return;
 }
 
 bool ledStrip::SetColor(uint8_t index)
 {
-    if (index >= NUM_OF_PALETTES ) return 0;
-
-    paletteIndex = index;
-    if (!SetColorPalette(paletteIndex))
-    {
-        #ifdef DEBUG
-            Serial.print(F("Failed to set color palette: "));
-            Serial.print(paletteIndex);
-            Serial.print(F(" | Strip id: "));
-            Serial.println(identifier);
-            Serial.flush();
-            digitalWrite(13,HIGH);
-
-        #endif
+    if (index >= NUM_OF_PALETTES ) 
+    { 
+        ERROR(F("ledstrip.cpp: Colorpalette index not found\n\rInput: "), index, F("\n\rNumber of palettes: "), NUM_OF_PALETTES);
         return 0;
     }
+    paletteIndex = index;
+    if ( !SetColorPalette(paletteIndex) )
+    {
+        ERROR(F("ledstrip.cpp: Failed to set color palette\n\rIndex: "), paletteIndex, F("\n\rStrip id: "), identifier);
+    }
 
-    #ifdef DEBUG
-        Serial.print(F("Color palette: "));
-        Serial.print( paletteIndex);
-        Serial.print(F(" set for strip: "));
-        Serial.println( this->identifier );
-    #endif
-
-
+    INFO(F("Colorpalette: "), paletteIndex, F(" set for strip: "), identifier, F("\n\r"));
     return 1;
 }
 
 bool ledStrip::SetMode(uint8_t modeIndex, CFastLED * fptr)
 {
-    if ( modeIndex >= NUM_OF_MODES) return 0;       // if invalid input return 0
+    if ( modeIndex >= NUM_OF_MODES ) return 0;       // if invalid input return 0
 
-    if ( !loadMode( mode, fptr) )                          // check if fails
+    if ( !loadMode( mode, fptr) )                   // check if fails
     {
-        #ifdef DEBUG
-            Serial.println(F("LedStrip: Failed to set mode"));
-            digitalWrite(13,HIGH);
-        #endif
-
+        ERROR("ledStrip.cpp: Failed to set mode: ", modeIndex);
         return 0;
     }
     return 1;
@@ -87,6 +75,7 @@ bool ledStrip::loadMode( uint8_t modeIndex, CFastLED *fptr)
     if (modeUpdatePtr != nullptr)
     {
         // unload mode
+        INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
         unloadMode();
     }
 
@@ -105,11 +94,7 @@ bool ledStrip::loadMode( uint8_t modeIndex, CFastLED *fptr)
 
     if (modeUpdatePtr == nullptr) 
     {
-        #ifdef DEBUG
-            Serial.print(F("audioMode: Not enough memory for mode: "));
-            Serial.println(modeIndex);
-            digitalWrite(13,HIGH);
-        #endif
+        ERROR(F("ledStrip: Not enoug memory for mode: "), modeIndex);
         return 0;   
     }
 
@@ -117,9 +102,39 @@ bool ledStrip::loadMode( uint8_t modeIndex, CFastLED *fptr)
     modeUpdatePtr->initValues(this, fptr);
 
     mode = modeIndex;
-    
-    return 1;   // sucessfull load
+    INFO(F("Succesfully loaded mode: "), modeIndex, F(" for strip: "), identifier);
+    return 1;
 }
+
+/**
+ * @brief Loads allocated mode to ledStrip.
+ * 
+ * @param ptr 
+ * @param fptr 
+ * @return true 
+ * @return false 
+ */
+bool ledStrip::loadObj( audioMode* ptr, CFastLED* fptr)
+{
+    // check if modeUpdatePtr is already loaded
+    if (modeUpdatePtr != nullptr)
+    {
+        // unload mode
+        INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
+        unloadMode();
+    }
+
+    modeUpdatePtr = ptr;
+    if (modeUpdatePtr == nullptr)
+    {
+        ERROR(F("ledStrip: null audio mode"));
+        return 0;
+    }
+    modeUpdatePtr->initValues(this, fptr);
+    INFO(F("Succesfully loaded mode: "), reinterpret_cast<uint16_t>( ptr ), F(" for strip: "), identifier);
+    return 1;
+}
+
 
 void ledStrip::unloadMode()
 {
@@ -127,6 +142,7 @@ void ledStrip::unloadMode()
 
     delete modeUpdatePtr;
     modeUpdatePtr = nullptr;
+    return;
 }
 
 bool ledStrip::SetColorPalette(uint8_t colorIndex)
@@ -137,15 +153,8 @@ bool ledStrip::SetColorPalette(uint8_t colorIndex)
             colorPalette = blueBass_p;
             return 1;
         
-
-
         default:
-            #ifdef DEBUG
-                Serial.print(F("ledStrip: color palette not found. index: "));
-                Serial.println(colorIndex);
-                Serial.flush();
-                digitalWrite(13,HIGH);
-            #endif
+            ERROR(F("ledStrip: color palette not found. index: "), colorIndex);
             return 0;
             break;
     }
@@ -157,5 +166,5 @@ ledStrip::~ledStrip()
 {
     unloadMode();
     if (dynAllocated) free (ledArr);
-    
+    return;
 }
