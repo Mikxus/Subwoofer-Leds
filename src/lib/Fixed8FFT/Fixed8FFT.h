@@ -6,7 +6,7 @@
 #include <FastLED.h>
 #include "../../utils/debug.h"
 #include "../../utils/interrupt.h"
-#include "../../utils/FFT_strategy.h"
+#include "../../utils/FFT/FFT_strategy.h"
 #include "../rISR/src/rISR.h"
 
 typedef int16_t fixed16_t;

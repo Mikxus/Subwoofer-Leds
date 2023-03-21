@@ -27,12 +27,10 @@
 /* includes */
 #include <inttypes.h>
 #include "audioModes.h"
-//#include "../utils/approxFFT.h"
 #include "../utils/colorMath.h"
 #include "../utils/ledStrip.h"
 #include "../utils/debug.h"
-#include "../utils/FFT.h"
-/* -------- */
+#include "../utils/FFT/FFT.h"
 
 
 class colorBass : public audioMode                     // Simple bass effect
@@ -47,10 +45,9 @@ private:
     inline uint8_t fade(uint16_t freq, uint16_t brightness);
     inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
 
-    EWMAtest bright1 = EWMAtest(0.04F);
-    EWMAtest bright2 = EWMAtest(0.04F);
-    //constantChangeRater<float> color_smooth = constantChangeRater<float>( 1024.0F,  170.0F);
+    EWMAtest bright1 = EWMAtest(0.05F);
     EWMAtest color_smooth = EWMAtest(0.4F);
+
     /* Last Values */
     uint8_t m_last_r;
     uint8_t m_last_g;
@@ -58,9 +55,9 @@ private:
 
 public:
     colorBass();
-    virtual bool Update();                             // Calculates values for the led
-
     ~colorBass() = default;    
+
+    virtual bool Update();                             // Calculates values for the led
 };
 
 #endif
