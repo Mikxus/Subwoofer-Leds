@@ -24,7 +24,7 @@
 #ifndef _FFT_STRATEGY_H_
 #define _FFT_STRATEGY_H_
 
-#include "../lib/rISR/src/rISR.h"
+#include "../../lib/rISR/src/rISR.h"
 
 /**
  * @brief Enum for implemented backends
@@ -63,9 +63,9 @@ public:
      * 
      * @param sample_size 
      * @param frequency 
-     * @param bits 
+     * @param backend 
      */
-    FFT_backend_template( uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend bits )
+    FFT_backend_template( uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend backend )
     : m_sample_size(sample_size)
     {
     }

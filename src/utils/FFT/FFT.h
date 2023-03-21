@@ -25,11 +25,11 @@
 #define _FFT_H_
 
 #include <inttypes.h>
-#include "../config.h"
-#include "debug.h"
-#include "arch/avr/atmega328p/timer1.h"
+#include "../../config.h"
+#include "../debug.h"
+#include "../arch/avr/atmega328p/timer1.h"
 #include "FFT_strategy.h"
-#include "../lib/Fixed8FFT/Fixed8FFT.h"
+#include "../../lib/Fixed8FFT/Fixed8FFT.h"
 
 
 class FFT
@@ -39,24 +39,24 @@ private:
     static timer1 timer;
 
 public:
-    FFT( uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend bits = fixed_8 )
+    FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend backend = fixed_8)
     {
-        switch( bits ) {
+        switch(backend) {
             case fixed_8:
-                fft = new Fixed8FFT(input_pin, sample_size, frequency, bits); 
+                fft = new Fixed8FFT(input_pin, sample_size, frequency, backend); 
                 break;
             
             default:
-                ERROR(F("Invalid bits number"));
+                ERROR(F("Invalid backend number"));
 
                 #ifdef DEBUG_CHECKS
-                if ( bits > fixed_8 ) ERROR(F("Bits number: "), bits, F(" isnt't implemented"));
+                if ( backend > fixed_8 ) ERROR(F("Bits number: "), backend, F(" isnt't implemented"));
                 #endif
                 return;
         }
         if (fft == nullptr)
         {
-            ERROR(F("Not enough memory for fft backend: "), bits);
+            ERROR(F("Not enough memory for fft backend: "), backend);
             return;
         }
                 
@@ -79,7 +79,7 @@ public:
         if (fft->get_read_vector_data_pointer() == nullptr) 
         {
             #ifdef DEBUG_CHECKS
-            INFO(F("FFT: Backend: "), bits, F(" doesn't have isr data ptr"));
+            INFO(F("FFT: Backend: "), backend, F(" doesn't have isr data ptr"));
             #endif
             goto skip_data_ptr_bind;
         }
