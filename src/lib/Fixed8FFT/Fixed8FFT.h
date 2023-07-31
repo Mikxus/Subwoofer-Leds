@@ -133,14 +133,15 @@ struct adc_sample_interrupt
 class Fixed8FFT : public FFT_backend_template
 {
 private:
+    adc_sample_interrupt interrupt_data;
+    uint32_t last_result_time = 0;
+
     /**
      * @brief Calculates scaling values for the interrupts
      *
      */
     void calculate_scaling();
-
-    adc_sample_interrupt interrupt_data;
-    uint32_t last_result_time = 0;
+    uint8_t get_power_of_two(uint16_t value);
 
 protected:
     bool allocate_data_array() override;
