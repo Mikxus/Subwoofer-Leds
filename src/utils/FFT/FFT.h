@@ -48,56 +48,68 @@ public:
 
         default:
             ERROR(F("Invalid backend number"));
+            return;
 
-#ifdef DEBUG_CHECKS
+        #ifdef DEBUG_CHECKS
             if (backend > fixed_8)
                 ERROR(F("Bits number: "), backend, F(" isnt't implemented"));
-#endif
+        #endif
             return;
         }
+
         if (fft == nullptr)
         {
             ERROR(F("Not enough memory for fft backend: "), backend);
             return;
         }
 
+        /**
+         * @brief Fails when fft backend dynamic allocation fails for the fft bins
+         * 
+         */
+        if (fft->get_sample_size() != sample_size)
+        {
+            ERROR(F("FFT: fft backend doesn't support sample size: "), sample_size);
+            goto delete_ptr_and_fail;
+        }
+
         if (fft->get_read_vector() == nullptr)
         {
             INFO(F("FFT: fft backend doesn't have read isr"));
-            free(fft); // maybe i should just let the fft obj handle it | aka not free it
-            return;
+            goto delete_ptr_and_fail;
         }
 
         /* TODO: Seutup interrupt's for sampling */
         if (get_isr_vector(TIMER1_COMPB_) == fft->get_read_vector())
         {
             ERROR(F("FFT: Timer1 compb vector is already in use. Exiting"));
-            free(fft);
-            return;
+            goto delete_ptr_and_fail;
         }
 
         /* Check if fft objects data ptr is available */
         if (fft->get_read_vector_data_pointer() == nullptr)
         {
-#ifdef DEBUG_CHECKS
-            INFO(F("FFT: Backend: "), backend, F(" doesn't have isr data ptr"));
-#endif
+            #ifdef DEBUG_CHECKS
+                INFO(F("FFT: Backend: "), backend, F(" doesn't have isr data ptr"));
+            #endif
+
             goto skip_data_ptr_bind;
         }
 
         if (get_isr_data_ptr(TIMER1_COMPB_) != nullptr)
         {
             ERROR(F("FFT: backend data ptr can't be binded. Since someone has already binded pointer to it"));
-#ifdef DEBUG_CHECKS
-            Serial.print(F("FFT: Binded data ptr: 0x"));
-            Serial.println((uint16_t)get_isr_data_ptr(TIMER1_COMPB_), HEX);
-            Serial.print(F("FFT: Our data ptr: 0x"));
-            Serial.println((uint16_t)fft->get_read_vector_data_pointer(), HEX);
-#endif
+            #ifdef DEBUG_CHECKS
+                Serial.print(F("FFT: Binded data ptr: 0x"));
+                Serial.println((uint16_t)get_isr_data_ptr(TIMER1_COMPB_), HEX);
+                Serial.print(F("FFT: Our data ptr: 0x"));
+                Serial.println((uint16_t)fft->get_read_vector_data_pointer(), HEX);
+            #endif
 
             free(fft);
             return;
         }
+
         /* Everything correct. We can now bind data ptr */
         cli();
         bind_isr_data_ptr(TIMER1_COMPB_, fft->get_read_vector_data_pointer());
@@ -109,14 +121,23 @@ public:
         bind_isr(TIMER1_COMPB_, fft->get_read_vector());
         fft->m_sampling_frequency = timer.Start(frequency);
 
-#ifdef DEBUG_CHECKS
-        INFO(F("FFT: Target frequency: "), frequency);
-        INFO(F("FFT: Achieved frequency: "), fft->m_sampling_frequency);
-        Serial.print(F("Function: 0x"));
-        Serial.print(reinterpret_cast<long unsigned int>(fft->get_read_vector()), HEX);
-        Serial.println(F(" binded to TIMER1_COMPB interrupt"));
-#endif
+        #ifdef DEBUG_CHECKS
+            INFO(F("FFT: Target frequency: "), frequency);
+            INFO(F("FFT: Achieved frequency: "), fft->m_sampling_frequency);
+            Serial.print(F("Function: 0x"));
+            Serial.print(reinterpret_cast<long unsigned int>(fft->get_read_vector()), HEX);
+            Serial.println(F(" binded to TIMER1_COMPB interrupt"));
+            INFO(F("FFT: Target sample size: "), sample_size);
+            INFO(F("FFT: Achieved sample size: "), fft->get_sample_size());
+        #endif
         sei();
+        return;
+
+    /* Failure -> exit */
+    delete_ptr_and_fail:
+        delete fft;
+        fft = nullptr;
+        return;
     }
 
     ~FFT()
@@ -138,7 +159,8 @@ public:
             unbind_isr(TIMER1_COMPB_);
         }
         sei();
-        free(fft);
+        delete fft;
+        fft = nullptr;
     }
 
     uint16_t calculate()
