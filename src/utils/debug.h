@@ -94,7 +94,7 @@ typedef enum
 void set_terminal_color(debug_level_t level, bool reset_color = 0);
 
 template <class... Args>
-void debug_print(debug_level_t debug_level, newline_t newline, Args &...arg)
+void debug_print(debug_level_t debug_level, newline_t newline, Args ...arg)
 {
     set_terminal_color(debug_level);
 
@@ -135,40 +135,30 @@ void debug_print(debug_level_t debug_level, newline_t newline, Args &...arg)
     return;
 }
 
-template <class... T>
-void DEBUG([[maybe_unused]] const T &...debug_text)
-{
+
 #if CONF_ENABLE_DEBUG == 1
-    debug_print(debug, newline, debug_text...);
+#define DEBUG(...) debug_print(debug, newline, ##__VA_ARGS__)
+#else
+#define DEBUG(...)
 #endif
-    return;
-}
 
-template <class... T>
-void ERROR([[maybe_unused]] const T &...debug_text)
-{
 #if CONF_ENABLE_ERROR == 1
-    debug_print(error, newline, debug_text...);
+#define ERROR(...) debug_print(error, newline, ##__VA_ARGS__)
+#else
+#define ERROR(...)
 #endif
-    return;
-}
 
-template <class... T>
-void INFO([[maybe_unused]] const T &...debug_text)
-{
 #if CONF_ENABLE_INFO == 1
-    debug_print(info, newline, debug_text...);
+#define INFO(...) debug_print(info, newline, ##__VA_ARGS__)
+#else
+#define INFO(...)
 #endif
-    return;
-}
 
-template <class... T>
-void WARN([[maybe_unused]] const T &...debug_text)
-{
 #if CONF_ENABLE_WARN == 1
-    debug_print(warn, newline, debug_text...);
+#define WARN(...) debug_print(warn, newline, ##__VA_ARGS__)
+#else
+#define WARN(...)
 #endif
-    return;
-}
+
 #pragma GCC diagnostic pop
 #endif
