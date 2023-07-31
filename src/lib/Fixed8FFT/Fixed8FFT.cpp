@@ -448,30 +448,29 @@ uint16_t modulus(fixed8_t x[], int size, float frequency)
 Fixed8FFT::Fixed8FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend backend)
     : FFT_backend_template(input_pin, sample_size, frequency, backend)
 {
-    if (!allocate_data_array())
+    /* Validate sample_size */
+    if (get_power_of_two(sample_size) == 0)
+    { 
+        m_sample_size = 0;
         return;
+    }
+
+    m_sample_size = sample_size;
+    if (!allocate_data_array())
+    {
+        m_sample_size = 0;
+        return;
+    }
+
     cli();
     interrupt_data.data = reinterpret_cast<int8_t *>(m_data);
     interrupt_data.array_pos = 0;
     interrupt_data.adc_pin = input_pin;
     interrupt_data.offset_x = 70;
     interrupt_data.scale_x = 4;
-
-    for (uint8_t i = 0; i < 16; i++)
-    {
-        if (sample_size >> i == 1)
-        {
-            interrupt_data.array_size = i;
-            uint16_t temp = interrupt_data.array_size;
-            sei();
-            DEBUG(F("Fixed8FFT: input array size:"), 1 << temp);
-            DEBUG(F("m_sample_size: "), m_sample_size);
-            return;
-        }
-    }
+    interrupt_data.array_size = get_power_of_two(sample_size);
     sei();
-    ERROR(F("Failed to get array size. Sample_size: "), sample_size);
-    interrupt_data.array_size = 0;
+    return;
 }
 
 bool Fixed8FFT::allocate_data_array()
@@ -491,6 +490,7 @@ void Fixed8FFT::deallocate_data_array()
         return;
 
     free(m_data);
+    m_data = nullptr;
     return;
 }
 
@@ -499,17 +499,25 @@ bool Fixed8FFT::set_sample_size(uint16_t sample_size)
     if (m_sample_size == sample_size)
         return 1;
 
-    /* Check if number is not power of 2 */
-    if (sample_size != 0 && (sample_size & (sample_size - 1)) != 0)
-    {
-        ERROR(F("approxFFT sample size is not power of 2. Size"), sample_size);
-        return 0;
-    }
+    if (get_power_of_two(sample_size) == 0)
+        return 1;
+
+    m_sample_size = sample_size;
 
     cli();
-    m_sample_size = sample_size;
     deallocate_data_array();
-    allocate_data_array();
+
+    if (!allocate_data_array())
+    {
+        interrupt_data.array_size = 0;
+        interrupt_data.array_pos = 0;
+        m_sample_size = 0;
+        return 1;
+    }
+
+    interrupt_data.array_size = get_power_of_two(sample_size);
+    interrupt_data.array_pos = 0;
+
     sei();
     return 0;
 }
@@ -539,8 +547,6 @@ uint16_t Fixed8FFT::calculate()
 
 __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
 {
-    // PORTB |= B00010000; // pin 12 high
-
     adc_sample_interrupt *data = (struct adc_sample_interrupt *)isr_vector_data_pointer_table[TIMER1_COMPB_];
 
     /* Check if data array is filled with data */
@@ -566,42 +572,50 @@ __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
     /* Scale the adc reading to best fit in uint8_t. Then save it */
     data->data[data->array_pos] = map(constrain(ADC, min_val, max_val), min_val, max_val, -128, 127);
     data->array_pos += 1;
-
-    // PORTB &= B11101111; // pin 12 low
     return;
 }
 
-#define Fixed8FFT_min_dynamic_range 200
 
+/* 
+ * Internal definitions for calculate_scaling() 
+ * 
+ * @Fixed8FFT_min_dynamic_range: 
+ * 
+ * @Fixed8FFT_optimal_dynamic_range8bit: 
+*/
+#define Fixed8FFT_min_dynamic_range 200
 #define Fixed8FFT_optimal_dynamic_range8bit 230
 
 void Fixed8FFT::calculate_scaling()
 {
     if (interrupt_data.array_pos != 1 << interrupt_data.array_size)
         return;
-    cli();
+
     int16_t highest = -128;
     int16_t lowest = 127;
     int32_t average = 0;
     int16_t used_dynamic_range = 0;
-    int16_t real_dynamic_range = 0;
+    //int16_t real_dynamic_range = 0;
 
-    int16_t real_highest = 0;
-    int16_t real_lowest = 0;
+    //int16_t real_highest = 0;
+    //int16_t real_lowest = 0;
+    cli();
 
     /* Calculate avarage, highest & lowest values */
     for (uint16_t i = 0; i < m_sample_size; i++)
     {
         average += reinterpret_cast<int8_t *>(m_data)[i];
+
         if (reinterpret_cast<int8_t *>(m_data)[i] > highest)
             highest = reinterpret_cast<int8_t *>(m_data)[i];
 
         if (reinterpret_cast<int8_t *>(m_data)[i] < lowest)
             lowest = reinterpret_cast<int8_t *>(m_data)[i];
     }
-
+    
     used_dynamic_range = highest - lowest;
 
+    /*
     real_lowest = map(lowest, -128, 127,
                       (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
                       (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32));
@@ -611,18 +625,8 @@ void Fixed8FFT::calculate_scaling()
                        (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32));
 
     real_dynamic_range = real_highest - real_lowest;
-
-    /*
-    DEBUG(F("Dynamic range: "), used_dynamic_range);
-    DEBUG(F("Real dynamic range: "), real_dynamic_range);
-    DEBUG(F("Input range LO: "), map( -128, -128, 127,
-            (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
-            (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32)), F(" HI: "), map( 128, -128, 127,
-            (interrupt_data.offset_x * 8 - interrupt_data.scale_x * 32),
-            (interrupt_data.offset_x * 8 + interrupt_data.scale_x * 32)));
-    DEBUG(F("HIGH: "), real_highest);
-    DEBUG(F("LOW: "), real_lowest);
     */
+
     /* Check if we can use offset to get better signal range */
     if (highest == 127 || lowest == -128)
     {
@@ -675,6 +679,33 @@ skip_offset:
     return;
 }
 
+
+/**
+ * @brief 2^n Returns the n if the number is power of two
+ * 
+ * @note Remember to disable interrupts before calling this function
+ * @param value 
+ * @return uint8_t 
+ */
+uint8_t Fixed8FFT::get_power_of_two(uint16_t value)
+{
+    /* Check if number is not power of 2 */
+    if (value != 0 && (value & (value - 1)) != 0)
+    {
+        ERROR(F("approxFFT sample size is not power of 2. Size"), value);
+        return 0;
+    }
+
+    /* Get sample size as the power of 2^n */
+    for (uint16_t i = 0; i < 16; i++)
+    {
+        if (value >> i == 1) return i;
+    }
+
+    /* Idk if we get here */
+    return 0;
+}
+
 vector_t Fixed8FFT::get_read_vector()
 {
     return __vector_timer1_compb_adc_read_byte;
@@ -684,7 +715,7 @@ vector_t Fixed8FFT::get_read_vector()
      &interrupt_data gets removed from the isr_vector_data_pointer_table */
 void *Fixed8FFT::get_read_vector_data_pointer()
 {
-    return (void *)&interrupt_data;
+    return (void*) &interrupt_data;
 }
 
 Fixed8FFT::~Fixed8FFT()
