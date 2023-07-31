@@ -72,6 +72,13 @@ public:
     }
 
     virtual bool set_sample_size(uint16_t sample_size);
+    
+    /**
+     * @brief Get the sample size of fft
+     * 
+     * @return uint16_t 
+     */
+    uint16_t get_sample_size() { return m_sample_size; }
 
     /**
      * @brief Calculates fft & returns the loudest hz.
