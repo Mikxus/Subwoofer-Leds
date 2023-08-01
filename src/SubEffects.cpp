@@ -68,38 +68,37 @@ ledStrip *SubEffects::GetStripPtr(uint8_t identifier)
             return _strips[i];
         }
     }
+
+    WARN("GetStripPtr: Strip with id of: ", identifier, " not found\n");
     return nullptr;
 }
 
 /**
- * @brief Updates matching led strip
+ * @brief Updates matching led strip's parameters.
+ *        like mode and colorpalette
  *
  * @param identifier    Id of the led
  * @return bool
  */
 bool SubEffects::UpdateStripValues(uint8_t identifier)
 {
-    bool isFailure = 0;
-    uint8_t i = GetStripPos(identifier);
-    if (i == 255)
-        return 0; // strip not found
-
-    if (_strips[i]->mode != _currentMode) // if mode has changed
-    {
-        if (!_strips[i]->SetMode(_currentMode, _fastPtr))
-            isFailure = 1;
-    }
-
-    if (_strips[i]->paletteIndex != _currentPalette)
-    {
-        if (!_strips[i]->SetColor(_currentPalette))
-            isFailure = 1;
-    }
-
-    if (isFailure)
+    ledStrip* ptr = GetStripPtr(identifier);
+    if (ptr == nullptr)
         return 0;
-    else
-        return 1;
+
+    if (ptr->mode != _currentMode)
+    {
+        if (!ptr->SetMode(_currentMode, _fastPtr))
+            return 0; // fail
+    }
+
+    if (ptr->paletteIndex != _currentPalette)
+    {
+        if (!ptr->SetColor(_currentPalette))
+            return 0; // fail
+    }
+    
+    return 1;
 }
 
 /**
@@ -146,6 +145,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t mode, uint16_t ledArrS
 {
     CRGB *ledsPtr;
     ledsPtr = (struct CRGB *)calloc(ledArrSize, sizeof(struct CRGB));
+    uint8_t state = 0;
 
     if (ledsPtr == nullptr) // Check if allocation failed
     {
@@ -153,12 +153,14 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t mode, uint16_t ledArrS
         return 0;
     }
 
-    uint8_t state = AddLedStrip(audioPin, mode, ledArrSize, ledsPtr);
+    state = AddLedStrip(audioPin, mode, ledArrSize, ledsPtr);
+
     if (!state) // Check if AddledStrip() fails
     {
         delete ledsPtr; // free allocated space
         return 0;
     }
+
     return state; // returns identifier for the strip                                                        // Otherwise return 1;
 }
 
@@ -181,6 +183,7 @@ uint8_t SubEffects::AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledA
 
     if (_strips[_stripsPos] != nullptr)
         return 0;
+    
     _strips[_stripsPos] = new ledStrip;
     if (_strips[_stripsPos] == nullptr)
     {
@@ -226,8 +229,8 @@ bool SubEffects::RemoveLedStrip(CRGB *ledArray) // Removes the led strip which h
                 return 1; // return 1 if deleted succesfully
         }
     }
-    ERROR(F("SubEffects: Strip not found"));
 
+    ERROR(F("SubEffects: Strip not found"));
     return 0;
 }
 
@@ -284,6 +287,7 @@ void SubEffects::CalibrateNoise()
         {
             uint16_t val = 0;
             val = analogRead(_strips[i]->inputPin);
+
             if (val > _strips[i]->inputCalZero)
                 _strips[i]->inputCalZero = val + 1;
         }
