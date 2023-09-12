@@ -35,13 +35,14 @@ void ledStrip::SetBrightness(uint8_t value)
     return;
 }
 
-bool ledStrip::SetColor(uint8_t index)
+__attribute__ ((deprecated)) bool ledStrip::SetColor(uint8_t index)
 {
     if (index >= NUM_OF_PALETTES)
     {
         ERROR(F("ledstrip.cpp: Colorpalette index not found\n\rInput: "), index, F("\n\rNumber of palettes: "), NUM_OF_PALETTES);
         return 0;
     }
+
     paletteIndex = index;
     if (!SetColorPalette(paletteIndex))
     {
@@ -52,7 +53,7 @@ bool ledStrip::SetColor(uint8_t index)
     return 1;
 }
 
-bool ledStrip::SetMode(uint8_t modeIndex, CFastLED *fptr)
+__attribute__ ((deprecated)) bool ledStrip::SetMode(uint8_t modeIndex, CFastLED *fptr)
 {
     if (modeIndex >= NUM_OF_MODES)
         return 0; // if invalid input return 0
@@ -65,14 +66,13 @@ bool ledStrip::SetMode(uint8_t modeIndex, CFastLED *fptr)
     return 1;
 }
 
-bool ledStrip::loadMode(uint8_t modeIndex, CFastLED *fptr)
+__attribute__ ((deprecated)) bool ledStrip::loadMode(uint8_t modeIndex, CFastLED *fptr) 
 {
     // Check if CFastLED pointer is valid
     if (fptr == nullptr)
         return 0;
 
     // check if modeUpdatePtr is already loaded
-
     if (modeUpdatePtr != nullptr)
     {
         // unload mode
@@ -131,8 +131,9 @@ bool ledStrip::loadObj(audioMode *ptr, CFastLED *fptr)
         ERROR(F("ledStrip: null audio mode"));
         return 0;
     }
+    
     modeUpdatePtr->initValues(this, fptr);
-    INFO(F("Succesfully loaded mode: "), reinterpret_cast<uint16_t>(ptr), F(" for strip: "), identifier);
+    INFO(F("Succesfully loaded mode at an address: 0x"), reinterpret_cast<uint16_t>(ptr), F(" for strip: "), identifier);
     return 1;
 }
 
@@ -146,7 +147,7 @@ void ledStrip::unloadMode()
     return;
 }
 
-bool ledStrip::SetColorPalette(uint8_t colorIndex)
+__attribute__ ((deprecated)) bool ledStrip::SetColorPalette(uint8_t colorIndex)
 {
     switch (colorIndex) // add new case for your color palette. !color index can't jump any digits
     {

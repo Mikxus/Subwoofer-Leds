@@ -373,7 +373,7 @@ void SubEffects::Update()
  * @note Updates all leds to the current global led mode
  *
  */
-void SubEffects::NextMode()
+__attribute__ ((deprecated)) void SubEffects::NextMode()
 {
     if (_currentMode + 1 < NUM_OF_MODES)
         _currentMode++;
@@ -388,7 +388,7 @@ void SubEffects::NextMode()
  * @note Updates all leds to the current global led mode
  *
  */
-void SubEffects::PreviousMode()
+__attribute__ ((deprecated)) void SubEffects::PreviousMode()
 {
     if (_currentMode - 1 < NUM_OF_MODES)
         _currentMode--; // if variable mode - 1 is 0 set the variable to the max amount of "modes"
@@ -404,7 +404,7 @@ void SubEffects::PreviousMode()
  * @param wantedMode
  * @return None
  */
-void SubEffects::SetMode(uint8_t wantedMode)
+__attribute__ ((deprecated)) void SubEffects::SetMode(uint8_t wantedMode) 
 {
     if (wantedMode < NUM_OF_MODES)
     {
@@ -432,7 +432,7 @@ bool SubEffects::loadMode(audioMode *ptr, uint8_t identifier)
  * @brief Incresses global color palette and sets all leds strips to it
  * @return None
  */
-void SubEffects::NextColor()
+__attribute__ ((deprecated)) void SubEffects::NextColor()
 {
     if (_currentPalette + 1 > NUM_OF_PALETTES)
         _currentPalette = 0;
@@ -447,7 +447,7 @@ void SubEffects::NextColor()
  * @brief Incresses global color palette and sets all leds strips to it
  * @return bool
  */
-bool SubEffects::SetColor(uint8_t paletteIndex)
+__attribute__ ((deprecated)) bool SubEffects::SetColor(uint8_t paletteIndex)
 {
     if (paletteIndex > NUM_OF_PALETTES)
         return 0;
