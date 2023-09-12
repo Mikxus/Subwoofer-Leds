@@ -37,13 +37,6 @@
 #error "timer1 only supports only avr ATmega328";
 #endif
 
-extern volatile bool _fftBinReady;
-extern volatile uint16_t _fftArrPos;
-extern volatile uint8_t _subwooferPin;
-extern volatile uint16_t _calibratedNoiseZero;
-extern volatile uint8_t _fftBinSize;
-extern volatile uint16_t *_vReal;
-
 extern const uint8_t prescalers[5];
 
 class timer1 // Manages the arduino uno's / nano's timer1
