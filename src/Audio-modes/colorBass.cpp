@@ -24,7 +24,7 @@
 #include "colorBass.h"
 
 colorBass::colorBass()
-    : fft_obj(0, 64, 700, fixed_8)
+    : fft_obj(0, 64, 800, fixed_8)
 {
 }
 
@@ -45,9 +45,10 @@ bool colorBass::Update()
         freq = fft_obj.calculate();
     }
 
-    if (freq == 0)
+    if (freq == 0) 
+    {
         freq = _lastFreq;
-    else
+    } else
     {
         _lastFreq = freq;
         DEBUG(F("Freq: "), freq);
@@ -60,7 +61,7 @@ bool colorBass::Update()
     if (brightness == _lastBrightness)
     {
         /* check if fade is complete */
-        if (!fade(freq, (uint8_t)brightness))
+        if (!fade(freq, (uint8_t) brightness))
         {
             _update = 0;
             return _update;
@@ -84,7 +85,6 @@ bool colorBass::Update()
  */
 uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
 {
-
     /* Smoothen the input values */
     float val = bright1.calc((float)brightness);
     float colorVal = color_smooth.calc((float)hue);
@@ -98,8 +98,8 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
     /* Fill ledArr with the smoothed values */
     fill_solid(_ledStrip->ledArr, _ledStrip->arrSize,
                ColorFromPalette(_ledStrip->colorPalette,
-                                (uint8_t)colorVal,
-                                (uint8_t)val,
+                                (uint8_t) colorVal,
+                                (uint8_t) val,
                                 LINEARBLEND));
 
     /* Check if no rgb values have changed */

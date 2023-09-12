@@ -547,7 +547,7 @@ uint16_t Fixed8FFT::calculate()
 
 __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
 {
-    adc_sample_interrupt *data = (struct adc_sample_interrupt *)isr_vector_data_pointer_table[TIMER1_COMPB_];
+    adc_sample_interrupt *data = (struct adc_sample_interrupt*) isr_vector_data_pointer_table[TIMER1_COMPB_];
 
     /* Check if data array is filled with data */
     if (data->array_pos >= 1 << data->array_size)
@@ -564,7 +564,6 @@ __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
     /* Adc is cleared when conversion finishes */
     while (bit_is_set(ADCSRA, ADSC))
         ;
-
     /* Calculate the scaling values */
     uint16_t min_val = constrain(data->offset_x * 8 - data->scale_x * 32, 0, 1024);
     uint16_t max_val = constrain(data->offset_x * 8 + data->scale_x * 32, 0, 1024);

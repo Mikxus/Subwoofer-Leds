@@ -12,15 +12,7 @@
 /*-------------*/
 
 /**
- * @brief Defines where audio mode settings are stored in
- *
- */
-#define PERSISTENCE_BACKEND EEPROM
-
-/* Debug settings */
-
-/**
- * @brief Enables additional debug checks, when uncommented.
+ * @brief When defined enables additional runtime debug checks
  *
  */
 #define DEBUG_CHECKS
@@ -40,6 +32,7 @@
 
 /**
  * @brief If enabled. Prints the filename on debug
+ * @note Doesn't work at the moment
  *
  */
 #define PRINT_FILE_NAME 0
@@ -48,12 +41,15 @@
  * @brief Flushes debug output after every write.
  *
  */
-#define CONF_FLUSH_DEBUG 1
+#define CONF_FLUSH_DEBUG 0
 
 /* Enables color for terminal */
 #define CONF_ENABLE_TERMINAL_COLOR 1
 
-/* Select text color for debug output*/
+/**
+ * @brief Select text color for debug output
+ * @note See terminal_colors enum in debug.h for all supported colors
+ */
 #define CONF_DEBUG_COLOR WHITE
 #define CONF_INFO_COLOR CYAN
 #define CONF_WARN_COLOR YELLOW

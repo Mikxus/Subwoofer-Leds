@@ -44,8 +44,8 @@ private:
     inline uint8_t fade(uint16_t freq, uint16_t brightness);
     inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
 
-    EWMAtest bright1 = EWMAtest(0.030F);
-    EWMAtest color_smooth = EWMAtest(0.7F);
+    EWMAtest bright1 = EWMAtest(0.01F);
+    EWMAtest color_smooth = EWMAtest(0.01F);
 
     /* Last Values */
     uint8_t m_last_r;
