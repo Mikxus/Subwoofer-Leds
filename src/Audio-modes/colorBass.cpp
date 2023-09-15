@@ -96,19 +96,19 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
         colorVal = 0;
 
     /* Fill ledArr with the smoothed values */
-    fill_solid(_ledStrip->ledArr, _ledStrip->arrSize,
+    fill_solid(_ledStrip->led_rgb_data, _ledStrip->led_rgb_data_size,
                ColorFromPalette(_ledStrip->colorPalette,
                                 (uint8_t) colorVal,
                                 (uint8_t) val,
                                 LINEARBLEND));
 
     /* Check if no rgb values have changed */
-    if (_ledStrip->ledArr->r == m_last_r && _ledStrip->ledArr->g == m_last_g && _ledStrip->ledArr->b == m_last_b)
+    if (_ledStrip->led_rgb_data->r == m_last_r && _ledStrip->led_rgb_data->g == m_last_g && _ledStrip->led_rgb_data->b == m_last_b)
         return 0;
 
-    logLastValue(_ledStrip->ledArr->r,
-                 _ledStrip->ledArr->g,
-                 _ledStrip->ledArr->b);
+    logLastValue(_ledStrip->led_rgb_data->r,
+                 _ledStrip->led_rgb_data->g,
+                 _ledStrip->led_rgb_data->b);
 
     return 1;
 }

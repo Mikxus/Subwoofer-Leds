@@ -4,16 +4,15 @@
 #include <SubEffects.h>
 
 /* Definitions for the led strip */
-#define NUM_LEDS 58         // number of leds
-#define DATA_PIN 6          // data pin for leds
-#define AUDIO_PIN 0         // analog pin for the led strip
-#define LED_CHIPSET WS2812B // Led chipset
-#define COLOR_ORDER GRB     // led strip's color order: rgb grb brg
+#define NUM_LEDS 58              // number of leds
+#define DATA_PIN 6               // data pin for leds
+#define AUDIO_PIN 0              // analog pin for the led strip
+#define LED_CHIPSET WS2812B      // Led chipset
+#define COLOR_ORDER GRB          // led strip's color order: rgb grb brg
 /* ----------------------------- */
 
-CFastLED FastObj; // Create CFastLED object.
-
-SubEffects effect(&FastObj); // Create SubEffects object then pass CFastLED to it
+SubEffects effect(); // Create SubEffects object then pass CFastLED to it
+colorBass bassEffect();
 
 void setup()
 {
@@ -35,13 +34,14 @@ void setup()
   FastObj.setMaxRefreshRate(0);                                                    // Set refresh rate to unlimited for best performance                                                 //! Note may cause some led chipsets to flicker
   FastObj.setDither(0);
 
+
   // Calibrate all led strips' input values
   effect.CalibrateNoise();
 }
 
 void loop()
 {
-  PORTB |= B00010000; // pin 12 high
+  //PORTB |= B00010000; // pin 12 high
   effect.Update();    // Update the led strips
-  PORTB &= B11101111; // pin 12 low
+  //PORTB &= B11101111; // pin 12 low
 }

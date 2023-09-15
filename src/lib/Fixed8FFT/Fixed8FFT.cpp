@@ -446,7 +446,7 @@ uint16_t modulus(fixed8_t x[], int size, float frequency)
 }
 
 Fixed8FFT::Fixed8FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend backend)
-    : FFT_backend_template(input_pin, sample_size, frequency, backend)
+: FFT_backend_template( input_pin )
 {
     /* Validate sample_size */
     if (get_power_of_two(sample_size) == 0)

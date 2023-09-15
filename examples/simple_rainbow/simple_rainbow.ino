@@ -27,11 +27,11 @@ public:
   simple_rainbow() = default;
   ~simple_rainbow() = default;
 
-  virtual bool Update()
-  {
-    fill_rainbow(_ledStrip->ledArr, _ledStrip->arrSize, beat8(speed, 255), 10);
-    return 1;
-  }
+    virtual bool Update()
+    {
+        fill_rainbow(_ledStrip->ledArr, _ledStrip->led_rgb_data_size, beat8(speed, 255), 10 );
+        return 1;
+    }
 };
 
 simple_rainbow rainbow_obj;

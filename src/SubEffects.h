@@ -49,15 +49,14 @@ class SubEffects
 private:
     bool _initialized;
     ledStrip *_strips[MAX_STRIPS];
-    uint8_t _stripsPos = 0; // Keeps count on the number of ledStrips allocated
-
-    CFastLED *_fastPtr = nullptr;
-    // bool SetModeToStrip(uint8_t modeIndex, uint8_t identifier);
-    bool UpdateStripValues(uint8_t identifier); // Updates strip's settings with the current global settings.
-    void UpdateAllStripsValues();               // Updates all strip's settings
-    uint8_t GetStripPos(uint8_t identifier);    // Returns the position of the strip in the _strips array
-    ledStrip *GetStripPtr(uint8_t identifier);  // Returns the corresponding strip's pointer. If not found, returns nullpointer.
-    // bool SetPalettePtr(uint8_t index,uint8_t identifier); // Returns the corresponding color palette
+    uint8_t _stripsPos = 0;                                 // Keeps count on the number of ledStrips allocated
+    
+    //bool SetModeToStrip(uint8_t modeIndex, uint8_t identifier);
+    bool UpdateStripValues(uint8_t identifier);             // Updates strip's settings with the current global settings. 
+    void UpdateAllStripsValues();                           // Updates all strip's settings
+    uint8_t GetStripPos(uint8_t identifier);                // Returns the position of the strip in the _strips array
+    ledStrip * GetStripPtr(uint8_t identifier);             // Returns the corresponding strip's pointer. If not found, returns nullpointer.
+    //bool SetPalettePtr(uint8_t index,uint8_t identifier); // Returns the corresponding color palette
 
 protected:
     uint8_t _brightValue;
@@ -65,8 +64,8 @@ protected:
     uint8_t _currentPalette;
 
 public:
-    SubEffects(CFastLED *_fastPtr);
-
+    SubEffects(); 
+    
     /* Led strip controls */
     CRGB *GetLedsPtr(uint8_t identifier);                                                        // returns CRGB* leds[] array if identifier matches to led strip
     uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrSize);                 // Adds new ledStrip to the library & allocates the led array from the heap.

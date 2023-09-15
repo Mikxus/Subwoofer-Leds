@@ -54,9 +54,7 @@
 //
 // #define TWI_used
 //
-// #define SPM_READY_used 
-
-
+// #define SPM_READY_used
 
 /* Unsafe dynamic interrupt vectors */
 
@@ -108,8 +106,7 @@
 //
 // #define TWI_unsafe
 //
-// #define SPM_READY_unsafe 
-
+// #define SPM_READY_unsafe
 
 /* Custom struct struct to pass data to / from isr */
 
@@ -161,4 +158,4 @@
 //
 // #define TWI_data
 //
-// #define SPM_READY_data 
+// #define SPM_READY_data

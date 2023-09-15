@@ -72,8 +72,8 @@ __attribute__ ((deprecated)) bool ledStrip::loadMode(uint8_t modeIndex, CFastLED
     if (fptr == nullptr)
         return 0;
 
-    // check if modeUpdatePtr is already loaded
-    if (modeUpdatePtr != nullptr)
+    // check if effect_ptr is already loaded
+    if (effect_ptr != nullptr)
     {
         // unload mode
         INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
@@ -82,25 +82,24 @@ __attribute__ ((deprecated)) bool ledStrip::loadMode(uint8_t modeIndex, CFastLED
 
     switch (modeIndex) // switch for the different modes
     {
-    case 0: // colorBass mode
-
-        modeUpdatePtr = new colorBass();
-
-        break;
-
+        case 0:              // colorBass mode
+            
+            effect_ptr = new colorBass();
+            
+            break;
     default:
         return 0;
         break;
     }
 
-    if (modeUpdatePtr == nullptr)
+    if (effect_ptr == nullptr)
     {
         ERROR(F("ledStrip: Not enoug memory for mode: "), modeIndex);
         return 0;
     }
 
     // Share ledstrip & FastLED pointer with the new mode.
-    modeUpdatePtr->initValues(this, fptr);
+    effect_ptr->init_values(this, fptr);
 
     mode = modeIndex;
     INFO(F("Succesfully loaded mode: "), modeIndex, F(" for strip: "), identifier);
@@ -117,33 +116,33 @@ __attribute__ ((deprecated)) bool ledStrip::loadMode(uint8_t modeIndex, CFastLED
  */
 bool ledStrip::loadObj(audioMode *ptr, CFastLED *fptr)
 {
-    // check if modeUpdatePtr is already loaded
-    if (modeUpdatePtr != nullptr)
+    // check if effect_ptr is already loaded
+    if (effect_ptr != nullptr)
     {
         // unload mode
         INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
         unloadMode();
     }
 
-    modeUpdatePtr = ptr;
-    if (modeUpdatePtr == nullptr)
+    effect_ptr = ptr;
+    if (effect_ptr == nullptr)
     {
         ERROR(F("ledStrip: null audio mode"));
         return 0;
     }
     
-    modeUpdatePtr->initValues(this, fptr);
+    effect_ptr->init_values(this, fptr);
     INFO(F("Succesfully loaded mode at an address: 0x"), reinterpret_cast<uint16_t>(ptr), F(" for strip: "), identifier);
     return 1;
 }
 
 void ledStrip::unloadMode()
 {
-    if (modeUpdatePtr == nullptr)
+    if (effect_ptr == nullptr)
         return;
 
-    delete modeUpdatePtr;
-    modeUpdatePtr = nullptr;
+    delete effect_ptr;
+    effect_ptr = nullptr;
     return;
 }
 
@@ -166,7 +165,6 @@ __attribute__ ((deprecated)) bool ledStrip::SetColorPalette(uint8_t colorIndex)
 ledStrip::~ledStrip()
 {
     unloadMode();
-    if (dynAllocated)
-        free(ledArr);
+    if (dynAllocated) free (led_rgb_data);
     return;
 }

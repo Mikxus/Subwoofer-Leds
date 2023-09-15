@@ -98,20 +98,24 @@ struct EWMAtest
      */
     float calc(float input_value)
     {
-        /* Lets get the timedelta from last call */
-        m_time_elapsed = (micros() - m_time_elapsed) / 1000000.0F;
+        float alpha = 0.0F;
+        //alpha = pow(m_window_size, (micros() - m_time_elapsed) / 1000000.0F);
+        alpha = pow(0.05F, (1.0F - (micros() - m_time_elapsed) / 1000000.0F) * m_window_size);
 
-        /* calculate alpha */
-        float alpha = exp(m_time_elapsed / m_window_size) - 1.0F;
-
-        if (alpha > 1.0F)
+        if (alpha >= 1.0F)
         {
             WARN(F("EWMA filter is running too slow for its window_size"));
             alpha = 1.0F;
         }
+        
+        /*
+        Serial.print("alpha: ");
+        Serial.print(alpha, 10);
+        Serial.print("  time_delta: ");
+        Serial.println(1.0F - (micros() - m_time_elapsed) / 1000000.0F, 10);
+        */
 
-        m_last_val = alpha * input_value + (1.0F - alpha) * m_last_val;
-
+        m_last_val =  m_last_val + (input_value - m_last_val) * (1.0F - alpha);
         m_time_elapsed = micros();
         return m_last_val;
     }

@@ -25,6 +25,7 @@
 #define _AUDIO_MODES_H_
 
 #include <FastLED.h>
+#include "../utils/virtual_led_array.h"
 
 struct ledStrip;
 
@@ -33,20 +34,19 @@ class audioMode // mode template
 protected:
     /* These are inherited */
 
-    ledStrip *_ledStrip; // Pointer for the led strip struct
-    CFastLED *_FastLED;  // Pointer for the current FastLED object
+    ledStrip *_ledStrip;                // Pointer for the led strip struct
+    virtual_led_strip_rgb_array led_array;
+
 
 public:
-    void initValues(ledStrip *ledStrip, CFastLED *FastLED)
-    {
-        _ledStrip = ledStrip;
-        _FastLED = FastLED;
-    }
-
-    virtual bool Update() = 0; // function wich should be implemented in the inherited class the following way.
-                               // updates the led strip's values.
-                               // Returns 1 if any led value changed. Othervise 0
-                               // update shouldn't call FastLED.show() or any other function that updates the led strips
+    void init_values(ledStrip *ledStrip, CRGB *array_start, CRGB* array_end) 
+    :   _ledStrip(ledStrip) 
+    ,   led_array(array_start, array_end);
+    
+    virtual bool Update() = 0;          // function wich should be implemented in the inherited class the following way.
+                                        // updates the led strip's values. 
+                                        // Returns 1 if any led value changed. Othervise 0
+                                        // update shouldn't call FastLED.show() or any other function that updates the led strips
     virtual ~audioMode() = default;
 };
 #endif
