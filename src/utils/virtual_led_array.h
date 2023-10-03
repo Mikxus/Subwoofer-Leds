@@ -31,11 +31,11 @@
 
 /**
  * @brief "virtual" CRGB array
- *      Makes it easier to set effects to use arbitary pixels as their output
- *      Enabling multiple effects to work on 1 single led strip
+ *      Makes it easier to set effects to use arbitary pixels as their output range.
+ *      This makes it possible to use multiple effects on a single output channel.
  *
  */
-struct virtual_led_strip_rgb_array
+struct virtual_led_array
 {
     /**
      * @brief Resizes the virtual CRGB pixel array
@@ -64,40 +64,54 @@ struct virtual_led_strip_rgb_array
         return 0;
     }
 
+    /**
+     * @brief Returns the size of the virtual array's section
+     * 
+     * @return uint16_t size
+     */
+    __attribute((always_inline)) uint16_t size(){return (uint16_t) data_array_start - (uint16_t) data_array_end;}
+
     /* Array access operator */
     inline uint8_t operator[] (uint16_t x) const __attribute__((always_inline))
     {
+        #ifdef DEBUG_CHECKS
         if (data_array_start + x * sizeof(CRGB) > data_array_end) 
+        {
+            WARN(F("virtual_array: Array overflow"));
             return 0;
+        }
+        #endif
 
         return data_array_start[x];
     }
 
-    /* Assignment from other virtual thingy */
-    inline virtual_led_strip_rgb_array& operator= (const virtual_led_strip_rgb_array& x) __attribute__((always_inline)) = default;
+    /* Assignment from other virtual_led_array */
+    __attribute__((always_inline)) inline virtual_led_array& operator= (const virtual_led_array& x) = default;
 
-    /* Assignment from CRGB struct to virtual thingy */
-    inline virtual_led_strip_rgb_array& operator= (const CRGB& x) __attribute__((always_inline))
+    /* Assignment from CRGB struct to virtual_led_array */
+    __attribute__((always_inline)) inline virtual_led_array& operator= (const CRGB& x) 
     {
         *this = x;
         return *this;
     }
 
-    virtual_led_strip_rgb_array(CRGB *rgb_array_start, CRGB *rgb_array_end)
-    {
-        resize(rgb_array_start, rgb_array_end);
-    }
+    /**
+     * @brief Construct a new virtual led array object
+     * 
+     */
+    virtual_led_array() = default;
 
     /**
      * @brief Deconstructor. Sets the rgb values to black before exiting
      * 
      */
-    ~virtual_led_strip_rgb_array()
+    ~virtual_led_array()
     {
-        CRGB *head = data_array_start;
-        while (head == data_array_end)
+        CRGB *ptr = data_array_start;
+        while (ptr == data_array_end)
         {
-            (*head) = CRGB::Black;
+            (*ptr) = CRGB::Black;
+            ptr++;
         }
     }
 
