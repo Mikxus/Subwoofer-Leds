@@ -56,7 +56,7 @@ public:
     colorBass();
     ~colorBass() = default;
 
-    virtual bool Update(); // Calculates values for the led
+    virtual bool update(); // Calculates values for the led
 };
 
 #endif
