@@ -29,13 +29,13 @@
  *
  * @param value
  */
-void ledStrip::SetBrightness(uint8_t value)
+void ledStrip::set_brightness(uint8_t value)
 {
     brightness = value;
     return;
 }
 
-__attribute__ ((deprecated)) bool ledStrip::SetColor(uint8_t index)
+__attribute__((deprecated)) bool ledStrip::set_colorpalette(uint8_t index)
 {
     if (index >= NUM_OF_PALETTES)
     {
@@ -43,22 +43,22 @@ __attribute__ ((deprecated)) bool ledStrip::SetColor(uint8_t index)
         return 0;
     }
 
-    paletteIndex = index;
-    if (!SetColorPalette(paletteIndex))
+    palette_index = index;
+    if (!set_color_palette(palette_index))
     {
-        ERROR(F("ledstrip.cpp: Failed to set color palette\n\rIndex: "), paletteIndex, F("\n\rStrip id: "), identifier);
+        ERROR(F("ledstrip.cpp: Failed to set color palette\n\rIndex: "), palette_index, F("\n\rStrip id: "), identifier);
     }
 
-    INFO(F("Colorpalette: "), paletteIndex, F(" set for strip: "), identifier, F("\n\r"));
+    INFO(F("Colorpalette: "), palette_index, F(" set for strip: "), identifier, F("\n\r"));
     return 1;
 }
 
-__attribute__ ((deprecated)) bool ledStrip::SetMode(uint8_t modeIndex, CFastLED *fptr)
+__attribute__((deprecated)) bool ledStrip::SetMode(uint8_t modeIndex, CFastLED *fptr)
 {
     if (modeIndex >= NUM_OF_MODES)
         return 0; // if invalid input return 0
 
-    if (!loadMode(mode, fptr)) // check if fails
+    if (!load_mode(mode, fptr)) // check if fails
     {
         ERROR("ledStrip.cpp: Failed to set mode: ", modeIndex);
         return 0;
@@ -66,40 +66,40 @@ __attribute__ ((deprecated)) bool ledStrip::SetMode(uint8_t modeIndex, CFastLED 
     return 1;
 }
 
-__attribute__ ((deprecated)) bool ledStrip::loadMode(uint8_t modeIndex, CFastLED *fptr) 
+__attribute__((deprecated)) bool ledStrip::load_mode(uint8_t modeIndex, CFastLED *fptr)
 {
     // Check if CFastLED pointer is valid
     if (fptr == nullptr)
         return 0;
 
-    // check if effect_ptr is already loaded
-    if (effect_ptr != nullptr)
+    // check if effect_ptr_head is already loaded
+    if (effect_ptr_head != nullptr)
     {
         // unload mode
         INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
-        unloadMode();
+        unload_obj();
     }
 
     switch (modeIndex) // switch for the different modes
     {
-        case 0:              // colorBass mode
-            
-            effect_ptr = new colorBass();
-            
-            break;
+    case 0: // colorBass mode
+
+        effect_ptr_head = new colorBass();
+
+        break;
     default:
         return 0;
         break;
     }
 
-    if (effect_ptr == nullptr)
+    if (effect_ptr_head == nullptr)
     {
         ERROR(F("ledStrip: Not enoug memory for mode: "), modeIndex);
         return 0;
     }
 
     // Share ledstrip & FastLED pointer with the new mode.
-    effect_ptr->init_values(this, fptr);
+    effect_ptr_head->init_values(this, fptr);
 
     mode = modeIndex;
     INFO(F("Succesfully loaded mode: "), modeIndex, F(" for strip: "), identifier);
@@ -107,46 +107,30 @@ __attribute__ ((deprecated)) bool ledStrip::loadMode(uint8_t modeIndex, CFastLED
 }
 
 /**
- * @brief Loads allocated mode to ledStrip.
- *
- * @param ptr
- * @param fptr
- * @return true
- * @return false
+ * @brief Adds audioMode to the selected ledstrip
+ * 
+ * @param ptr 
+ * @param led_array_start 
+ * @param led_array_end 
+ * @return true 
+ * @return false 
  */
-bool ledStrip::loadObj(audioMode *ptr, CFastLED *fptr)
+bool ledStrip::add_effect(audioMode *ptr, CRGB *led_array_start, CRGB *led_array_end)
 {
-    // check if effect_ptr is already loaded
-    if (effect_ptr != nullptr)
+    if (effect_ptr_head == nullptr)
     {
-        // unload mode
-        INFO(F("Mode already loaded for strip: "), identifier, F(" unloading current mode:"), mode);
-        unloadMode();
-    }
-
-    effect_ptr = ptr;
-    if (effect_ptr == nullptr)
-    {
-        ERROR(F("ledStrip: null audio mode"));
+        ERROR(F("ledStrip: Nullptr passed as audioMode"));
         return 0;
     }
-    
-    effect_ptr->init_values(this, fptr);
+
+    effect_ptr_head = ptr;
+    effect_ptr_head->init_values(this, led_array_start, led_array_end);
+
     INFO(F("Succesfully loaded mode at an address: 0x"), reinterpret_cast<uint16_t>(ptr), F(" for strip: "), identifier);
     return 1;
 }
 
-void ledStrip::unloadMode()
-{
-    if (effect_ptr == nullptr)
-        return;
-
-    delete effect_ptr;
-    effect_ptr = nullptr;
-    return;
-}
-
-__attribute__ ((deprecated)) bool ledStrip::SetColorPalette(uint8_t colorIndex)
+__attribute__((deprecated)) bool ledStrip::set_color_palette(uint8_t colorIndex)
 {
     switch (colorIndex) // add new case for your color palette. !color index can't jump any digits
     {
@@ -164,7 +148,7 @@ __attribute__ ((deprecated)) bool ledStrip::SetColorPalette(uint8_t colorIndex)
 
 ledStrip::~ledStrip()
 {
-    unloadMode();
-    if (dynAllocated) free (led_rgb_data);
+    if (dynamically_allcated)
+        free(led_rgb_data);
     return;
 }
