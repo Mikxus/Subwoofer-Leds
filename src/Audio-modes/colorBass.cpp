@@ -35,7 +35,7 @@ colorBass::colorBass()
  *
  * @returns bool: 1 If value has changed.
  */
-bool colorBass::Update()
+bool colorBass::update()
 {
     uint16_t freq = 0;
     uint16_t brightness = analogRead(_ledStrip->inputPin);
