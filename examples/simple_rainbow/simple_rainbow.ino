@@ -10,8 +10,6 @@
 #define COLOR_ORDER GRB     // led strip's color order: rgb grb brg
 /* ----------------------------- */
 
-CFastLED FastObj; // Create CFastLED object.
-
 SubEffects effect(&FastObj); // Create SubEffects object then pass CFastLED to it
 
 /**
@@ -27,7 +25,7 @@ public:
   simple_rainbow() = default;
   ~simple_rainbow() = default;
 
-    virtual bool Update()
+    virtual bool update()
     {
         fill_rainbow(_ledStrip->ledArr, _ledStrip->led_rgb_data_size, beat8(speed, 255), 10 );
         return 1;
@@ -47,22 +45,22 @@ void setup()
 
   // Add new ledstrip for the SubEffect object
   uint8_t ledID = 0;
-  ledID = effect.AddLedStrip(AUDIO_PIN, 0, NUM_LEDS);
+  ledID = effect.add_strip(AUDIO_PIN, 0, NUM_LEDS);
 
   // Add new ledstrip for the FastLED object
-  FastObj.addLeds<LED_CHIPSET, DATA_PIN, COLOR_ORDER>(effect.GetLedsPtr(ledID), NUM_LEDS); // GRB ordering is typical
-  FastObj.setMaxRefreshRate(0);                                                            // Set refresh rate to unlimited for best performance
-  FastObj.setDither(0);
+  FastLED.addLeds<LED_CHIPSET, DATA_PIN, COLOR_ORDER>(effect.GetLedsPtr(ledID), NUM_LEDS); // GRB ordering is typical
+  FastLED.setMaxRefreshRate(0);                                                            // Set refresh rate to unlimited for best performance
+  FastLED.setDither(0);
 
   /* Calibrate all led strips' input values */
   effect.CalibrateNoise();
 
   /* Now load our own led effect */
-  effect.loadMode(&rainbow_obj, ledID);
+  effect.load_mode(&rainbow_obj, ledID);
 }
 
 /* Updates the ledstrip */
 void loop()
 {
-  effect.Update();
+  effect.update();
 }
