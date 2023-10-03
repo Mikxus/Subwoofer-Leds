@@ -26,24 +26,30 @@
 
 #include <FastLED.h>
 #include "../utils/virtual_led_array.h"
+#include "../utils/singly_linked_list.h"
+#include "../utils/debug.h"
+#include "../config.h"
 
 struct ledStrip;
 
-class audioMode // mode template
+class audioMode : public singly_link_base // mode template
 {
+    uint8_t id = 0;
+
 protected:
     /* These are inherited */
-
     ledStrip *_ledStrip;                // Pointer for the led strip struct
-    virtual_led_strip_rgb_array led_array;
+    virtual_led_array led_array;
 
 
 public:
-    void init_values(ledStrip *ledStrip, CRGB *array_start, CRGB* array_end) 
-    :   _ledStrip(ledStrip) 
-    ,   led_array(array_start, array_end);
-    
-    virtual bool Update() = 0;          // function wich should be implemented in the inherited class the following way.
+    void init_values(ledStrip *ledStrip, CRGB *array_start, CRGB* array_end)
+    {
+       _ledStrip = ledStrip; 
+       led_array.resize(array_start, array_end);
+    } 
+
+    virtual bool update() = 0;          // function wich should be implemented in the inherited class the following way.
                                         // updates the led strip's values. 
                                         // Returns 1 if any led value changed. Othervise 0
                                         // update shouldn't call FastLED.show() or any other function that updates the led strips
