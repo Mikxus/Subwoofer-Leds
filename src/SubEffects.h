@@ -40,6 +40,7 @@
 #include "utils/colorMath.h"
 #include "utils/ledStrip.h"
 #include "utils/interrupt.h"
+#include "utils/virtual_led_array.h"
 /* -------------------------------- */
 
 #include "Audio-modes/colorBass.h"
@@ -68,32 +69,32 @@ public:
     
     /* Led strip controls */
     CRGB *GetLedsPtr(uint8_t identifier);                                                        // returns CRGB* leds[] array if identifier matches to led strip
-    uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrSize);                 // Adds new ledStrip to the library & allocates the led array from the heap.
-    uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrsize, CRGB *ledArray); //
-    void RemoveAllStrips();                                                                      // Removes all led strips
-    bool RemoveLedStrip(CRGB *ledArray);                                                         // Removes led strip wich ledArray ptr corresponds
-    bool RemoveLedStrip(uint8_t identifier);                                                     // Removes led strip with corresponding identifier
+    uint8_t add_strip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrSize);                 // Adds new ledStrip to the library & allocates the led array from the heap.
+    uint8_t add_strip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrsize, CRGB *ledArray); //
+    void remove_all_strips();                                                                      // Removes all led strips
+    bool remove_strip(CRGB *ledArray);                                                         // Removes led strip wich ledArray ptr corresponds
+    bool remove_strip(uint8_t identifier);                                                     // Removes led strip with corresponding identifier
     /* ------------------ */
 
     void CalibrateNoise(); // Corrects for noise in signal. Calibrates all led Strips. Calibration takes 1.5 s
 
     /* Brightness controls */
-    void SetBrightness(uint8_t brightness);
-    bool IncreaseBrightness();
-    bool DecreaseBrightness();
+    void set_brightness(uint8_t brightness);
+    bool increase_brightness();
+    bool decrease_brightness();
 
-    void Update();
+    void update();
 
     /* Mode controls */
-    void NextMode();
-    void PreviousMode();
-    void SetMode(uint8_t mode);
-    bool loadMode(audioMode *ptr, uint8_t identifier);
+    __attribute__((deprecated)) void NextMode();
+    __attribute__((deprecated)) void PreviousMode();
+    __attribute__((deprecated)) void SetMode(uint8_t mode);
+    bool load_mode(audioMode *ptr, uint8_t identifier, CRGB *led_array_start, CRGB *led_array_end);
 
     /* Color palette controls */
-    void NextColor();
-    void PreviusColor();
-    bool SetColor(uint8_t paletteIndex);
+    void next_color();
+    void previous_color();
+    bool set_colorpalette(uint8_t palette_index);
 
     ~SubEffects();
 };
