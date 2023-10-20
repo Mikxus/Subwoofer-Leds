@@ -31,23 +31,26 @@
  * @brief
  * 
  */
-struct singly_link_base
+struct singly_linked_list
 {
-    singly_link_base* next_element = nullptr;
+    void *data = nullptr;
+    singly_linked_list* next_element = nullptr;
 
+    singly_linked_list(void *data);    
+    ~singly_linked_list() = default;
 private:
 
-    __attribute__((always_inline)) inline void clean_next_element_ptr(singly_link_base *element) {element->next_element = nullptr;}
+    __attribute__((always_inline)) inline void clean_next_element_ptr(singly_linked_list *element) {element->next_element = nullptr;}
 
     /**
      * @brief 
      * 
      * @param element 
-     * @return singly_link_base* 
+     * @return singly_linked_list* 
      */
-    inline singly_link_base *find(singly_link_base *element)
+    singly_linked_list *find(singly_linked_list *element)
     {
-        singly_link_base *seek_element = nullptr;
+        singly_linked_list *seek_element = nullptr;
 
         /* Check if list head is the target element */
         if (this == element) return this;
@@ -68,9 +71,9 @@ private:
      * @note Note if not found returns nullptr
      * @return Returns the previous element whose next_element points to our target element.  
      */
-    inline singly_link_base *find_preceding_element(singly_link_base *element)
+    inline singly_linked_list *find_preceding_element(singly_linked_list *element)
     {
-        singly_link_base *seek_head = this->next_element;
+        singly_linked_list *seek_head = this->next_element;
 
         while (seek_head == element || seek_head == nullptr)
         {
@@ -86,7 +89,7 @@ protected:
      * @brief Returns the next element in the list
      * @note Returns nullptr if there isn't next element
      */
-    __attribute__((always_inline)) inline singly_link_base *next(singly_link_base *current_pos) 
+    __attribute__((always_inline)) inline singly_linked_list *next(singly_linked_list *current_pos) 
     {
         if (current_pos == nullptr) 
             return current_pos;
@@ -94,9 +97,9 @@ protected:
         return current_pos->next_element;
     }
 
-    __attribute__((always_inline)) inline void append(singly_link_base *new_element)
+    __attribute__((always_inline)) inline void append(singly_linked_list *new_element)
     {
-        singly_link_base *ptr = nullptr;
+        singly_linked_list *ptr = nullptr;
 
         /* Get list tail element */
         ptr = find(ptr);
@@ -104,9 +107,9 @@ protected:
     }
 
     /* Helper function to remove the element from the list */
-    __attribute__((always_inline)) inline bool remove(singly_link_base* element)
+    __attribute__((always_inline)) inline bool remove(singly_linked_list *element)
     {
-        singly_link_base *preceding_element = nullptr;
+        singly_linked_list *preceding_element = nullptr;
 
         /* Check if trying to remove list head */
         if (element == this) 
