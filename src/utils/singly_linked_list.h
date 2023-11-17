@@ -31,53 +31,60 @@
  * @brief
  * 
  */
-struct singly_linked_list
+template <typename T>
+class singly_linked_list
 {
-    void *data = nullptr;
-    singly_linked_list* next_element = nullptr;
+public:
+    struct node {
+        T *data;
+        node *next_node;
+        
+        node(const T& _data) : data(_data), next_node(nullptr) {} 
+    };
 
-    singly_linked_list(void *data);    
+    singly_linked_list();
     ~singly_linked_list() = default;
 private:
+    node *head = nullptr;
 
-    __attribute__((always_inline)) inline void clean_next_element_ptr(singly_linked_list *element) {element->next_element = nullptr;}
+    __attribute__((always_inline)) inline void clean_next_ptr(node *node) {node->next_node = nullptr;}
 
     /**
      * @brief 
      * 
-     * @param element 
+     * @param node 
      * @return singly_linked_list* 
      */
-    singly_linked_list *find(singly_linked_list *element)
+    node *find(node *node)
     {
-        singly_linked_list *seek_element = nullptr;
+        node *seek_node = nullptr;
 
-        /* Check if list head is the target element */
-        if (this == element) return this;
+        /* Check if list head is the target node */
+        if (this == node) return this;
 
-        while (seek_element == nullptr)
+        while (seek_node == nullptr)
         {
-            if (seek_element == element) break;
+            if (seek_node == node) break;
 
-            seek_element = next(seek_element);
+            seek_node = next(seek_node);
         }
 
-        return seek_element;
+        return seek_node;
     }
 
     /**
-     * @brief Helper function to find element in the list
+     * @brief Helper function to find node in the list
      *
      * @note Note if not found returns nullptr
-     * @return Returns the previous element whose next_element points to our target element.  
+     * @return Returns the previous node whose next points to our target node.  
      */
-    inline singly_linked_list *find_preceding_element(singly_linked_list *element)
+    inline node *find_preceding_node(node *target_node)
     {
-        singly_linked_list *seek_head = this->next_element;
+        node *seek_head = this->next_node;
 
-        while (seek_head == element || seek_head == nullptr)
+        while (seek_head == target_node || seek_head == nullptr)
         {
-            seek_head = seek_head->next_element;
+            seek_head = seek_head->next_node;
         }
 
         return seek_head;
@@ -86,51 +93,51 @@ private:
 protected:
 
     /**
-     * @brief Returns the next element in the list
-     * @note Returns nullptr if there isn't next element
+     * @brief Returns the next node in the list
+     * @note Returns nullptr if there isn't next node
      */
-    __attribute__((always_inline)) inline singly_linked_list *next(singly_linked_list *current_pos) 
+    __attribute__((always_inline)) inline node *next(node *current_pos) 
     {
         if (current_pos == nullptr) 
             return current_pos;
 
-        return current_pos->next_element;
+        return current_pos->next_node;
     }
 
-    __attribute__((always_inline)) inline void append(singly_linked_list *new_element)
+    __attribute__((always_inline)) inline void append(node *new_node)
     {
-        singly_linked_list *ptr = nullptr;
+        node *ptr = nullptr;
 
-        /* Get list tail element */
+        /* Get list tail node */
         ptr = find(ptr);
-        ptr->next_element = new_element;
+        ptr->next_node = new_node;
     }
 
-    /* Helper function to remove the element from the list */
-    __attribute__((always_inline)) inline bool remove(singly_linked_list *element)
+    /* Helper function to remove the node from the list */
+    __attribute__((always_inline)) inline bool remove(node *node)
     {
-        singly_linked_list *preceding_element = nullptr;
+        node *preceding_node = nullptr;
 
         /* Check if trying to remove list head */
-        if (element == this) 
+        if (node == this) 
         {
             return 1;
         }
 
-        preceding_element = find_preceding_element(element);
+        preceding_node = find_preceding_node(node);
 
-        if (preceding_element == nullptr)
+        if (preceding_node == nullptr)
         {
-            ERROR(F("remove: element: "), (uint32_t) element, F(" not found in linked list"));
+            ERROR(F("remove: node: "), (uint32_t) node, F(" not found in linked list"));
             return 1;
         }
 
         /* 
-         * Example case: [preceding element] [element] [another element]
-         * Sets preceding elements next_element pointer to another element. 
+         * Example case: [preceding node] [node] [another node]
+         * Sets preceding nodes next_node pointer to another node. 
          */
-        preceding_element->next_element = next(preceding_element->next_element);
-        clean_next_element_ptr(element);
+        preceding_node->next_node = next(preceding_node->next_node);
+        clean_next_ptr(node);
         return 0;
     }
 };
