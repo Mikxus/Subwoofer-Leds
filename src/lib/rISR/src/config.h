@@ -28,7 +28,7 @@
 //
 // #define TIMER1_COMPA_used
 //
-// #define TIMER1_COMPB_used
+#define TIMER1_COMPB_used
 //
 // #define TIMER1_OVF_used
 //
@@ -135,7 +135,7 @@
 //
 // #define TIMER1_COMPA_data
 //
-// #define TIMER1_COMPB_data
+#define TIMER1_COMPB_data
 //
 // #define TIMER1_OVF_data
 //
