@@ -547,7 +547,7 @@ uint16_t Fixed8FFT::calculate()
 
 __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
 {
-    adc_sample_interrupt *data = (struct adc_sample_interrupt*) isr_vector_data_pointer_table[TIMER1_COMPB_];
+    adc_sample_interrupt *data = (struct adc_sample_interrupt*) get_isr_data_ptr(TIMER1_COMPB_ptr);
 
     /* Check if data array is filled with data */
     if (data->array_pos >= 1 << data->array_size)

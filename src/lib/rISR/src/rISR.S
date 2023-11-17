@@ -39,7 +39,7 @@ isr_vector_table:
     .word runtime_bad_isr
     #endif
 
-    #if defined(PCINT0_used) || defined(PCINT1_unsafe)
+    #if defined(PCINT0_used) || defined(PCINT0_unsafe)
     .word runtime_bad_isr
     #endif
     

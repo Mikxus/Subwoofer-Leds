@@ -96,7 +96,7 @@ public:
             goto skip_data_ptr_bind;
         }
 
-        if (get_isr_data_ptr(TIMER1_COMPB_) != nullptr)
+        if (get_isr_data_ptr(TIMER1_COMPB_ptr) != nullptr)
         {
             ERROR(F("FFT: backend data ptr can't be binded. Since someone has already binded pointer to it"));
             #ifdef DEBUG_CHECKS
@@ -112,7 +112,7 @@ public:
 
         /* Everything correct. We can now bind data ptr */
         cli();
-        bind_isr_data_ptr(TIMER1_COMPB_, fft->get_read_vector_data_pointer());
+        bind_isr_data_ptr(TIMER1_COMPB_ptr, fft->get_read_vector_data_pointer());
 
     /* Bind isr */
     skip_data_ptr_bind:

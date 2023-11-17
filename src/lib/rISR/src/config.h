@@ -28,7 +28,7 @@
 //
 // #define TIMER1_COMPA_used
 //
-#define TIMER1_COMPB_used
+// #define TIMER1_COMPB_used
 //
 // #define TIMER1_OVF_used
 //
@@ -54,7 +54,9 @@
 //
 // #define TWI_used
 //
-// #define SPM_READY_used
+// #define SPM_READY_used 
+
+
 
 /* Unsafe dynamic interrupt vectors */
 
@@ -106,9 +108,10 @@
 //
 // #define TWI_unsafe
 //
-// #define SPM_READY_unsafe
+// #define SPM_READY_unsafe 
 
-/* Custom struct struct to pass data to / from isr */
+
+/* Enables custom data ptr to be binded */
 
 // #define INT0_data
 //
@@ -132,7 +135,7 @@
 //
 // #define TIMER1_COMPA_data
 //
-#define TIMER1_COMPB_data
+// #define TIMER1_COMPB_data
 //
 // #define TIMER1_OVF_data
 //
@@ -158,4 +161,4 @@
 //
 // #define TWI_data
 //
-// #define SPM_READY_data
+// #define SPM_READY_data 
