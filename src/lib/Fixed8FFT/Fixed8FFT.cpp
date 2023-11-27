@@ -552,7 +552,6 @@ __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
     /* Check if data array is filled with data */
     if (data->array_pos >= 1 << data->array_size)
     {
-        PORTB &= B11101111; // pin 12 low
         return;
     }
 
