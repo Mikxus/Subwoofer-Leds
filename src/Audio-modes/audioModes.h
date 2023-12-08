@@ -32,27 +32,41 @@
 
 struct ledStrip;
 
-class audioMode : public singly_link_base // mode template
+/**
+ * @brief audioMode 
+ * 
+ */
+class audioMode
 {
     uint8_t id = 0;
+    sl_list::node<audioMode> list_node = sl_list::node<audioMode>(this, nullptr);
 
 protected:
     /* These are inherited */
-    ledStrip *_ledStrip;                // Pointer for the led strip struct
     virtual_led_array led_array;
-
+    CRGBPalette16 *color_palette = nullptr;
 
 public:
-    void init_values(ledStrip *ledStrip, CRGB *array_start, CRGB* array_end)
+    void init_values(CRGB *array_start, CRGB* array_end)
     {
-       _ledStrip = ledStrip; 
        led_array.resize(array_start, array_end);
     } 
 
-    virtual bool update() = 0;          // function wich should be implemented in the inherited class the following way.
-                                        // updates the led strip's values. 
-                                        // Returns 1 if any led value changed. Othervise 0
-                                        // update shouldn't call FastLED.show() or any other function that updates the led strips
+    sl_list::node<audioMode> &get_node() {return list_node;}
+
+    /**
+     * @brief 
+     * @note function wich should be implemented in the inherited class the following way.
+     *       updates the led strip's values. 
+     *       Returns 1 if any led value changed. Othervise 0
+     *       update shouldn't call FastLED.show() or any other function that updates the led strips
+     * 
+     * @return true When led value changed
+     * @return false when no change happened
+     */
+    virtual bool update() = 0;
+
+    audioMode() {}
     virtual ~audioMode() = default;
 };
 #endif
