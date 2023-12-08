@@ -38,8 +38,8 @@ colorBass::colorBass()
 bool colorBass::update()
 {
     uint16_t freq = 0;
-    uint16_t brightness = analogRead(_ledStrip->inputPin);
-
+    uint16_t brightness = analogRead(0);
+    
     if (_update)
     {
         freq = fft_obj.calculate();
@@ -54,8 +54,9 @@ bool colorBass::update()
         DEBUG(F("Freq: "), freq);
     }
 
-    brightness = constrain(brightness, _ledStrip->inputCalZero, 800);
-    brightness = map(brightness, _ledStrip->inputCalZero, 550, 0, 255);
+    // 414 is the input calzero
+    brightness = constrain(brightness, 414, 800);
+    brightness = map(brightness, 414, 550, 0, 255);
 
     /* if no change in brightness */
     if (brightness == _lastBrightness)
@@ -95,20 +96,20 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
     if (colorVal < 0)
         colorVal = 0;
 
-    /* Fill ledArr with the smoothed values */
-    fill_solid(_ledStrip->led_rgb_data, _ledStrip->led_rgb_data_size,
-               ColorFromPalette(_ledStrip->colorPalette,
+    /* Fill led_array with the smoothed values */
+    fill_solid(&led_array[0], led_array.size(),
+               ColorFromPalette(*color_palette,
                                 (uint8_t) colorVal,
                                 (uint8_t) val,
                                 LINEARBLEND));
 
     /* Check if no rgb values have changed */
-    if (_ledStrip->led_rgb_data->r == m_last_r && _ledStrip->led_rgb_data->g == m_last_g && _ledStrip->led_rgb_data->b == m_last_b)
+    if (led_array[0].r == m_last_r && led_array[0].g == m_last_g && led_array[0].b == m_last_b)
         return 0;
 
-    logLastValue(_ledStrip->led_rgb_data->r,
-                 _ledStrip->led_rgb_data->g,
-                 _ledStrip->led_rgb_data->b);
+    logLastValue(led_array[0].r,
+                 led_array[0].g,
+                 led_array[0].b);
 
     return 1;
 }
