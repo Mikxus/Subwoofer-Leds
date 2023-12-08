@@ -101,7 +101,7 @@ public:
             ERROR(F("FFT: backend data ptr can't be binded. Since someone has already binded pointer to it"));
             #ifdef DEBUG_CHECKS
                 Serial.print(F("FFT: Binded data ptr: 0x"));
-                Serial.println((uint16_t)get_isr_data_ptr(TIMER1_COMPB_), HEX);
+                Serial.println((uint16_t)get_isr_data_ptr(TIMER1_COMPB_ptr), HEX);
                 Serial.print(F("FFT: Our data ptr: 0x"));
                 Serial.println((uint16_t)fft->get_read_vector_data_pointer(), HEX);
             #endif
@@ -149,9 +149,9 @@ public:
         if (fft->get_read_vector() != nullptr && fft->get_read_vector() == get_isr_vector(TIMER1_COMPB_))
         {
             /* Check if fft objects data ptr is used */
-            if (fft->get_read_vector_data_pointer() != nullptr && fft->get_read_vector_data_pointer() == get_isr_data_ptr(TIMER1_COMPB_))
+            if (fft->get_read_vector_data_pointer() != nullptr && fft->get_read_vector_data_pointer() == get_isr_data_ptr(TIMER1_COMPB_ptr))
             {
-                unbind_isr_data_ptr(TIMER1_COMPB_);
+                unbind_isr_data_ptr(TIMER1_COMPB_ptr);
             }
 
             /* Unbind isr */
