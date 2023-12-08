@@ -100,7 +100,7 @@ struct EWMAtest
     {
         float alpha = 0.0F;
         //alpha = pow(m_window_size, (micros() - m_time_elapsed) / 1000000.0F);
-        alpha = pow(0.05F, (1.0F - (micros() - m_time_elapsed) / 1000000.0F) * m_window_size);
+        alpha = pow(0.05F, (1.0F - (millis() - m_time_elapsed) / 1000.0F) * m_window_size);
 
         if (alpha >= 1.0F)
         {
