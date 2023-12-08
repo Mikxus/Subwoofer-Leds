@@ -53,7 +53,7 @@ struct virtual_led_array
             return 1;
         }
 
-        if (start < end)
+        if (start > end)
         { 
             ERROR("rgb_array_start has to be smaller than rgb_array_end");
             return 1;
@@ -72,17 +72,31 @@ struct virtual_led_array
     __attribute((always_inline)) uint16_t size(){return (uint16_t) data_array_start - (uint16_t) data_array_end;}
 
     /* Array access operator */
-    inline uint8_t operator[] (uint16_t x) const __attribute__((always_inline))
+    inline CRGB operator[] (uint16_t i) const __attribute__((always_inline))
     {
         #ifdef DEBUG_CHECKS
-        if (data_array_start + x * sizeof(CRGB) > data_array_end) 
+        if (data_array_start + i * sizeof(CRGB) > data_array_end) 
         {
             WARN(F("virtual_array: Array overflow"));
             return 0;
         }
         #endif
 
-        return data_array_start[x];
+        return data_array_start[i];
+    }
+
+    inline CRGB& operator[] (uint16_t i) __attribute__((always_inline))
+    {
+        #ifdef DEBUG_CHECKS
+        if (data_array_start + i * sizeof(CRGB) > data_array_end) 
+        {
+            WARN(F("virtual_array: Array overflow"));
+            return data_array_start[0];
+        }
+        #endif
+
+        DEBUG(F("[]: read: "), (uint16_t) );
+        return data_array_start[i];
     }
 
     /* Assignment from other virtual_led_array */
