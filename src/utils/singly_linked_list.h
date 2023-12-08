@@ -21,46 +21,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef _LINKED_LIST_H_
-#define _LINKED_LIST_H_
+#ifndef _SINGLY_LINKED_LIST_H_
+#define _SINGLY_LINKED_LIST_H_
 
 #include "../config.h"
 #include "debug.h"
 
+namespace sl_list
+{
+
 /**
- * @brief
+ * @brief A node in a singly linked list.
  * 
+ * This struct represents a node in a singly linked list.
+ * Each node contains a pointer to the data and a pointer to the next node in the list.
+ * 
+ * @tparam T The type of data stored in the node.
  */
 template <typename T>
-class singly_linked_list
+struct node {
+    T *data;
+    node *next_node;
+
+    node(T *_data = nullptr, node *_next_node = nullptr) : data(_data), next_node(_next_node) {}
+};
+
+/**
+ * @brief A singly linked list implementation.
+ * 
+ * This class provides handling functions for a singly linked list. It allows adding, removing, and finding nodes in the list.
+ * The list is composed of nodes, where each node contains a pointer to the data and a pointer to the next node in the list.
+ * 
+ * @tparam T The type of data stored in the list.
+ */
+template <typename T>
+class handler
 {
+    node<T> *_head = nullptr;
+
 public:
-    struct node {
-        T *data;
-        node *next_node;
-        
-        node(const T& _data) : data(_data), next_node(nullptr) {} 
-    };
 
-    singly_linked_list();
-    ~singly_linked_list() = default;
-private:
-    node *head = nullptr;
-
-    __attribute__((always_inline)) inline void clean_next_ptr(node *node) {node->next_node = nullptr;}
+    handler() = default;
+    ~handler() = default;
 
     /**
-     * @brief 
+     * @brief Returns the matching node in the list.
+     *
+     * @note Assumes that the handler always starts the operations at the list_head 
      * 
-     * @param node 
-     * @return singly_linked_list* 
+     * @param node A pointer to the node to be found.
+     * @return A pointer to the matching node, or nullptr if not found.
      */
-    node *find(node *node)
+    node<T> *find(node<T> *node)
     {
-        node *seek_node = nullptr;
+        sl_list::node<T> *seek_node = _head;
 
         /* Check if list head is the target node */
-        if (this == node) return this;
+        if (seek_node == node) return _head;
 
         while (seek_node == nullptr)
         {
@@ -72,15 +89,31 @@ private:
         return seek_node;
     }
 
+private:
+
+    __attribute__((always_inline)) inline void clean_next_ptr(node<T> *node) {node->next_node = nullptr;}
+
     /**
-     * @brief Helper function to find node in the list
+     * @brief Helper function to find node in the list.
      *
-     * @note Note if not found returns nullptr
-     * @return Returns the previous node whose next points to our target node.  
+     * This function is a helper function used by the find() function.
+     * It searches for the preceding node of the target node in the list.
+     * If the target node is found, a pointer to the preceding node is returned.
+     * If the target node is not found, nullptr is returned.
+     * 
+     * @note If the target node is the head of the list, nullptr is returned.
+     * @return A pointer to the preceding node, or nullptr if not found.
      */
-    inline node *find_preceding_node(node *target_node)
+    inline node<T> *find_preceding_node(const node<T> *target_node)
     {
-        node *seek_head = this->next_node;
+        sl_list::node<T> *seek_head = _head;
+
+        if (!seek_head)
+        {
+            WARN(F("find_preceding_node: operating on empty list"));
+            return nullptr;
+        }
+
 
         while (seek_head == target_node || seek_head == nullptr)
         {
@@ -90,13 +123,18 @@ private:
         return seek_head;
     }
 
-protected:
+public:
 
     /**
-     * @brief Returns the next node in the list
-     * @note Returns nullptr if there isn't next node
+     * @brief Returns the next node in the list.
+     * 
+     * This function returns the next node in the list after the given current position.
+     * If the current position is nullptr, nullptr is returned.
+     * 
+     * @param current_pos A pointer to the current position in the list.
+     * @return A pointer to the next node, or nullptr if there isn't a next node.
      */
-    __attribute__((always_inline)) inline node *next(node *current_pos) 
+    __attribute__((always_inline)) inline node<T> *next(node<T> *current_pos) 
     {
         if (current_pos == nullptr) 
             return current_pos;
@@ -104,23 +142,66 @@ protected:
         return current_pos->next_node;
     }
 
-    __attribute__((always_inline)) inline void append(node *new_node)
+    /**
+     * @brief Returns the first node in the list
+     * 
+     */
+    __attribute__((always_inline)) inline node<T> *head()
     {
-        node *ptr = nullptr;
+        return _head;
+    }
 
-        /* Get list tail node */
-        ptr = find(ptr);
+    /**
+     * @brief Returns the last node in the list 
+     * 
+     */
+    __attribute__((always_inline)) inline node<T> *tail()
+    {
+        return find(nullptr);
+    }
+
+    
+
+    /**
+     * @brief Appends a new node to the list.
+     * 
+     * This function appends a new node to the end of the list.
+     * The new node becomes the new tail of the list.
+     * 
+     * @param new_node A pointer to the new node to be appended.
+     */
+    __attribute__((always_inline)) inline void append(node<T> *new_node)
+    {
+        sl_list::node<T> *ptr = nullptr;
+
+        if (_head == nullptr)
+        {
+            _head = new_node;
+            return;
+        }
+
+        ptr = tail();
         ptr->next_node = new_node;
     }
 
-    /* Helper function to remove the node from the list */
-    __attribute__((always_inline)) inline bool remove(node *node)
+    /**
+     * @brief Removes a node from the list.
+     * 
+     * This function removes the given node from the list.
+     * If the node is the head of the list, it cannot be removed and the function returns false.
+     * If the node is successfully removed, the function returns true.
+     * 
+     * @param node A pointer to the node to be removed.
+     * @return 0 if the node is successfully removed, 1 otherwise.
+     */
+    __attribute__((always_inline)) inline bool remove(node<T> *node)
     {
-        node *preceding_node = nullptr;
+        sl_list::node<T> *preceding_node = nullptr;
 
         /* Check if trying to remove list head */
-        if (node == this) 
+        if (node == _head) 
         {
+            _head = nullptr;
             return 1;
         }
 
@@ -134,12 +215,14 @@ protected:
 
         /* 
          * Example case: [preceding node] [node] [another node]
-         * Sets preceding nodes next_node pointer to another node. 
+         * Sets preceding node's next_node pointer to another node. 
          */
         preceding_node->next_node = next(preceding_node->next_node);
         clean_next_ptr(node);
         return 0;
     }
 };
+
+} /* sl_list Name space end */
 
 #endif
