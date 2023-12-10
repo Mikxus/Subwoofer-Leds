@@ -69,22 +69,14 @@ struct virtual_led_array
      * 
      * @return uint16_t size
      */
-    __attribute((always_inline)) uint16_t size(){return (uint16_t) data_array_start - (uint16_t) data_array_end;}
+    __attribute((always_inline)) uint16_t size() {return (uint16_t) (data_array_end - data_array_start) / sizeof(CRGB);}
 
-    /* Array access operator */
-    inline CRGB operator[] (uint16_t i) const __attribute__((always_inline))
-    {
-        #ifdef DEBUG_CHECKS
-        if (data_array_start + i * sizeof(CRGB) > data_array_end) 
-        {
-            WARN(F("virtual_array: Array overflow"));
-            return 0;
-        }
-        #endif
-
-        return data_array_start[i];
-    }
-
+    /**
+     * @brief Array access operator to index into the virtual array
+     * 
+     * @param i The index to access
+     * @return CRGB& Reference to the element at the specified index
+     */
     inline CRGB& operator[] (uint16_t i) __attribute__((always_inline))
     {
         #ifdef DEBUG_CHECKS
@@ -95,18 +87,7 @@ struct virtual_led_array
         }
         #endif
 
-        DEBUG(F("[]: read: "), (uint16_t) );
         return data_array_start[i];
-    }
-
-    /* Assignment from other virtual_led_array */
-    __attribute__((always_inline)) inline virtual_led_array& operator= (const virtual_led_array& x) = default;
-
-    /* Assignment from CRGB struct to virtual_led_array */
-    __attribute__((always_inline)) inline virtual_led_array& operator= (const CRGB& x) 
-    {
-        *this = x;
-        return *this;
     }
 
     /**
