@@ -120,6 +120,7 @@ public:
         cli();
         bind_isr(TIMER1_COMPB_, fft->get_read_vector());
         fft->m_sampling_frequency = timer.Start(frequency);
+        sei();
 
         #ifdef DEBUG_CHECKS
             INFO(F("FFT: Target frequency: "), frequency);
@@ -130,7 +131,6 @@ public:
             INFO(F("FFT: Target sample size: "), sample_size);
             INFO(F("FFT: Achieved sample size: "), fft->get_sample_size());
         #endif
-        sei();
         return;
 
     /* Failure -> exit */
