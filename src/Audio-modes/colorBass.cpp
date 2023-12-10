@@ -39,7 +39,7 @@ bool colorBass::update()
 {
     uint16_t freq = 0;
     uint16_t brightness = analogRead(0);
-    
+
     if (_update)
     {
         freq = fft_obj.calculate();
@@ -98,10 +98,10 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
 
     /* Fill led_array with the smoothed values */
     fill_solid(&led_array[0], led_array.size(),
-               ColorFromPalette(*color_palette,
-                                (uint8_t) colorVal,
-                                (uint8_t) val,
-                                LINEARBLEND));
+           ColorFromPalette(color_palette,
+                        (uint8_t) colorVal,
+                        (uint8_t) val,
+                        LINEARBLEND));
 
     /* Check if no rgb values have changed */
     if (led_array[0].r == m_last_r && led_array[0].g == m_last_g && led_array[0].b == m_last_b)
