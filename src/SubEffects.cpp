@@ -67,6 +67,7 @@ bool led_manager::_add_ledstrip(
     ledstrip_node.data->led_rgb_data_size = array_size;
 
     led_strip_list.append(&ledstrip_node);
+    INFO(F("Added ledstrip with rgb data size: "), array_size);
     return 0;
 }
 
