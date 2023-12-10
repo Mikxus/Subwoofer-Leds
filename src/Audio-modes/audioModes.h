@@ -44,7 +44,7 @@ class audioMode
 protected:
     /* These are inherited */
     virtual_led_array led_array;
-    CRGBPalette16 *color_palette = nullptr;
+    CRGBPalette16 color_palette = CRGBPalette16(CRGB::Black);
 
 public:
     void init_values(CRGB *array_start, CRGB* array_end)
@@ -53,6 +53,8 @@ public:
     } 
 
     sl_list::node<audioMode> &get_node() {return list_node;}
+
+    void set_color_palette(const TProgmemPalette16 &palette) {color_palette = palette;}
 
     /**
      * @brief 
