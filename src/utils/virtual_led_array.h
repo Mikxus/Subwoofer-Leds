@@ -69,7 +69,7 @@ struct virtual_led_array
      * 
      * @return uint16_t size
      */
-    __attribute((always_inline)) uint16_t size() {return (uint16_t) (data_array_end - data_array_start) / sizeof(CRGB);}
+    __attribute((always_inline)) uint16_t size() {return ((uint16_t) data_array_end - (uint16_t) data_array_start) / sizeof(CRGB);}
 
     /**
      * @brief Array access operator to index into the virtual array
