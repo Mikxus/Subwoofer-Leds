@@ -10,7 +10,11 @@
 #define COLOR_ORDER GRB     // led strip's color order: rgb grb brg
 /* ----------------------------- */
 
-SubEffects effect(&FastObj); // Create SubEffects object then pass CFastLED to it
+led_manager effect_mgr; // Create SubEffects object then pass CFastLED to it
+
+ledStrip led_strip; // led strip object
+
+CRGB leds[NUM_LEDS]; // led array for the led strip
 
 /**
  * @brief example of a simple audio mode.
@@ -27,7 +31,7 @@ public:
 
     virtual bool update()
     {
-        fill_rainbow(_ledStrip->ledArr, _ledStrip->led_rgb_data_size, beat8(speed, 255), 10 );
+        fill_rainbow(&led_array[0], led_array.size(), beat8(speed, 255), 10 );
         return 1;
     }
 };
@@ -43,24 +47,20 @@ void setup()
   delay(500);
   DEBUG(F("Example audio mode"));
 
-  // Add new ledstrip for the SubEffect object
-  uint8_t ledID = 0;
-  ledID = effect.add_strip(AUDIO_PIN, 0, NUM_LEDS);
 
   // Add new ledstrip for the FastLED object
-  FastLED.addLeds<LED_CHIPSET, DATA_PIN, COLOR_ORDER>(effect.GetLedsPtr(ledID), NUM_LEDS); // GRB ordering is typical
+  FastLED.addLeds<LED_CHIPSET, DATA_PIN, COLOR_ORDER>(&leds[0], NUM_LEDS); // GRB ordering is typical
   FastLED.setMaxRefreshRate(0);                                                            // Set refresh rate to unlimited for best performance
   FastLED.setDither(0);
 
-  /* Calibrate all led strips' input values */
-  effect.CalibrateNoise();
+  effect_mgr.add_led_strip(led_strip, &leds[0], NUM_LEDS);
 
   /* Now load our own led effect */
-  effect.load_mode(&rainbow_obj, ledID);
+  effect_mgr.add_effect(led_strip, rainbow_obj);
 }
 
 /* Updates the ledstrip */
 void loop()
 {
-  effect.update();
+  effect_mgr.update();
 }
