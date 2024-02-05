@@ -40,6 +40,8 @@ struct virtual_led_array
     /**
      * @brief Resizes the virtual CRGB pixel array
      * 
+     * @note Start address has to be smaller than end address
+     * 
      * @param start Start address of the array
      * @param end  End address of the array
      * @return true 
