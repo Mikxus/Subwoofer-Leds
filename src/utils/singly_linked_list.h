@@ -188,7 +188,6 @@ public:
      * @brief Removes a node from the list.
      * 
      * This function removes the given node from the list.
-     * If the node is the head of the list, it cannot be removed and the function returns false.
      * If the node is successfully removed, the function returns true.
      * 
      * @param node A pointer to the node to be removed.
@@ -202,7 +201,7 @@ public:
         if (node == _head) 
         {
             _head = nullptr;
-            return 1;
+            return 0;
         }
 
         preceding_node = find_preceding_node(node);
