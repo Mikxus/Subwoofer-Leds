@@ -79,7 +79,7 @@ public:
         /* Check if list head is the target node */
         if (seek_node == node) return _head;
 
-        while (seek_node == nullptr)
+        while (seek_node != nullptr)
         {
             if (seek_node == node) break;
 
@@ -91,17 +91,21 @@ public:
 
 private:
 
-    __attribute__((always_inline)) inline void clean_next_ptr(node<T> *node) {node->next_node = nullptr;}
+    __attribute__((always_inline)) inline void clean_next_ptr(node<T> *node)
+    {
+        if (node == nullptr) return;
+
+        node->next_node = nullptr;
+    }
 
     /**
      * @brief Helper function to find node in the list.
      *
-     * This function is a helper function used by the find() function.
      * It searches for the preceding node of the target node in the list.
      * If the target node is found, a pointer to the preceding node is returned.
      * If the target node is not found, nullptr is returned.
      * 
-     * @note If the target node is the head of the list, nullptr is returned.
+     * @note If the target node is the head of the list, the target node is returned.
      * @return A pointer to the preceding node, or nullptr if not found.
      */
     inline node<T> *find_preceding_node(const node<T> *target_node)
@@ -114,6 +118,8 @@ private:
             return nullptr;
         }
 
+        /* check if target node is the head of the list */
+        if (seek_head == target_node) return seek_head;
 
         while (seek_head == target_node || seek_head == nullptr)
         {
@@ -197,19 +203,19 @@ public:
     {
         sl_list::node<T> *preceding_node = nullptr;
 
-        /* Check if trying to remove list head */
-        if (node == _head) 
-        {
-            _head = nullptr;
-            return 0;
-        }
-
         preceding_node = find_preceding_node(node);
 
         if (preceding_node == nullptr)
         {
             ERROR(F("remove: node: "), (uint32_t) node, F(" not found in linked list"));
             return 1;
+        }
+
+        if (preceding_node == _head)
+        {
+            _head = next(preceding_node);
+            clean_next_ptr(preceding_node);
+            return 0;
         }
 
         /* 
