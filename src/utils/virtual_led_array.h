@@ -44,10 +44,11 @@ struct virtual_led_array
      * 
      * @param start Start address of the array
      * @param end  End address of the array
+     * @param clear_old_area 1 to set all pixels to black before updating arrays position to a new value 
      * @return true 
      * @return false 
      */
-    bool resize(CRGB* start, CRGB *end)
+    bool resize(CRGB* start, CRGB *end, bool clear_old_area = true)
     {
         if (start == nullptr || end == nullptr)
         {
@@ -60,6 +61,9 @@ struct virtual_led_array
             ERROR("rgb_array_start has to be smaller than rgb_array_end");
             return 1;
         }
+
+        if (clear_old_area)
+            fill_solid(data_array_start, size(), CRGB::Black);
 
         data_array_start = start;
         data_array_end = end;
@@ -104,12 +108,9 @@ struct virtual_led_array
      */
     ~virtual_led_array()
     {
-        CRGB *ptr = data_array_start;
-        while (ptr == data_array_end)
-        {
-            (*ptr) = CRGB::Black;
-            ptr++;
-        }
+        if (!data_array_start ||  !data_array_end) return;
+
+        fill_solid(data_array_start, size(), CRGB::Black);
     }
 
 private:
