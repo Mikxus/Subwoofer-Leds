@@ -47,9 +47,17 @@ protected:
     CRGBPalette16 color_palette = CRGBPalette16(CRGB::Black);
 
 public:
-    void init_values(CRGB *array_start, CRGB* array_end)
+
+    /**
+     * @brief Resize effect's led array 
+     * 
+     * @param array_start start address
+     * @param array_end  end address
+     * @param clear_old_area 1 to set all pixels to black on the old area. 
+     */
+    bool resize(CRGB *array_start, CRGB* array_end, bool clear_old_area = true)
     {
-       led_array.resize(array_start, array_end);
+       return led_array.resize(array_start, array_end, clear_old_area);
     } 
 
     sl_list::node<audioMode> &get_node() {return list_node;}
