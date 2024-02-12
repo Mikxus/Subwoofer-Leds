@@ -54,12 +54,6 @@ private:
         CRGB *pixel_array,
         uint16_t array_size);
 
-    bool _add_effect(
-        sl_list::node<ledStrip> &ledstrip_node,
-        sl_list::node<audioMode> &effect_node,
-        CRGB *pixel_start,
-        CRGB *pixel_end);
-
 public:
 
     bool update();
@@ -80,7 +74,11 @@ public:
         audioMode &effect_node);
 
 
-    bool remove_effect(audioMode *effect);
+    bool remove_effect(
+        ledStrip &ledstrip,
+        audioMode &audio_effect);
+
+    bool remove_effect(audioMode &audio_effect);
 };
 
 #endif

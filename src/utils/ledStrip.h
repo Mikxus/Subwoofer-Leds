@@ -34,16 +34,35 @@
 #include "debug.h"
 
 /**
- * @brief Struct which contains info about a ledstrip
- * 
+ * @brief Ledstrip struct
+ *      Constains linked list of all light effects for the physical ledstrip
  */
 struct ledStrip
 {
+private:
+    bool _add_effect(
+        sl_list::node<audioMode> &effect_node,
+        CRGB *pixel_start,
+        CRGB *pixel_end);
+
+public:
     sl_list::node<ledStrip> ledStrip_node = sl_list::node<ledStrip>(this, nullptr);
     sl_list::handler<audioMode> effect_list;
 
-    CRGB *led_rgb_data = nullptr;    // Pointer for the led array
-    uint16_t led_rgb_data_size = 0;  // Number of leds on a single strip
+    /* Variables to store the physical led strip's pixel values */
+    CRGB *led_rgb_data = nullptr;
+    uint16_t led_rgb_data_size = 0;
+
+    bool add_effect(audioMode &audio_effect);
+    
+    bool add_effect(
+        audioMode &audio_effect,
+        CRGB *pixel_start,
+        CRGB *pixel_end);
+
+    bool remove_effect(audioMode &audio_effect);
+
+    bool update();
 
     ledStrip() {}
     ~ledStrip();
