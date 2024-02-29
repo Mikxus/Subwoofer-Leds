@@ -25,10 +25,8 @@
 #ifndef SUBEFFECTS_H
 #define SUBEFFECTS_H
 
-#if defined(__AVR_ATmega328P__)
-#define _SUBEFFECTS_AVR_ATMEGA328_
-#else
-#error This library currently only supports AVR ATmega328 chip;      // comment out if you would still like to continue + remember to define  _SUBEFFECTS_AVR_ATMEGA328P_
+#ifndef __AVR_ATmega328P__
+    #warning "Only ATmega328p is supported"
 #endif
 
 #include <Arduino.h>
@@ -36,13 +34,10 @@
 #include <FastLED.h>
 #include "config.h"
 #include "utils/debug.h"
-#include "utils/colorMath.h"
 #include "utils/ledStrip.h"
-#include "utils/interrupt.h"
 #include "utils/virtual_led_array.h"
 #include "Audio-modes/audioModes.h"
 
-#include "Audio-modes/colorBass.h"
 
 class led_manager
 {
