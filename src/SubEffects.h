@@ -52,7 +52,7 @@ private:
     bool _add_ledstrip(
         sl_list::node<ledStrip> &ledstrip_node,
         CRGB *pixel_array,
-        uint16_t array_size);
+        const uint16_t array_size);
 
 public:
 
@@ -61,7 +61,7 @@ public:
     bool add_led_strip(
         ledStrip &led_strip,
         CRGB *pixel_array,
-        uint16_t array_size);
+        const uint16_t array_size);
 
     bool add_effect(
         ledStrip &led_strip,

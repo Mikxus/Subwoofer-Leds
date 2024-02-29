@@ -56,7 +56,7 @@ bool led_manager::update()
 bool led_manager::_add_ledstrip(
         sl_list::node<ledStrip> &ledstrip_node,
         CRGB *pixel_array,
-        uint16_t array_size)
+        const uint16_t array_size)
 {
     if (pixel_array == nullptr)
     {
@@ -85,7 +85,7 @@ bool led_manager::_add_ledstrip(
 bool led_manager::add_led_strip(
         ledStrip &led_strip,
         CRGB *pixel_array,
-        uint16_t array_size)
+        const uint16_t array_size)
 {
     return _add_ledstrip(
             led_strip.ledStrip_node,
