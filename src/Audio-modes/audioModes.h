@@ -25,8 +25,8 @@
 #define _AUDIO_MODES_H_
 
 #include <FastLED.h>
-#include "../utils/virtual_led_array.h"
-#include "../utils/singly_linked_list.h"
+#include "../utils/data_types/virtual_led_array.h"
+#include "../utils/data_types/singly_linked_list.h"
 #include "../utils/debug.h"
 #include "../config.h"
 

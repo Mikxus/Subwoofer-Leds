@@ -29,8 +29,8 @@
 #include "../config.h"
 #include "../colorPalettes.h"
 #include "../Audio-modes/audioModes.h"
-#include "virtual_led_array.h"
-#include "singly_linked_list.h"
+#include "data_types/virtual_led_array.h"
+#include "data_types/singly_linked_list.h"
 #include "debug.h"
 
 /**
