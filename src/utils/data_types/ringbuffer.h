@@ -42,15 +42,71 @@ private:
     uint16_t tail;
 
 protected:
-   size_t get_size_of_element() {return sizeof(T);} 
 
 
 public:
-    ringbuffer();
+    ringbuffer(T* array, uint16_t size)
+    {
+        if (array == nullptr)
+        {
+            ERROR("ringbuffer: array is nullptr");
+            return;
+        }
+        
+        buffer = array;
+        size = size;
+        head = 0;
+        tail = 0;
+    }
 
+    /**
+     * @brief Returns the used size 
+     * 
+     * @tparam T 
+     * @return uint16_t 
+     */
+    uint16_t get_used_size()
+    {
+        /* using 32bit unsigned numbers to prevent overflows/underflows */
+        int32_t _head = head;
+        int32_t _tail = tail; 
+        int32_t _size = size;
 
-    uint16_t get_used_size();
+        return ( _head - _tail + _size) % _size;
+    }
 
+    /**
+     * @brief Inserts an element at the buffer's head.
+     * 
+     * @tparam T 
+     */
+    void push(T)
+    {
+        buffer[head] = T;
+        head = (head + 1) % size;
+    }
+
+    T pop();
+
+    /**
+     * @brief Removes the oldest element in the buffer
+     * 
+     * @tparam T 
+     * @return T 
+     */
+    T pop_tail()
+    {
+        T value;
+
+        if (get_used_size() == 0)
+        {
+            ERROR(F("ringbuffer: buffer is empty"));
+            return value;
+        }
+
+        T value = buffer[tail];
+        tail = (tail + 1) % size;
+    }
 
 };
 
