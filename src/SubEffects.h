@@ -35,7 +35,7 @@
 #include "config.h"
 #include "utils/debug.h"
 #include "utils/ledStrip.h"
-#include "utils/virtual_led_array.h"
+#include "utils/data_types/virtual_led_array.h"
 #include "Audio-modes/audioModes.h"
 
 
