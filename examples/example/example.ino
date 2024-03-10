@@ -9,10 +9,19 @@
 #define AUDIO_PIN 0              // analog pin for the led strip
 #define LED_CHIPSET WS2812B      // Led chipset
 #define COLOR_ORDER GRB          // led strip's color order: rgb grb brg
-/* ----------------------------- */
 
-SubEffects effect = SubEffects(); // Create SubEffects object then pass CFastLED to it
+
+/* Create object of led_manager*/
+led_manager effect_mgr = led_manager(); 
+
+/* Create object of our custom light effect*/
 colorBass bassEffect = colorBass();
+
+/* Create new led strip struct */
+struct ledStrip led_strip;
+
+/* Led array */
+CRGB leds[NUM_LEDS];
 
 void setup()
 {
@@ -23,25 +32,33 @@ void setup()
 
   Serial.begin(38400);
   delay(500);
+
   DEBUG(F("Example project"));
 
-  // Add new ledstrip for the SubEffect object
-  uint8_t ledID = 0;
-  ledID = effect.add_strip(AUDIO_PIN, 0, NUM_LEDS);
-
-  // Add new ledstrip for the FastLED object
-  FastLED.addLeds<LED_CHIPSET, DATA_PIN, GRB>(effect.GetLedsPtr(ledID), NUM_LEDS); // GRB ordering is typical
+  /* Initialize FastLED with a new led strip */
+  FastLED.addLeds<LED_CHIPSET, DATA_PIN, GRB>(&leds[0], NUM_LEDS); // GRB ordering is typical
   FastLED.setMaxRefreshRate(0);                                                    // Set refresh rate to unlimited for best performance                                                 //! Note may cause some led chipsets to flicker
   FastLED.setDither(0);
 
+  /* Add led strip to effect manager */
+  effect_mgr.add_led_strip(led_strip, &leds[0], NUM_LEDS);
+  
+  effect_mgr.add_effect(led_strip, bassEffect);
 
-  // Calibrate all led strips' input values
-  effect.CalibrateNoise();
+  bassEffect.set_color_palette(blueBass_p);
 }
 
 void loop()
 {
-  //PORTB |= B00010000; // pin 12 high
-  effect.update();    // update the led strips
-  //PORTB &= B11101111; // pin 12 low
+  EVERY_N_MILLISECONDS(500)
+  {
+	INFO(F("FPS: "), FastLED.getFPS());
+	FastLED.m_nFPS = 0;
+  }
+
+  PORTB |= B00010000; // pin 12 high
+
+  effect_mgr.update();    // update the led strips
+
+  PORTB &= B11101111; // pin 12 low
 }
