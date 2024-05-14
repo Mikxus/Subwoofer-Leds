@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #ifndef _SINGLY_LINKED_LIST_H_
 #define _SINGLY_LINKED_LIST_H_
 
@@ -228,6 +229,6 @@ public:
     }
 };
 
-} /* sl_list Name space end */
+} /* sl_list Namespace end */
 
 #endif
