@@ -32,7 +32,7 @@
 /**
  * @brief "virtual" CRGB array
  *      Makes it easier to set effects to use arbitary pixels as their output range.
- *      This makes it possible to use multiple effects on a single output channel.
+ *      This makes it possible to use multiple effects on a single physical led strip.
  *
  */
 struct virtual_led_array
