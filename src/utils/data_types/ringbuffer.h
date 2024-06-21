@@ -24,6 +24,7 @@
 #ifndef _RINGBUFFER_H_
 #define _RINGBUFFER_H_
 
+#include "../../config.h"
 #include "../debug.h"
 
 
@@ -37,24 +38,79 @@ class ringbuffer
 {
 private:
     T* buffer;
-    uint16_t size;
-    uint16_t head;
-    uint16_t tail;
+    uint16_t size = 0;
+    uint16_t head = 0;
+    uint16_t tail = 0;
 
 protected:
 
+    /**
+     * @brief Increments head position
+     * 
+     */
+    void increment_head_position()
+    {
+        head = (head + 1) % size;
+
+        /* Case: buffer is full
+         * need to move the tail as well 
+         */
+        if (get_used_size() == size) 
+        {
+            tail = (tail + 1) % size;
+        }
+    }
+
+    /**
+     * @brief Decrements head position
+     * 
+     */
+    void decrement_head_position()
+    {
+        int32_t _head = head;
+        int32_t _tail = tail;
+        int32_t _size = size;
+
+        if (_head == _tail)
+        {
+            WARN(F("ringbuffer: can't decrement head. Buffer is empty"));
+            return;
+        }
+
+        head = (_head - 1L) % _tail;
+    }
+
+    /**
+     * @brief Decrements tail position ie removes element from the tail
+     * 
+     */
+    void decrement_tail_position()
+    {
+        if (get_used_size() == 0)
+        {
+            WARN(F("ringbuffer: can't decrement tail. Buffer is empty"));
+            return;
+        }
+
+        if (tail == size)
+
+        tail = (tail + 1) % size;
+
+    }
 
 public:
-    ringbuffer(T* array, uint16_t size)
+    ringbuffer(T* array, uint16_t size) {resize(array, size);}
+
+    void resize(T* array, uint16_t array_size)
     {
         if (array == nullptr)
         {
             ERROR("ringbuffer: array is nullptr");
             return;
         }
-        
+
         buffer = array;
-        size = size;
+        size = array_size;
         head = 0;
         tail = 0;
     }
@@ -80,13 +136,16 @@ public:
      * 
      * @tparam T 
      */
-    void push(T)
+    void push(T value)
     {
-        buffer[head] = T;
-        head = (head + 1) % size;
+        buffer[head] = value;
+        increment_head_position();
     }
 
-    T pop();
+    T pop()
+    {
+
+    }
 
     /**
      * @brief Removes the oldest element in the buffer
@@ -104,7 +163,7 @@ public:
             return value;
         }
 
-        T value = buffer[tail];
+        value = buffer[tail];
         tail = (tail + 1) % size;
     }
 
