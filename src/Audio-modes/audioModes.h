@@ -46,6 +46,14 @@ protected:
     virtual_led_array led_array;
     CRGBPalette16 color_palette = CRGBPalette16(CRGB::Black);
 
+    /* 
+     * Callback function to notify the class that inherits
+     * 'audioMode' about the resizing of its led_array
+     * Why?:
+     *  - The inherited class might utilize additional data structures that need to be resized
+     */
+    virtual void on_resize() {};
+
 public:
 
     /**
@@ -57,7 +65,14 @@ public:
      */
     bool resize(CRGB *array_start, CRGB* array_end, bool clear_old_area = true)
     {
-       return led_array.resize(array_start, array_end, clear_old_area);
+        if (!led_array.resize(array_start, array_end, clear_old_area))
+        {
+            on_resize();
+            return 0;
+        }
+
+        WARN(F("Resize event failed"));
+        return 1;
     } 
 
     sl_list::node<audioMode> &get_node() {return list_node;}
