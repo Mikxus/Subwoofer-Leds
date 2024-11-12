@@ -164,7 +164,7 @@ public:
      */
     __attribute__((always_inline)) inline node<T> *tail()
     {
-        return find(nullptr);
+        return find_preceding_node(nullptr);
     }
 
     
@@ -181,6 +181,8 @@ public:
     {
         sl_list::node<T> *ptr = nullptr;
 
+        DEBUG(F("ss list head:"), (uint16_t) _head);
+        DEBUG(F("ss list next:"), (uint16_t) next(_head));
         if (_head == nullptr)
         {
             _head = new_node;
@@ -188,6 +190,7 @@ public:
         }
 
         ptr = tail();
+        DEBUG(F("tail ptr: "), (uint16_t) tail());
         ptr->next_node = new_node;
     }
 
