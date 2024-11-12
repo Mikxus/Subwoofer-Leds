@@ -111,7 +111,7 @@
 // #define SPM_READY_unsafe 
 
 
-/* Custom struct struct to pass data to / from isr */
+/* Enables custom data ptr to be binded */
 
 // #define INT0_data
 //

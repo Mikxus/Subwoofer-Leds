@@ -1,0 +1,5 @@
+[wokwi]
+version = 1
+firmware = 'build/arduino.avr.uno/ringbuffer_usage.ino.hex'
+elf = 'build/arduino.avr.uno/ringbuffer_usage.ino.elf'
+gdbServerPort=3333

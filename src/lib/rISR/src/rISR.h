@@ -52,8 +52,12 @@ extern void runtime_bad_isr(void);
  * 
  */
 extern void (*isr_vector_table[])(void);
-extern void *isr_vector_data_pointer_table[];
 
+/**
+ * @brief an array of void* pointers that hold pointers to different data if binded & enabled
+ *
+ */
+extern void *isr_vector_data_pointer_table[];
 
 #if ENABLE_ISR_VECTOR_TABLE_SIZE == 1
     extern const uint8_t isr_vector_table_size;
@@ -195,11 +199,143 @@ typedef enum
 #endif
 } isr_vectors;
 
-
-#ifndef enum_used
-    #error rISR: No interrupt vectors defined.
+/**
+ * @brief Enum for the data pointers. 
+ *        Used to index the isr_vector_data_pointer_table
+ */
+typedef enum {
+#if defined(INT0_data)
+    INT0_ptr,
+    #define enum_used
 #endif
-#undef enum_used
+
+#if defined(INT1_data)
+    INT1_ptr,
+    #define enum_used
+#endif
+
+#if defined(PCINT0_data)
+    PCINT0_ptr,
+    #define enum_used
+#endif
+
+#if defined(PCINT1_data)
+    PCINT1_ptr,
+    #define enum_used
+#endif
+
+#if defined(PCINT2_data)
+    PCINT2_ptr,
+    #define enum_used
+#endif
+
+#if defined(WDT_data)
+    WDT_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER2_COMPA_data)
+    TIMER2_COMPA_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER2_COMPB_data)
+    TIMER2_COMPB_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER2_OVF_data)
+    TIMER2_OVF_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER1_CAPT_data)
+    TIMER1_CAPT_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER1_COMPA_data)
+    TIMER1_COMPA_ptr,
+    #define enum_used
+#endif
+#if defined(TIMER1_COMPB_data)
+    TIMER1_COMPB_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER1_OVF_data)
+    TIMER1_OVF_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER0_COMPA_data)
+    TIMER0_COMPA_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER0_COMPB_data)
+    TIMER0_COMPB_ptr,
+    #define enum_used
+#endif
+
+#if defined(TIMER0_OVF_data)
+    TIMER0_OVF_ptr,
+    #define enum_used
+#endif
+
+#if defined(SPI_STC_data)
+    SPI_STC_ptr,
+    #define enum_used
+#endif
+
+#if defined(USART_RX_data)
+    USART_RX_ptr,
+    #define enum_used
+#endif
+
+#if defined(USART_UDRE_data)
+    USART_UDRE_ptr,
+    #define enum_used
+#endif
+
+#if defined(USART_TX_data)
+    USART_TX_ptr,
+    #define enum_used
+#endif
+
+#if defined(ADC_data)
+    ADC_ptr,
+    #define enum_used
+#endif
+
+#if defined(EE_READY_data)
+    EE_READY_ptr,
+    #define enum_used
+#endif
+
+#if defined(ANALOG_COMP_data)
+    ANALOG_COMP_ptr,
+    #define enum_used
+#endif
+
+#if defined(TWI_data)
+    TWI_ptr,
+    #define enum_used
+#endif
+
+#if defined(SPM_READY_data)
+    SPM_READY_ptr,
+    #define enum_used
+#endif   
+
+/* 
+ * Default enum when no data pointers are defined
+ */ 
+#ifdef enum_used
+    NO_DATA = 0
+    #undef enum_used
+#endif
+} isr_data_pointers;
 
 
 /**
@@ -225,10 +361,9 @@ extern void unbind_isr( isr_vectors isr_name );
  * @param isr_name 
  * @param pointer 
  */
-extern void bind_isr_data_ptr( isr_vectors isr_name, void *pointer );
+extern void bind_isr_data_ptr( isr_data_pointers isr_name, void *pointer );
 
-extern void unbind_isr_data_ptr( isr_vectors isr_name );
-
+extern void unbind_isr_data_ptr( isr_data_pointers isr_name );
 
 /**
  * @brief Returns pointer to isr if the vector is used. Otherwise null.
@@ -238,13 +373,8 @@ extern void unbind_isr_data_ptr( isr_vectors isr_name );
  */
 extern vector_t get_isr_vector( isr_vectors isr_name );
 
-extern void *get_isr_data_ptr( isr_vectors isr_name );
-
-
-#if defined(TIMER1_COMPB_struct)
-    extern volatile struct adc_sample_interrupt TIMER1_COMPB_data;
-#endif
-
+void *get_isr_data_ptr( isr_data_pointers isr_name ); 
+  
 #ifdef __cplusplus
 };
 #endif 

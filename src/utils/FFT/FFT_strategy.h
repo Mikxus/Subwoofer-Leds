@@ -66,8 +66,8 @@ public:
      * @param frequency
      * @param backend
      */
-    FFT_backend_template(uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend backend)
-        : m_sample_size(sample_size)
+    FFT_backend_template(uint16_t sample_size)
+    : m_sample_size(sample_size)
     {
     }
 

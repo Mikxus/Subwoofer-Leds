@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Mikko Johannes Heinänen
+ * Copyright (c) 2023 Mikko Johannes Heinänen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,48 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef _COLORBASS_H
-#define _COLORBASS_H
+#ifndef _EEPROM_STORAGE_BACKEND_H_
+#define _EEPROM_STORAGE_BACKEND_H_
 
-/* includes */
-#include <inttypes.h>
-#include "audioModes.h"
-#include "../utils/colorMath.h"
-#include "../utils/ledStrip.h"
-#include "../utils/debug.h"
-#include "../utils/FFT/FFT.h"
+#include <EEPROM.h>
+#include "storage_strategy.h"
 
-class colorBass : public audioMode // Simple bass effect
+class eeprom_storage_backend : public storage_backend_template
 {
-    uint16_t _lastBrightness = 0;
-    bool _update = 0;
-    uint16_t _lastFreq = 0;
-
-    FFT fft_obj;
-
-private:
-    inline uint8_t fade(uint16_t freq, uint16_t brightness);
-    inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
-
-    EWMAtest bright1 = EWMAtest(0.01F);
-    EWMAtest color_smooth = EWMAtest(0.01F);
-
-    /* Last Values */
-    uint8_t m_last_r;
-    uint8_t m_last_g;
-    uint8_t m_last_b;
-
 public:
-    colorBass();
-    ~colorBass() = default;
+    eeprom_storage_backend(uint16_t min, uint16_t max, uint16_t pos)
+        : storage_backend_template(min, max, pos)
+    {
+    }
 
-    /**
-     * @brief updates the leds
-     * 
-     * @return true
-     * @return false 
-     */
-    virtual bool update();
+    ~eeprom_storage_backend() override {}
+
+    void write(uint16_t index, uint8_t input) override
+    {
+        EEPROM.write(index, input);
+    }
+
+    uint8_t read(uint16_t index) override
+    {
+        return EEPROM.read(index);
+    }
 };
 
 #endif

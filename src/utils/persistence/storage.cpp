@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021 Mikko Johannes Heinänen
+ * Copyright (c) 2023 Mikko Johannes Heinänen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,48 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef _COLORBASS_H
-#define _COLORBASS_H
+#include "storage.h"
 
-/* includes */
-#include <inttypes.h>
-#include "audioModes.h"
-#include "../utils/colorMath.h"
-#include "../utils/ledStrip.h"
-#include "../utils/debug.h"
-#include "../utils/FFT/FFT.h"
-
-class colorBass : public audioMode // Simple bass effect
+bool storage::validate_index(uint16_t &index)
 {
-    uint16_t _lastBrightness = 0;
-    bool _update = 0;
-    uint16_t _lastFreq = 0;
 
-    FFT fft_obj;
+    if (persistence_backend == 0)
+    {
+        ERROR(F("Operation failed: No storage persistence_backend"));
+    }
 
-private:
-    inline uint8_t fade(uint16_t freq, uint16_t brightness);
-    inline void logLastValue(uint8_t hue, uint8_t saturation, uint8_t value);
+    index += persistence_backend.m_min_pos;
+    if (index > persistence_backend.m_max_pos)
+    {
+        ERROR(F("Operation out of storage range. \n\rindex: "),
+              index - persistence_backend.m_min_pos,
+              F("\n\rEnd range: "),
+              persistence_backend.m_max_pos - persistence_backend.m_min_pos);
+        return 0;
+    }
+    return 1;
+}
 
-    EWMAtest bright1 = EWMAtest(0.01F);
-    EWMAtest color_smooth = EWMAtest(0.01F);
+uint8_t storage::read(uint16_t index)
+{
+    if (!validate_index(index))
+        return 0;
 
-    /* Last Values */
-    uint8_t m_last_r;
-    uint8_t m_last_g;
-    uint8_t m_last_b;
+    return persistence_backend.read(index);
+}
 
-public:
-    colorBass();
-    ~colorBass() = default;
+void storage::write(uint16_t index, uint8_t input)
+{
+    if (!validate_index(index))
+        return;
 
-    /**
-     * @brief updates the leds
-     * 
-     * @return true
-     * @return false 
-     */
-    virtual bool update();
-};
+    persistence_backend.write(index, input);
+}
 
-#endif
+void storage::update(uint16_t index, uint8_t input)
+{
+    if (!validate_index(index))
+        return;
+
+    persistence_backend.update(index, input);
+}
+
+storage settings_storage;

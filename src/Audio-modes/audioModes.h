@@ -25,28 +25,73 @@
 #define _AUDIO_MODES_H_
 
 #include <FastLED.h>
+#include "../utils/data_types/virtual_led_array.h"
+#include "../utils/data_types/singly_linked_list.h"
+#include "../utils/debug.h"
+#include "../config.h"
 
 struct ledStrip;
 
-class audioMode // mode template
+/**
+ * @brief audioMode 
+ * 
+ */
+class audioMode
 {
+    uint8_t id = 0;
+    sl_list::node<audioMode> list_node = sl_list::node<audioMode>(this, nullptr);
+
 protected:
     /* These are inherited */
+    virtual_led_array led_array;
+    CRGBPalette16 color_palette = CRGBPalette16(CRGB::Black);
 
-    ledStrip *_ledStrip; // Pointer for the led strip struct
-    CFastLED *_FastLED;  // Pointer for the current FastLED object
+    /* 
+     * Callback function to notify the class that inherits
+     * 'audioMode' about the resizing of its led_array
+     * Why?:
+     *  - The inherited class might utilize additional data structures that need to be resized
+     */
+    virtual void on_resize() {};
 
 public:
-    void initValues(ledStrip *ledStrip, CFastLED *FastLED)
-    {
-        _ledStrip = ledStrip;
-        _FastLED = FastLED;
-    }
 
-    virtual bool Update() = 0; // function wich should be implemented in the inherited class the following way.
-                               // updates the led strip's values.
-                               // Returns 1 if any led value changed. Othervise 0
-                               // update shouldn't call FastLED.show() or any other function that updates the led strips
+    /**
+     * @brief Resize effect's led array 
+     * 
+     * @param array_start start address
+     * @param array_end  end address
+     * @param clear_old_area 1 to set all pixels to black on the old area. 
+     */
+    bool resize(CRGB *array_start, CRGB* array_end, bool clear_old_area = true)
+    {
+        if (!led_array.resize(array_start, array_end, clear_old_area))
+        {
+            on_resize();
+            return 0;
+        }
+
+        WARN(F("Resize event failed"));
+        return 1;
+    } 
+
+    sl_list::node<audioMode> &get_node() {return list_node;}
+
+    void set_color_palette(const TProgmemPalette16 &palette) {color_palette = palette;}
+
+    /**
+     * @brief 
+     * @note function wich should be implemented in the inherited class the following way.
+     *       updates the led strip's values. 
+     *       Returns 1 if any led value changed. Othervise 0
+     *       update shouldn't call FastLED.show() or any other function that updates the led strips
+     * 
+     * @return true When led value changed
+     * @return false when no change happened
+     */
+    virtual bool update() = 0;
+
+    audioMode() {}
     virtual ~audioMode() = default;
 };
 #endif

@@ -25,77 +25,55 @@
 #ifndef SUBEFFECTS_H
 #define SUBEFFECTS_H
 
-#if defined(__AVR_ATmega328P__)
-#define _SUBEFFECTS_AVR_ATMEGA328_
-#else
-#error This library currently only supports AVR ATmega328 chip;      // comment out if you would still like to continue + remember to define  _SUBEFFECTS_AVR_ATMEGA328P_
+#ifndef __AVR_ATmega328P__
+    #warning "Only ATmega328p is supported"
 #endif
 
-/* includes for the SubEffects class */
 #include <Arduino.h>
 #include <inttypes.h>
 #include <FastLED.h>
 #include "config.h"
 #include "utils/debug.h"
-#include "utils/colorMath.h"
 #include "utils/ledStrip.h"
-#include "utils/interrupt.h"
-/* -------------------------------- */
+#include "utils/data_types/virtual_led_array.h"
+#include "Audio-modes/audioModes.h"
 
-#include "Audio-modes/colorBass.h"
 
-class SubEffects
+class led_manager
 {
 private:
-    bool _initialized;
-    ledStrip *_strips[MAX_STRIPS];
-    uint8_t _stripsPos = 0; // Keeps count on the number of ledStrips allocated
-
-    CFastLED *_fastPtr = nullptr;
-    // bool SetModeToStrip(uint8_t modeIndex, uint8_t identifier);
-    bool UpdateStripValues(uint8_t identifier); // Updates strip's settings with the current global settings.
-    void UpdateAllStripsValues();               // Updates all strip's settings
-    uint8_t GetStripPos(uint8_t identifier);    // Returns the position of the strip in the _strips array
-    ledStrip *GetStripPtr(uint8_t identifier);  // Returns the corresponding strip's pointer. If not found, returns nullpointer.
-    // bool SetPalettePtr(uint8_t index,uint8_t identifier); // Returns the corresponding color palette
-
-protected:
-    uint8_t _brightValue;
-    uint8_t _currentMode;
-    uint8_t _currentPalette;
+    sl_list::handler<ledStrip> led_strip_list;
+    
+    bool _add_ledstrip(
+        sl_list::node<ledStrip> &ledstrip_node,
+        CRGB *pixel_array,
+        const uint16_t array_size);
 
 public:
-    SubEffects(CFastLED *_fastPtr);
 
-    /* Led strip controls */
-    CRGB *GetLedsPtr(uint8_t identifier);                                                        // returns CRGB* leds[] array if identifier matches to led strip
-    uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrSize);                 // Adds new ledStrip to the library & allocates the led array from the heap.
-    uint8_t AddLedStrip(uint8_t audioPin, uint8_t ledMode, uint16_t ledArrsize, CRGB *ledArray); //
-    void RemoveAllStrips();                                                                      // Removes all led strips
-    bool RemoveLedStrip(CRGB *ledArray);                                                         // Removes led strip wich ledArray ptr corresponds
-    bool RemoveLedStrip(uint8_t identifier);                                                     // Removes led strip with corresponding identifier
-    /* ------------------ */
+    bool update();
 
-    void CalibrateNoise(); // Corrects for noise in signal. Calibrates all led Strips. Calibration takes 1.5 s
+    bool add_led_strip(
+        ledStrip &led_strip,
+        CRGB *pixel_array,
+        const uint16_t array_size);
 
-    /* Brightness controls */
-    void SetBrightness(uint8_t brightness);
-    bool IncreaseBrightness();
-    bool DecreaseBrightness();
+    bool add_effect(
+        ledStrip &led_strip,
+        audioMode &audio_effect,
+        CRGB *pixel_start,
+        CRGB *pixel_end);
 
-    void Update();
+    bool add_effect(
+        ledStrip &ledstrip,
+        audioMode &effect_node);
 
-    /* Mode controls */
-    void NextMode();
-    void PreviousMode();
-    void SetMode(uint8_t mode);
-    bool loadMode(audioMode *ptr, uint8_t identifier);
 
-    /* Color palette controls */
-    void NextColor();
-    void PreviusColor();
-    bool SetColor(uint8_t paletteIndex);
+    bool remove_effect(
+        ledStrip &ledstrip,
+        audioMode &audio_effect);
 
-    ~SubEffects();
+    bool remove_effect(audioMode &audio_effect);
 };
+
 #endif

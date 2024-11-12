@@ -96,12 +96,12 @@ public:
             goto skip_data_ptr_bind;
         }
 
-        if (get_isr_data_ptr(TIMER1_COMPB_) != nullptr)
+        if (get_isr_data_ptr(TIMER1_COMPB_ptr) != nullptr)
         {
             ERROR(F("FFT: backend data ptr can't be binded. Since someone has already binded pointer to it"));
             #ifdef DEBUG_CHECKS
                 Serial.print(F("FFT: Binded data ptr: 0x"));
-                Serial.println((uint16_t)get_isr_data_ptr(TIMER1_COMPB_), HEX);
+                Serial.println((uint16_t)get_isr_data_ptr(TIMER1_COMPB_ptr), HEX);
                 Serial.print(F("FFT: Our data ptr: 0x"));
                 Serial.println((uint16_t)fft->get_read_vector_data_pointer(), HEX);
             #endif
@@ -112,7 +112,7 @@ public:
 
         /* Everything correct. We can now bind data ptr */
         cli();
-        bind_isr_data_ptr(TIMER1_COMPB_, fft->get_read_vector_data_pointer());
+        bind_isr_data_ptr(TIMER1_COMPB_ptr, fft->get_read_vector_data_pointer());
 
     /* Bind isr */
     skip_data_ptr_bind:
@@ -120,6 +120,7 @@ public:
         cli();
         bind_isr(TIMER1_COMPB_, fft->get_read_vector());
         fft->m_sampling_frequency = timer.Start(frequency);
+        sei();
 
         #ifdef DEBUG_CHECKS
             INFO(F("FFT: Target frequency: "), frequency);
@@ -130,7 +131,6 @@ public:
             INFO(F("FFT: Target sample size: "), sample_size);
             INFO(F("FFT: Achieved sample size: "), fft->get_sample_size());
         #endif
-        sei();
         return;
 
     /* Failure -> exit */
@@ -149,9 +149,9 @@ public:
         if (fft->get_read_vector() != nullptr && fft->get_read_vector() == get_isr_vector(TIMER1_COMPB_))
         {
             /* Check if fft objects data ptr is used */
-            if (fft->get_read_vector_data_pointer() != nullptr && fft->get_read_vector_data_pointer() == get_isr_data_ptr(TIMER1_COMPB_))
+            if (fft->get_read_vector_data_pointer() != nullptr && fft->get_read_vector_data_pointer() == get_isr_data_ptr(TIMER1_COMPB_ptr))
             {
-                unbind_isr_data_ptr(TIMER1_COMPB_);
+                unbind_isr_data_ptr(TIMER1_COMPB_ptr);
             }
 
             /* Unbind isr */

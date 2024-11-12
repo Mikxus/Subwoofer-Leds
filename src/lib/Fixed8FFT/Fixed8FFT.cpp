@@ -446,7 +446,7 @@ uint16_t modulus(fixed8_t x[], int size, float frequency)
 }
 
 Fixed8FFT::Fixed8FFT(uint8_t input_pin, uint16_t sample_size, uint16_t frequency, fft_backend backend)
-    : FFT_backend_template(input_pin, sample_size, frequency, backend)
+: FFT_backend_template( input_pin )
 {
     /* Validate sample_size */
     if (get_power_of_two(sample_size) == 0)
@@ -547,12 +547,11 @@ uint16_t Fixed8FFT::calculate()
 
 __attribute__((signal)) void __vector_timer1_compb_adc_read_byte()
 {
-    adc_sample_interrupt *data = (struct adc_sample_interrupt*) isr_vector_data_pointer_table[TIMER1_COMPB_];
+    adc_sample_interrupt *data = (struct adc_sample_interrupt*) get_isr_data_ptr(TIMER1_COMPB_ptr);
 
     /* Check if data array is filled with data */
     if (data->array_pos >= 1 << data->array_size)
     {
-        PORTB &= B11101111; // pin 12 low
         return;
     }
 
