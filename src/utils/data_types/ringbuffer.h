@@ -50,8 +50,6 @@ protected:
      */
     void increment_head_position()
     {
-        head = (head + 1) % size;
-
         /* Case: buffer is full
          * need to move the tail as well 
          */
@@ -59,6 +57,8 @@ protected:
         {
             tail = (tail + 1) % size;
         }
+
+        head = (head + 1) % size;
     }
 
     /**
@@ -71,13 +71,13 @@ protected:
         int32_t _tail = tail;
         int32_t _size = size;
 
-        if (_head == _tail)
+        if (get_used_size() == 1)
         {
             WARN(F("ringbuffer: can't decrement head. Buffer is empty"));
             return;
         }
 
-        head = (_head - 1L) % _tail;
+        head = (_head - 1 + _size) % _size;
     }
 
     /**
@@ -91,8 +91,6 @@ protected:
             WARN(F("ringbuffer: can't decrement tail. Buffer is empty"));
             return;
         }
-
-        if (tail == size)
 
         tail = (tail + 1) % size;
 
@@ -128,7 +126,7 @@ public:
         int32_t _tail = tail; 
         int32_t _size = size;
 
-        return ( _head - _tail + _size) % _size;
+        return ( _head - _tail + _size) % _size + 1;
     }
 
     /**
@@ -144,7 +142,9 @@ public:
 
     T pop()
     {
-
+        T value = 0;
+        buffer[head] = value;
+        decrement_head_position();
     }
 
     /**
