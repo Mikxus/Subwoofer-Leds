@@ -1,13 +1,16 @@
 #include <FastLED.h>
 #include <SubEffects.h>
-#include "/home/mikko/Arduino/libraries/SubEffects/src/utils/data_types/ringbuffer.h"
+
+/* remember to change this to your absolute path
+ * since arduino doesn't support relative paths :)
+ */
+#include "/home/mikko/snap/arduino-cli/current/Arduino/libraries/SubEffects/src/utils/data_types/ringbuffer.h"
 
 #define NUM_LEDS 58
 #define DATA_PIN 6
 #define LED_CHIPSET WS2812B
 #define COLOR_ORDER GRB
 #define AUDIO_INPUT_PIN 0
-
 
 led_manager effect_mgr;
 
@@ -21,19 +24,33 @@ private:
     uint8_t test_state = 0;
     uint8_t test_counter = 0;
 
-    void test_ringbuffer_push() 
+    void test_ringbuffer_push()
     {
         CRGB color;
 
         if (test_counter == 255)
         {
             INFO(F("Test rinbuffer_push() done"));
+            test_counter = 0;
             test_state++;
             return;
         }
 
         color = CHSV(random(), 255, 255);
         r_buffer.push(color);
+        test_counter++;
+    }
+
+    void test_ringbuffer_pop()
+    {
+        if (test_counter == 255)
+        {
+            INFO(F("Test rinbuffer_pop() done"));
+            test_counter = 0;
+            test_state++;
+            return;
+        }
+        r_buffer.pop();
         test_counter++;
     }
 
@@ -53,21 +70,33 @@ public:
         switch (test_state)
         {
         case 0:
-                test_ringbuffer_push();
-                delay(250);
+            test_ringbuffer_push();
+            delay(5);
             break;
-        
+
+        case 1:
+            test_ringbuffer_pop();
+            delay(5);
+            break;
+
+        case 2:
+            test_ringbuffer_push();
+            delay(5);
+            break;
+
+
         default:
-                delay(5000);
-                INFO(F("Tests done"));
+            delay(5000);
+            INFO(F("Tests done"));
             break;
-        } 
+        }
 
         return 1;
     }
 };
 
 test_ringbuffer test_ringbuffer_obj;
+test_ringbuffer test_ringbuffer_obj2;
 
 void setup()
 {
@@ -79,8 +108,8 @@ void setup()
     DEBUG(F("Ringbuffer usage test sketch"));
 
     FastLED.addLeds<LED_CHIPSET, DATA_PIN, COLOR_ORDER>(&leds[0], NUM_LEDS); // GRB ordering is typical
-    
-    /* 
+
+    /*
      * Conflicts with subeffect's way of updating the effects
      * since not all effects may be updated on a FastLED.show()
      */
@@ -90,11 +119,11 @@ void setup()
     effect_mgr.add_led_strip(led_strip, &leds[0], NUM_LEDS);
 
     /* Set the ringbuffer test effect to whole led strip */
-    effect_mgr.add_effect(led_strip, test_ringbuffer_obj);
+    effect_mgr.add_effect(led_strip, test_ringbuffer_obj, &leds[0], &leds[20]);
+    effect_mgr.add_effect(led_strip, test_ringbuffer_obj2, &leds[21], &leds[NUM_LEDS]);
 
     FastLED.setBrightness(10);
 }
-
 
 void loop()
 {
