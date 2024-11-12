@@ -3,3 +3,4 @@
 .git
 *.sh
 .gdb_history
+build
