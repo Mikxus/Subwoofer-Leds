@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = 'build/arduino.avr.uno/mood_lights.ino.hex'
+elf = 'build/arduino.avr.uno/mood_lights.ino.elf'

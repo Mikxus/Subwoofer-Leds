@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = 'build/arduino.avr.uno/simple_rainbow.ino.hex'
+elf = 'build/arduino.avr.uno/simple_rainbow.ino.elf'
