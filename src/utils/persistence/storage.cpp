@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Mikko Johannes Heinänen
+ * Copyright (c) 2023 Mikko Johannes Heinänen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,58 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "storage.h"
 
-#ifndef _COLORPALETTES_H_
-#define _COLORPALETTES_H_
+bool storage::validate_index(uint16_t &index)
+{
 
-const TProgmemPalette16 red_blue_pattern_p PROGMEM =
+    if (persistence_backend == 0)
     {
-        CRGB::Red, // light blue
-        CRGB::Red,
-        CRGB::Red,
-        CRGB::Red,
+        ERROR(F("Operation failed: No storage persistence_backend"));
+    }
 
-        CRGB::Blue,
-        CRGB::Blue,
-        CRGB::Blue, // dark blue
-        CRGB::Blue,
+    index += persistence_backend.m_min_pos;
+    if (index > persistence_backend.m_max_pos)
+    {
+        ERROR(F("Operation out of storage range. \n\rindex: "),
+              index - persistence_backend.m_min_pos,
+              F("\n\rEnd range: "),
+              persistence_backend.m_max_pos - persistence_backend.m_min_pos);
+        return 0;
+    }
+    return 1;
+}
 
-        CRGB::Red, // light blue
-        CRGB::Red,
-        CRGB::Red,
-        CRGB::Red,
+uint8_t storage::read(uint16_t index)
+{
+    if (!validate_index(index))
+        return 0;
 
-        CRGB::Blue,
-        CRGB::Blue,
-        CRGB::Blue, // dark blue
-        CRGB::Blue,
+    return persistence_backend.read(index);
+}
 
-};
-extern const TProgmemPalette16 red_blue_pattern_p PROGMEM;
+void storage::write(uint16_t index, uint8_t input)
+{
+    if (!validate_index(index))
+        return;
 
-const TProgmemPalette16 blueBass_p PROGMEM = {
-    CRGB::Red, // light blue
-    CRGB::Red,
-    CRGB::Red,
-    CRGB::Blue,
+    persistence_backend.write(index, input);
+}
 
-    CRGB::Cyan,
-    CRGB::Green,
-    CRGB::Yellow,
-    CRGB::Yellow,
+void storage::update(uint16_t index, uint8_t input)
+{
+    if (!validate_index(index))
+        return;
 
-    CRGB::Green, // light blue
-    CRGB::Green,
-    CRGB::Green,
-    CRGB::Green,
+    persistence_backend.update(index, input);
+}
 
-    CRGB::Yellow,
-    CRGB::Yellow,
-    CRGB::Yellow, // dark blue
-    CRGB::Yellow,
-
-};
-
-extern const TProgmemPalette16 blueBass_p PROGMEM;
-
-#endif
+storage settings_storage;

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Mikko Johannes Heinänen
+ * Copyright (c) 2023 Mikko Johannes Heinänen
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,58 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef _EEPROM_STORAGE_BACKEND_H_
+#define _EEPROM_STORAGE_BACKEND_H_
 
-#ifndef _COLORPALETTES_H_
-#define _COLORPALETTES_H_
+#include <EEPROM.h>
+#include "storage_strategy.h"
 
-const TProgmemPalette16 red_blue_pattern_p PROGMEM =
+class eeprom_storage_backend : public storage_backend_template
+{
+public:
+    eeprom_storage_backend(uint16_t min, uint16_t max, uint16_t pos)
+        : storage_backend_template(min, max, pos)
     {
-        CRGB::Red, // light blue
-        CRGB::Red,
-        CRGB::Red,
-        CRGB::Red,
+    }
 
-        CRGB::Blue,
-        CRGB::Blue,
-        CRGB::Blue, // dark blue
-        CRGB::Blue,
+    ~eeprom_storage_backend() override {}
 
-        CRGB::Red, // light blue
-        CRGB::Red,
-        CRGB::Red,
-        CRGB::Red,
+    void write(uint16_t index, uint8_t input) override
+    {
+        EEPROM.write(index, input);
+    }
 
-        CRGB::Blue,
-        CRGB::Blue,
-        CRGB::Blue, // dark blue
-        CRGB::Blue,
-
+    uint8_t read(uint16_t index) override
+    {
+        return EEPROM.read(index);
+    }
 };
-extern const TProgmemPalette16 red_blue_pattern_p PROGMEM;
-
-const TProgmemPalette16 blueBass_p PROGMEM = {
-    CRGB::Red, // light blue
-    CRGB::Red,
-    CRGB::Red,
-    CRGB::Blue,
-
-    CRGB::Cyan,
-    CRGB::Green,
-    CRGB::Yellow,
-    CRGB::Yellow,
-
-    CRGB::Green, // light blue
-    CRGB::Green,
-    CRGB::Green,
-    CRGB::Green,
-
-    CRGB::Yellow,
-    CRGB::Yellow,
-    CRGB::Yellow, // dark blue
-    CRGB::Yellow,
-
-};
-
-extern const TProgmemPalette16 blueBass_p PROGMEM;
 
 #endif

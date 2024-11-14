@@ -24,7 +24,7 @@
 #include "colorBass.h"
 
 colorBass::colorBass()
-    : fft_obj(0, 64, 700, fixed_8)
+    : fft_obj(0, 64, 800, fixed_8)
 {
 }
 
@@ -35,32 +35,34 @@ colorBass::colorBass()
  *
  * @returns bool: 1 If value has changed.
  */
-bool colorBass::Update()
+bool colorBass::update()
 {
     uint16_t freq = 0;
-    uint16_t brightness = analogRead(_ledStrip->inputPin);
+    uint16_t brightness = analogRead(0);
 
     if (_update)
     {
         freq = fft_obj.calculate();
     }
 
-    if (freq == 0)
+    if (freq == 0) 
+    {
         freq = _lastFreq;
-    else
+    } else
     {
         _lastFreq = freq;
         DEBUG(F("Freq: "), freq);
     }
 
-    brightness = constrain(brightness, _ledStrip->inputCalZero, 800);
-    brightness = map(brightness, _ledStrip->inputCalZero, 550, 0, 255);
+    // 414 is the input calzero
+    brightness = constrain(brightness, 414, 800);
+    brightness = map(brightness, 414, 550, 0, 255);
 
     /* if no change in brightness */
     if (brightness == _lastBrightness)
     {
         /* check if fade is complete */
-        if (!fade(freq, (uint8_t)brightness))
+        if (!fade(freq, (uint8_t) brightness))
         {
             _update = 0;
             return _update;
@@ -84,7 +86,6 @@ bool colorBass::Update()
  */
 uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
 {
-
     /* Smoothen the input values */
     float val = bright1.calc((float)brightness);
     float colorVal = color_smooth.calc((float)hue);
@@ -95,20 +96,20 @@ uint8_t colorBass::fade(uint16_t hue, uint16_t brightness)
     if (colorVal < 0)
         colorVal = 0;
 
-    /* Fill ledArr with the smoothed values */
-    fill_solid(_ledStrip->ledArr, _ledStrip->arrSize,
-               ColorFromPalette(_ledStrip->colorPalette,
-                                (uint8_t)colorVal,
-                                (uint8_t)val,
-                                LINEARBLEND));
+    /* Fill led_array with the smoothed values */
+    fill_solid(&led_array[0], led_array.size(),
+           ColorFromPalette(color_palette,
+                        (uint8_t) colorVal,
+                        (uint8_t) val,
+                        LINEARBLEND));
 
     /* Check if no rgb values have changed */
-    if (_ledStrip->ledArr->r == m_last_r && _ledStrip->ledArr->g == m_last_g && _ledStrip->ledArr->b == m_last_b)
+    if (led_array[0].r == m_last_r && led_array[0].g == m_last_g && led_array[0].b == m_last_b)
         return 0;
 
-    logLastValue(_ledStrip->ledArr->r,
-                 _ledStrip->ledArr->g,
-                 _ledStrip->ledArr->b);
+    logLastValue(led_array[0].r,
+                 led_array[0].g,
+                 led_array[0].b);
 
     return 1;
 }
