@@ -119,12 +119,15 @@ private:
             return nullptr;
         }
 
+
         /* check if target node is the head of the list */
         if (seek_head == target_node) return seek_head;
 
-        while (seek_head == target_node || seek_head == nullptr)
+        while (next(seek_head) != target_node)
         {
-            seek_head = seek_head->next_node;
+            seek_head = next(seek_head);
+
+            if (seek_head == nullptr) break;
         }
 
         return seek_head;
@@ -181,8 +184,6 @@ public:
     {
         sl_list::node<T> *ptr = nullptr;
 
-        DEBUG(F("ss list head:"), (uint16_t) _head);
-        DEBUG(F("ss list next:"), (uint16_t) next(_head));
         if (_head == nullptr)
         {
             _head = new_node;
@@ -190,7 +191,6 @@ public:
         }
 
         ptr = tail();
-        DEBUG(F("tail ptr: "), (uint16_t) tail());
         ptr->next_node = new_node;
     }
 
@@ -207,6 +207,13 @@ public:
     {
         sl_list::node<T> *preceding_node = nullptr;
 
+        if (node == _head)
+        {
+            _head = next(node);
+            clean_next_ptr(node);
+            return 0;
+        }
+
         preceding_node = find_preceding_node(node);
 
         if (preceding_node == nullptr)
@@ -215,19 +222,14 @@ public:
             return 1;
         }
 
-        if (preceding_node == _head)
-        {
-            _head = next(preceding_node);
-            clean_next_ptr(preceding_node);
-            return 0;
-        }
-
         /* 
          * Example case: [preceding node] [node] [another node]
          * Sets preceding node's next_node pointer to another node. 
          */
         preceding_node->next_node = next(preceding_node->next_node);
         clean_next_ptr(node);
+
+        INFO(F("Removed node: "), (uint16_t) node);
         return 0;
     }
 };
