@@ -56,9 +56,15 @@ bool ledStrip::_add_effect(
         return 1;
     }
 
+    if (effect_node.data->resize(pixel_start, pixel_end))
+    {
+        ERROR(F("add_effect: failed to resize effect's led array"));
+        return 1;
+    }
+
+
     effect_list.append(&effect_node);
 
-    effect_node.data->resize(pixel_start, pixel_end);
 
     #ifdef DEBUG_CHECKS
     INFO(F("add_effect: added effect"));
