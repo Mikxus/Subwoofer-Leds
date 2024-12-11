@@ -86,7 +86,7 @@ struct virtual_led_array
     inline CRGB& operator[] (uint16_t i) __attribute__((always_inline))
     {
         #ifdef DEBUG_CHECKS
-        if (data_array_start + i * sizeof(CRGB) > data_array_end) 
+        if ((uint16_t) data_array_start + i * sizeof(CRGB) > (uint16_t) data_array_end) 
         {
             WARN(F("virtual_array: Array overflow"));
             return data_array_start[0];
